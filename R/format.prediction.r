@@ -43,6 +43,7 @@ format.prediction.BinaryTree <- function(object, prediction){
 	if (get.response.class(object) == "factor"){
 		prediction <- do.call(rbind, prediction)
 		# —ñ–¼‚ª‚È‚¢/—ñ–¼‚É‰ž“š•Ï”–¼‚ª‚Â‚­–â‘è‚É‘ÎˆB
+		response <- object@responses@variables[[get.response.name(object)]]
 		colnames(prediction) <- levels(response)
 	}
 	return(prediction)
