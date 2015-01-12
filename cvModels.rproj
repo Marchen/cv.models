@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="RTarget" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9ef73748-111a-452e-a0a3-8a96a9245e67}</ProjectGuid>
+    <AssemblyName>cvModels</AssemblyName>
+    <Name>cvModels</Name>
+    <RootNamespace>cvModels</RootNamespace>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="cvModels.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="DESCRIPTION">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\test-all.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-ctree.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-svm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-tree.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-glm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-gbm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-randomForest.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-rpart.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-format.prediction.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="NAMESPACE">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="README">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="roxygenize.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\calc.cv.metrics.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\check.args.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\cluster.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\construct.model.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\cross.validation.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\cv.best.models.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\cv.models.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\format.prediction.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.best.metrics.index.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.best.models.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.response.class.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.positive.prob.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\modify.args.model.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\run.dredge.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\expand.tunable.args.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.args.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.class.name.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.package.name.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.response.name.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\get.tunable.args.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\make.cv.group.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\make.dummy.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\merge.tunable.args.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\modify.args.predict.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\predict.gamm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\cv.one.fold.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\which.min.max.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="test.r">
+      <SubType>Content</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="inst\tests" />
+    <Folder Include="inst\tests\testthat" />
+    <Folder Include="man" />
+    <Folder Include="inst" />
+    <Folder Include="R" />
+  </ItemGroup>
+  <Target Name="RTarget">
+    <Message Text="Executing R script" />
+  </Target>
+</Project>

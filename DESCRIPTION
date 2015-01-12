@@ -1,0 +1,10 @@
+Package: cvModels
+Version: 0.0-0
+Title: Model selection and parameter tuning by cross validation.
+Author: FirstName LastName <emailName@some.domain.net>
+Maintainer: FirstName LastName <emailName@some.domain.net>
+Description: Package Description
+License: BSD
+Depends: R (>= 3.0.0), stats
+Imports: base, stats
+
