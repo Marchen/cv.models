@@ -31,7 +31,9 @@ cross.validation <- function(
 	cl$library(package.name)
 	# クロスバリデーションで予測値を計算
 	set.seed(seed)
-	args.model <- modify.args.model(make.dummy(function.name), args.model)
+	args.model <- modify.args.model(
+		make.dummy(function.name), args.model, args.predict
+	)
 	cv.result <- cl$lapply(
 		1:cv.folds, cv.one.fold, model.function = model.function,
 		args.model = args.model, args.predict = args.predict, data = data,
