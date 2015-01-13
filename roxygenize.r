@@ -10,7 +10,7 @@ get.this.file.dir <- function(){
     match <- grep(needle, cmdArgs)
     if (length(match) > 0) {
         # Rscript
-        return(diename(sub(needle, "", cmdArgs[match])))
+        return(dirname(sub(needle, "", cmdArgs[match])))
     } else {
         # 'source'd via R console
         return(dirname(normalizePath(sys.frames()[[1]]$ofile)))
