@@ -55,7 +55,6 @@
 #		plot.cv.modelsŠÖ” 2d, 3d, 4d?
 #		cv.moreŠÖ”‚ÆmergeŠÖ”
 #
-#
 #-------------------------------------------------------------------------------
 #	g‚¢•û‚Ì—á
 #
@@ -138,7 +137,7 @@ get.this.file.dir <- function(){
     match <- grep(needle, cmdArgs)
     if (length(match) > 0) {
         # Rscript
-        return(diename(sub(needle, "", cmdArgs[match])))
+        return(dirname(sub(needle, "", cmdArgs[match])))
     } else {
         # 'source'd via R console
         return(dirname(normalizePath(sys.frames()[[1]]$ofile)))
