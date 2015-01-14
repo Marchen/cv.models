@@ -46,6 +46,25 @@ ncl.library <- function(package.name){
 }
 
 #-------------------------------------------------------------------------------
+#	クロスバリデーションとパラメーター選択に使うコアの数を割り当てる。
+#	パラメーター選択の候補数が使用するコア数よりも多かったらパラメーター選択を、
+#	少なかったらクロスバリデーションを並列計算する。
+#
+#	expanded.args.model: パラメーター選択の候補を入れたリスト。
+#	n.cores: 計算に使うコアの数。
+#-------------------------------------------------------------------------------
+assign.cores <- function(expanded.args.model, n.cores){
+	if (is.null(n.cores)){
+		require(parallel)
+		n.cores <- detectCores()
+	}
+	n.cores.cv <- ifelse(length(expanded.args.model) < n.cores, n.cores, 1)
+	n.cores.param.tune <- ifelse(length(expanded.args.model) < n.cores, 1, n.cores)
+	return(list(cv = n.cores.cv, param.tune = n.cores.param.tune))
+}
+
+
+#-------------------------------------------------------------------------------
 #	クラスターで必要な関数を送信する関数。
 #
 #	Args:
@@ -59,10 +78,11 @@ export.functions <- function(cl){
 		"is.formula"
 	)
 	export.pattern <- paste(
-		"^get\\.response\\.name.*", "^calc\\..*", "^get\\.tunable\\.args.*",
-		"^modify\\.args\\.predict.*", "^modify\\.args\\.model.*",
-		"^modify\\.response\\.var.*", "^get\\.formula.*",
-		"^get\\.response\\.class.*", "^format\\.prediction.*", sep = "|"
+		"^get\\.response\\.name.*", "^get\\.response\\.var", "^calc\\..*",
+		"^get\\.tunable\\.args.*", "^modify\\.args\\.predict.*",
+		"^modify\\.args\\.model.*", "^modify\\.response\\.var.*",
+		"^get\\.formula.*", "^get\\.response\\.class.*",
+		"^format\\.prediction.*", sep = "|"
 	)
 	clusterExport(
 		cl,
