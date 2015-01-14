@@ -55,7 +55,8 @@ export.functions <- function(cl){
 	export.objects <- c(
 		"cv.one.fold", "init.cluster", "ncl.library", "make.cv.group",
 		"get.package.name", "get.class.name", "get.args", "make.dummy",
-		"merge.tunable.args", "predict.gamm", "get.positive.prob"
+		"merge.tunable.args", "predict.gamm", "get.positive.prob",
+		"is.formula"
 	)
 	export.pattern <- paste(
 		"^get\\.response\\.name.*", "^calc\\..*", "^get\\.tunable\\.args.*",
