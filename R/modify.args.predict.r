@@ -38,9 +38,8 @@
 #	Args:
 #		object: ƒ‚ƒfƒ‹ƒIƒuƒWƒFƒNƒgB
 #		args.predict: predict‚É“n‚³‚ê‚éˆø”‚ª“ü‚Á‚½ƒŠƒXƒgB
-#		check.args: ‚±‚ê‚ªTRUE‚¾‚Á‚½‚ç‚±‚ÌŠÖ”‚Í‰½‚à‚µ‚È‚¢B
 #-------------------------------------------------------------------------------
-modify.args.predict <- function(object, args.predict, check.args){
+modify.args.predict <- function(object, args.model, args.predict, data){
 	UseMethod("modify.args.predict")
 }
 
@@ -50,15 +49,13 @@ modify.args.predict <- function(object, args.predict, check.args){
 #-------------------------------------------------------------------------------
 #	default‚Í‰“š•Ï”‚ªˆöqŒ^‚¾‚Á‚½‚çtype‚ğ"prob"‚ÉA‚»‚êˆÈŠO‚Ìê‡‚Í"response"‚É
 #	‘‚«Š·‚¦‚éB
-#	OK: glm, lm, gbm, cforest, svm, lmer, glmer, lme
+#	OK: glm, lm, gbm, cforest, svm, lmer, glmer, lme, randomForest
 #-------------------------------------------------------------------------------
-modify.args.predict.default <- function(object, args.predict, check.args){
-	if (check.args){
-		if (get.response.class(object) == "factor"){
-			args.predict$type <- "prob"
-		} else {
-			args.predict$type <- "response"
-		}
+modify.args.predict.default <- function(object, args.model, args.predict, data){
+	if (is(get.response.var(object, data, args.model), "factor")){
+		args.predict$type <- "prob"
+	} else {
+		args.predict$type <- "response"
 	}
 	return(args.predict)
 }
@@ -68,7 +65,7 @@ modify.args.predict.default <- function(object, args.predict, check.args){
 #'	Method for \code{\link[tree]{tree}} class of \emph{tree} package.
 #'	@method modify.args.predict tree
 #-------------------------------------------------------------------------------
-modify.args.predict.tree <- function(object, args.predict, check.args){
+modify.args.predict.tree <- function(object, args.model, args.predict, data){
 	return(args.predict)
 }
 
@@ -77,7 +74,7 @@ modify.args.predict.tree <- function(object, args.predict, check.args){
 #'	Method for \code{\link[rpart]{rpart}} class of \emph{rpart} package.
 #'	@method modify.args.predict rpart
 #-------------------------------------------------------------------------------
-modify.args.predict.rpart <- function(object, args.predict, check.args){
+modify.args.predict.rpart <- function(object, args.model, args.predict, data){
 	return(args.predict)
 }
 
@@ -90,25 +87,24 @@ modify.args.predict.rpart <- function(object, args.predict, check.args){
 modify.args.predict.randomForest <- function(object, args.predict, check.args){
 	if (check.args){
 		if (object$type == "classification"){
-			args.predict$type <- "prob"		# ¯•Ê–â‘è‚È‚çprob
+			args.predict$type <- "prob"		# ï¿½ï¿½ï¿½Ê–ï¿½ï¿½È‚ï¿½prob
 		} else {
-			args.predict$type <- "response"	# ‰ñ‹A‚È‚çresponse
+			args.predict$type <- "response"	# ï¿½ï¿½Aï¿½È‚ï¿½response
 		}
 	}
 	return(args.predict)
 }
+
 
 #-------------------------------------------------------------------------------
 #'	@describeIn modify.args.predict
 #'	Method for \code{\link[e1071]{svn}} class of \emph{e1071} package.
 #'	@method modify.args.predict svm
 #-------------------------------------------------------------------------------
-modify.args.predict.svm <- function(object, args.predict, check.args){
-	if (check.args){
-		if (get.response.class(object) == "factor"){
-			# ˆöqŒ^‚¾‚Á‚½‚çŠeƒNƒ‰ƒX‚ÌŠm—¦‚àŒvZ‚³‚¹‚éB
-			args.predict$probability = TRUE
-		}
+modify.args.predict.svm <- function(object, args.model, args.predict, data){
+	if (is(get.response.var(object, data, args.model), "factor")){
+		# ˆöqŒ^‚¾‚Á‚½‚çŠeƒNƒ‰ƒX‚ÌŠm—¦‚àŒvZ‚³‚¹‚éB
+		args.predict$probability = TRUE
 	}
 	return(args.predict)
 }

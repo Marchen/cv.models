@@ -22,6 +22,7 @@ cv.models.object <- function(
 	return(object)
 }
 
+#'	Cross validation and parameter selection.
 #'	@export
 #-------------------------------------------------------------------------------
 #	モデルの性能に影響するパラメーターの候補を組み合わせてモデルを作り、
@@ -99,24 +100,23 @@ cv.models <- function(
 	package.name = get.package.name(function.name)
 
 ){
-	dummy <- make.dummy(function.name)
-	# パラメーター候補の組み合わせを作る。
-	expanded.args <- expand.tunable.args(dummy, args.model, "model")
-	# 候補パラメーターの数によって、並列計算する場所を変える。
-	n.cores.cv <- ifelse(length(expanded.args) < n.cores, n.cores, 1)
-	n.cores.param.tune <- ifelse(length(expanded.args) < n.cores, 1, n.cores)
-	# モデルの性能をクロスバリデーション。
-	cl <- init.cluster(n.cores.param.tune)
-	cl$library(package.name)
-	# 応答変数の型をチェックする。
-	data[[get.response.name(dummy, args.model)]] <- modify.response.var(
-		dummy, data[[get.response.name(dummy, args.model)]], check.args
+	# パラメーターが整合性を保つように修正する。
+	modified <- modify.args(
+		check.args, function.name, args.model, args.predict, data
 	)
+	# パラメーター候補の組み合わせを作る。
+	dummy <- make.dummy(function.name)
+	expanded.args <- expand.tunable.args(dummy, modified$args.model, "model")
+	# 候補パラメーターの数によって、並列計算する場所を変える。
+	cores <- assign.cores(expanded.args, n.cores)
+	# モデルの性能をクロスバリデーション。
+	cl <- init.cluster(cores$param.tune)
+	cl$library(package.name)
 	metrics <- cl$lapply(
 		expanded.args, cross.validation, model.function = model.function,
-		data = data, args.predict = args.predict, cv.folds = cv.folds,
-		cv.metrics = cv.metrics, n.cores = n.cores.cv, seed = seed,
-		positive.label = positive.label, check.args = check.args,
+		data = modified$data, args.predict = modified$args.predict,
+		cv.folds = cv.folds, cv.metrics = cv.metrics, n.cores = cores$cv,
+		seed = seed, positive.label = positive.label,
 		function.name = function.name, package.name = package.name
 	)
 	# 候補パラメーターをCVの結果に結合。
@@ -127,14 +127,15 @@ cv.models <- function(
 	# CVの予測値を取り出し。
 	cv.prediction <- do.call(cbind, lapply(metrics, "[[", "cv.prediction"))
 	result <- cv.models.object(
-		model.function, function.name, package.name, data,
-		args.model, args.predict, cv.metrics, cv.prediction, seed,
-		positive.label
+		model.function, function.name, package.name, modified$data,
+		modified$args.model, modified$args.predict, cv.metrics, cv.prediction,
+		seed, positive.label
 	)
 	cl$close()
 	return(result)
 }
 
+#'	@describeIn cv.models print method for \emph{cv.models} class.
 #'	@export
 #-------------------------------------------------------------------------------
 #	cv.modelsクラス用のprint。

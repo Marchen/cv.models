@@ -25,9 +25,8 @@
 #	Args:
 #		object: モデルオブジェクト。ダミーでOK。
 #		response: 修正する応答変数。
-#		check.args: これがFALSEだったら修正を行わない。
 #-------------------------------------------------------------------------------
-modify.response.var <- function(object, response, check.args){
+modify.response.var <- function(object, response){
 	UseMethod("modify.response.var")
 }
 
@@ -37,7 +36,7 @@ modify.response.var <- function(object, response, check.args){
 #-------------------------------------------------------------------------------
 #	defaultはresponseをそのまま返す。
 #-------------------------------------------------------------------------------
-modify.response.var.default <- function(object, response, check.args){
+modify.response.var.default <- function(object, response){
 	return(response)
 }
 
@@ -49,8 +48,8 @@ modify.response.var.default <- function(object, response, check.args){
 #	tree, rpart, randomForest, svm は応答変数がTRUE/FALSE、0/1だけだったら、
 #	因子型に変換して返す。
 #-------------------------------------------------------------------------------
-modify.response.var.tree <- function(object, response, check.args){
-	return(response.var.to.factor(check.args, response))
+modify.response.var.tree <- function(object, response){
+	return(response.var.to.factor(response))
 }
 
 #-------------------------------------------------------------------------------
@@ -58,8 +57,8 @@ modify.response.var.tree <- function(object, response, check.args){
 #'	Method for \code{\link[rpart]{rpart}} class in \emph{rpart} package.
 #'	@method modify.response.var rpart
 #-------------------------------------------------------------------------------
-modify.response.var.rpart <- function(object, response, check.args){
-	return(response.var.to.factor(check.args, response))
+modify.response.var.rpart <- function(object, response){
+	return(response.var.to.factor(response))
 }
 
 #-------------------------------------------------------------------------------
@@ -68,8 +67,8 @@ modify.response.var.rpart <- function(object, response, check.args){
 #'	\emph{randomForest} package.
 #'	@method modify.response.var randomForest
 #-------------------------------------------------------------------------------
-modify.response.var.randomForest <- function(object, response, check.args){
-	return(response.var.to.factor(check.args, response))
+modify.response.var.randomForest <- function(object, response){
+	return(response.var.to.factor(response))
 }
 
 #-------------------------------------------------------------------------------
@@ -77,8 +76,8 @@ modify.response.var.randomForest <- function(object, response, check.args){
 #'	Method for \code{\link[e1071]{svm}} class in \emph{svm} package.
 #'	@method modify.response.var svm
 #-------------------------------------------------------------------------------
-modify.response.var.svm <- function(object, response, check.args){
-	return(response.var.to.factor(check.args, response))
+modify.response.var.svm <- function(object, response){
+	return(response.var.to.factor(response))
 }
 
 #-------------------------------------------------------------------------------
@@ -90,10 +89,7 @@ modify.response.var.svm <- function(object, response, check.args){
 #-------------------------------------------------------------------------------
 #	応答変数変換処理を実行する内部関数。
 #-------------------------------------------------------------------------------
-response.var.to.factor <- function(check.args, response){
-	if (!check.args){
-		return(response)
-	}
+response.var.to.factor <- function(response){
 	if (is(response, "factor")){
 		return(response)
 	}
