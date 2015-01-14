@@ -7,6 +7,6 @@
 #-------------------------------------------------------------------------------
 make.dummy <- function(function.name){
 	object <- list()
-	class(object) <- get.class.name(function.name)
+	class(object) <- c(get.class.name(function.name), "cv.models.dummy")
 	return(object)
 }
