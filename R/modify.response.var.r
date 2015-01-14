@@ -95,7 +95,8 @@ response.var.to.factor <- function(response){
 	}
 	unique.values <- sort(unique(response))
 	if (
-		identical(unique.values, c(FALSE, TRUE)) | identical(unique.values, 0:1)
+		identical(unique.values, c(FALSE, TRUE))
+		| identical(unique.values, c(0, 1))
 	){
 		response <- as.factor(response)
 	}
