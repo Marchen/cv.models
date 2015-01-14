@@ -32,7 +32,6 @@ cv.one.fold <- function(
 	model <- do.call(model.function, args.model)
 	# Žw•W‚ª³‚µ‚­ŒvŽZ‚Å‚«‚é‚æ‚¤‚ÉApredict‚Ìˆø”‚ðC³
 	args.predict <- modify.args.predict(model, args.predict, check.args)
-	browser()
 	args.predict$object <- model
 	args.predict$newdata <- data.test
 	# —\‘ª’l‚ðŒvŽZ
