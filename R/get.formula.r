@@ -2,7 +2,7 @@
 #'	Check an object is formula.
 #'
 #'	@param x an object.
-#'	@value returns TRUE if \emph{x} is formula otherwise returns FALSE.
+#'	@return returns TRUE if \emph{x} is formula otherwise returns FALSE.
 #-------------------------------------------------------------------------------
 #	•Ï”‚ªformula‚©‚ğ’²‚×‚éB
 #
@@ -31,9 +31,8 @@ get.formula <- function(object, args.model){
 }
 
 #-------------------------------------------------------------------------------
-#'	@describeIn get.formula
-#'	@method get.formula default
-#'		Default S3 method. This function is used for handling a result of
+#'	@describeIn get.formula Default S3 method.
+#'	This function is used for handling a result of
 #'		\code{\link[stats]{lm}}, \code{\link[stats]{glm}},
 #'		\code{\link[lme4]{lmer}}, \code{\link[lme4]{glmer}}, 
 #'		\code{\link[party]{ctree}}, \code{\link[party]{cforest}}, 
@@ -42,19 +41,20 @@ get.formula <- function(object, args.model){
 #'		\code{\link[rpart]{rpart}}, \code{\link[gam]{gam}} in \emph{gam} package,
 #'		\code{\link[mgcv]{gam}} in \emph{mgcv} package and
 #'		\code{\link[mgcv]{gamm}}.
+#'	@method get.formula default
 #-------------------------------------------------------------------------------
 get.formula.default <- function(object, args.model){
 	if (!is.null(args.model$formula)){
 		return(args.model$formula)
 	} else {
-		return(args.model[[sapply(args.model, is.formula)]])
+		return(args.model[sapply(args.model, is.formula)][[1]])
 	}
 }
 
 #-------------------------------------------------------------------------------
 #'	@describeIn get.formula
+#'	Method for \code{\link[nlme]{lme}} function in \emph{nlme} package.
 #'	@method get.formula lme
-#		Method for \code{\link[nlme]{lme}} function in \emph{nlme} package.
 #-------------------------------------------------------------------------------
 get.formula.lme <- function(object, args.model){
 	if (!is.null(args.model$fixed)){
