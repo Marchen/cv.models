@@ -108,6 +108,10 @@ cv.models <- function(
 	# モデルの性能をクロスバリデーション。
 	cl <- init.cluster(n.cores.param.tune)
 	cl$library(package.name)
+	# 応答変数の型をチェックする。
+	data[[get.response.name(dummy, args.model)]] <- modify.response.var(
+		dummy, data[[get.response.name(dummy, args.model)]], check.args
+	)
 	metrics <- cl$lapply(
 		expanded.args, cross.validation, model.function = model.function,
 		data = data, args.predict = args.predict, cv.folds = cv.folds,
