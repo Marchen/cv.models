@@ -6,7 +6,9 @@
 #'
 #'	@param object model object used for the prediction.
 #'	@param prediction result of \emph{predict} function.
-#'	@return a vector containing reuslt of \emph{predict} method.
+#'	@return a vector containing reuslt of \emph{predict} method. If the
+#'	\emph{object} is a instance of \code{\link[gbm]{gbm}}, this function returns
+#'	a matrix containing the result of predict function.
 #-------------------------------------------------------------------------------
 #	predictから返ってくるデータを正規化する総称関数。
 #
@@ -16,7 +18,7 @@
 #
 #	Value:
 #		predictの結果の入ったベクトル。
-#		gbmでn.treesが複数指定されたときには
+#		gbmでn.treesが複数指定されたときには行列が返る。
 #-------------------------------------------------------------------------------
 format.prediction <- function(object, prediction){
 	UseMethod("format.prediction")
