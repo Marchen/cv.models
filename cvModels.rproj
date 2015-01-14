@@ -89,6 +89,9 @@
     <Content Include="R\get.best.models.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="R\get.formula.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="R\get.response.class.r">
       <SubType>Content</SubType>
     </Content>
