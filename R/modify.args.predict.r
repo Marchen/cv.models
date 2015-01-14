@@ -78,22 +78,6 @@ modify.args.predict.rpart <- function(object, args.model, args.predict, data){
 	return(args.predict)
 }
 
-#-------------------------------------------------------------------------------
-#'	@describeIn modify.args.predict
-#'	Method for \code{\link[randomForest]{randomForest}} class of
-#'	\emph{randomForest} package.
-#'	@method modify.args.predict randomForest
-#-------------------------------------------------------------------------------
-modify.args.predict.randomForest <- function(object, args.predict, check.args){
-	if (check.args){
-		if (object$type == "classification"){
-			args.predict$type <- "prob"		# ���ʖ��Ȃ�prob
-		} else {
-			args.predict$type <- "response"	# ��A�Ȃ�response
-		}
-	}
-	return(args.predict)
-}
 
 
 #-------------------------------------------------------------------------------
