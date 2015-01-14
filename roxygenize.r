@@ -17,6 +17,7 @@ get.this.file.dir <- function(){
     }
 }
 
-roxygenize(get.this.file.dir())
+#detach("package:cvModels", unload = TRUE)
+roxygenize(get.this.file.dir(), clean=TRUE)
 
 
