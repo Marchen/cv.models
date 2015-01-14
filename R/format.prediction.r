@@ -4,7 +4,7 @@
 #'	This is a generic function which standardize result of \emph{predict} method.
 #'	This function is an internal function and not intended to be used directly by users.
 #'
-#'	@param object model object used for the prediction.
+#'	@inheritParams modify.args.model
 #'	@param prediction result of \emph{predict} function.
 #'	@return a vector containing reuslt of \emph{predict} method. If the
 #'	\emph{object} is a instance of \code{\link[gbm]{gbm}}, this function returns

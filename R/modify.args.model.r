@@ -2,10 +2,12 @@
 #'
 #'	Internal function to modify parameters of modeling.
 #'
-#'	@param object Result of model function.
-#'	@param args.model Parameters used for modeling.
-#'	@param args.predict Parameters used for prediction.
-#'	@param check.args If TRUE, this function do nothing.
+#'	@param object
+#'		result of model function or \emph{cv.models.dummy} object created by
+#'		\code{\link{make.dummy}} function.
+#'	@param args.model a list containing parameters used for modeling.
+#'	@param args.predict a list containing parameters used for prediction.
+#'	@param check.args if TRUE, this function do nothing.
 #'
 #'	@details
 #'	\describe{
