@@ -73,6 +73,26 @@ modify.response.var.randomForest <- function(object, response){
 
 #-------------------------------------------------------------------------------
 #'	@describeIn modify.response.var
+#'	Method for BinaryTree class made by \code{\link[party]{ctree}} function in
+#'	\emph{party} package.
+#'	@method modify.response.var BinaryTree
+#-------------------------------------------------------------------------------
+modify.response.var.BinaryTree <- function(object, response){
+	return(response.var.to.factor(response))
+}
+
+#-------------------------------------------------------------------------------
+#'	@describeIn modify.response.var
+#'	Method for RandomForest class made by \code{\link[party]{cforest}} function 
+#'	in \emph{party} package.
+#'	@method modify.response.var RandomForest
+#-------------------------------------------------------------------------------
+modify.response.var.RandomForest <- function(object, response){
+	return(response.var.to.factor(response))
+}
+
+#-------------------------------------------------------------------------------
+#'	@describeIn modify.response.var
 #'	Method for \code{\link[e1071]{svm}} class in \emph{svm} package.
 #'	@method modify.response.var svm
 #-------------------------------------------------------------------------------
