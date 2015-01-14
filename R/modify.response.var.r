@@ -50,7 +50,7 @@ modify.response.var.default <- function(object, response, check.args){
 #	ˆöŽqŒ^‚É•ÏŠ·‚µ‚Ä•Ô‚·B
 #-------------------------------------------------------------------------------
 modify.response.var.tree <- function(object, response, check.args){
-	return(response.var.to.factor(chec.args, response))
+	return(response.var.to.factor(check.args, response))
 }
 
 #-------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ modify.response.var.tree <- function(object, response, check.args){
 #'	@method modify.response.var rpart
 #-------------------------------------------------------------------------------
 modify.response.var.rpart <- function(object, response, check.args){
-	return(response.var.to.factor(chec.args, response))
+	return(response.var.to.factor(check.args, response))
 }
 
 #-------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ modify.response.var.rpart <- function(object, response, check.args){
 #'	@method modify.response.var randomForest
 #-------------------------------------------------------------------------------
 modify.response.var.randomForest <- function(object, response, check.args){
-	return(response.var.to.factor(chec.args, response))
+	return(response.var.to.factor(check.args, response))
 }
 
 #-------------------------------------------------------------------------------
@@ -78,7 +78,7 @@ modify.response.var.randomForest <- function(object, response, check.args){
 #'	@method modify.response.var svm
 #-------------------------------------------------------------------------------
 modify.response.var.svm <- function(object, response, check.args){
-	return(response.var.to.factor(chec.args, response))
+	return(response.var.to.factor(check.args, response))
 }
 
 #-------------------------------------------------------------------------------
