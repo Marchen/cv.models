@@ -22,7 +22,7 @@
 #-------------------------------------------------------------------------------
 cv.one.fold <- function(
 	model.function, args.model, args.predict, data, cv.group, cv.index, seed,
-	positive.label = NULL
+	positive.label = NULL, check.args = TRUE
 ){
 	# ƒ‚ƒfƒ‹\’z
 	set.seed(seed)
@@ -31,7 +31,8 @@ cv.one.fold <- function(
 	args.model$data <- data.train
 	model <- do.call(model.function, args.model)
 	# Žw•W‚ª³‚µ‚­ŒvŽZ‚Å‚«‚é‚æ‚¤‚ÉApredict‚Ìˆø”‚ðC³
-	args.predict <- modify.args.predict(model, args.predict)
+	args.predict <- modify.args.predict(model, args.predict, check.args)
+	browser()
 	args.predict$object <- model
 	args.predict$newdata <- data.test
 	# —\‘ª’l‚ðŒvŽZ

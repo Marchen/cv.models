@@ -22,6 +22,7 @@ cv.models.object <- function(
 	return(object)
 }
 
+#'	@export
 #-------------------------------------------------------------------------------
 #	モデルの性能に影響するパラメーターの候補を組み合わせてモデルを作り、
 #	クロスバリデーションで性能評価を行う。
@@ -63,6 +64,11 @@ cv.models.object <- function(
 #			を自動的に陽性としてデータの取得を試みる。それでも陽性が決定できない
 #			場合、クラスの１番目を陽性として扱う。
 #			因子が３クラス以上だった場合、１列目の確率を用いる。
+#		check.args:
+#			これがTRUEだと正しい結果が得られるように、モデル構築、推定値計算に
+#			使われるパラメーターを修正し、応答変数の型の変換を行います。
+#			FALSEにすると、モデル構築・predict関数の全ての挙動はユーザーの指定した
+#			パラメーターのままになり、整合性のチェックが行われません。
 #		function.name:
 #			モデル構築に使われる関数名。通常は自動的に設定されるので指定する必要
 #			はありません（cv.modelsからこの関数を呼び出すときのために実装されて
@@ -88,14 +94,14 @@ cv.models.object <- function(
 cv.models <- function(
 	model.function, args.model, data, args.predict = list(), cv.folds = 10,
 	cv.metrics = c("auc"), n.cores = NULL, seed = NULL, positive.label = NULL,
+	dredge = NULL, check.args = TRUE,
 	function.name = as.character(substitute(model.function)),
-	package.name = get.package.name(function.name),
-	dredge = NULL
+	package.name = get.package.name(function.name)
+
 ){
+	dummy <- make.dummy(function.name)
 	# パラメーター候補の組み合わせを作る。
-	expanded.args <- expand.tunable.args(
-		make.dummy(function.name), args.model, "model"
-	)
+	expanded.args <- expand.tunable.args(dummy, args.model, "model")
 	# 候補パラメーターの数によって、並列計算する場所を変える。
 	n.cores.cv <- ifelse(length(expanded.args) < n.cores, n.cores, 1)
 	n.cores.param.tune <- ifelse(length(expanded.args) < n.cores, 1, n.cores)
@@ -106,8 +112,8 @@ cv.models <- function(
 		expanded.args, cross.validation, model.function = model.function,
 		data = data, args.predict = args.predict, cv.folds = cv.folds,
 		cv.metrics = cv.metrics, n.cores = n.cores.cv, seed = seed,
-		positive.label = positive.label, function.name = function.name,
-		package.name = package.name
+		positive.label = positive.label, check.args = check.args,
+		function.name = function.name, package.name = package.name
 	)
 	# 候補パラメーターをCVの結果に結合。
 	cv.metrics <- merge.tunable.args(
@@ -125,6 +131,7 @@ cv.models <- function(
 	return(result)
 }
 
+#'	@export
 #-------------------------------------------------------------------------------
 #	cv.modelsクラス用のprint。
 #

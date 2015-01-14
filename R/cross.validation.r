@@ -23,6 +23,7 @@
 cross.validation <- function(
 	model.function, args.model, data, args.predict = list(), cv.folds = 10,
 	cv.metrics = c("auc"), n.cores = NULL, seed = NULL, positive.label = NULL,
+	check.args = TRUE,
 	function.name = as.character(substitute(model.function)),
 	package.name = get.package.name(function.name)
 ){
@@ -32,13 +33,13 @@ cross.validation <- function(
 	# クロスバリデーションで予測値を計算
 	set.seed(seed)
 	args.model <- modify.args.model(
-		make.dummy(function.name), args.model, args.predict
+		make.dummy(function.name), args.model, args.predict, check.args
 	)
 	cv.result <- cl$lapply(
 		1:cv.folds, cv.one.fold, model.function = model.function,
 		args.model = args.model, args.predict = args.predict, data = data,
 		cv.group = make.cv.group(data, cv.folds), seed = seed,
-		positive.label = positive.label
+		positive.label = positive.label, check.args = check.args
 	)
 	cv.result <- do.call(rbind, cv.result)
 	# 予測値からモデルの性能評価指標を計算
