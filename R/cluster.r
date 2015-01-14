@@ -60,6 +60,7 @@ export.functions <- function(cl){
 	export.pattern <- paste(
 		"^get\\.response\\.name.*", "^calc\\..*", "^get\\.tunable\\.args.*",
 		"^modify\\.args\\.predict.*", "^modify\\.args\\.model.*",
+		"^modify\\.response\\.var.*",
 		"^get\\.response\\.class.*", "^format\\.prediction.*", sep = "|"
 	)
 	clusterExport(

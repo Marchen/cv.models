@@ -98,6 +98,9 @@
     <Content Include="R\modify.args.model.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="R\modify.response.var.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="R\run.dredge.r">
       <SubType>Content</SubType>
     </Content>
