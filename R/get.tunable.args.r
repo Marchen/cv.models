@@ -39,6 +39,6 @@ get.tunable.args.randomForest <- function(model, args, type){
 	if (type == "predict"){
 		return(NULL)
 	} else {
-		return(get.args(args, "mtry"))
+		return(get.args(args, c("mtry","sampsize", "nodesize", "maxnodes")))
 	}
 }
