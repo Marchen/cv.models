@@ -28,7 +28,7 @@ modify.args <- function(
 ){
 	if (check.args){
 		dummy <- make.dummy(function.name)
-		args.model <- modify.args.model(dummy, args.model, args.predict)
+		args.model <- modify.args.model(dummy, args.model, args.predict, data)
 		data[[get.response.name(dummy, args.model)]] <- modify.response.var(
 			dummy, data[[get.response.name(dummy, args.model)]]
 		)
