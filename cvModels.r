@@ -48,12 +48,21 @@
 #		・必要ならprintとsummaryメソッドに対応を書く。
 #
 #	TODO:
-#		predicted probabilityのcolname
-#		dredge & stepAIC
-#		predict.cv.best.models()
-#		cforestのチューニング対応？（要パラメーター選択）
-#		plot.cv.models関数 2d, 3d, 4d?
-#		cv.more関数とmerge関数
+#		☆☆☆
+#		☆☆
+#			・confusion matrix
+#			・dredge & stepAIC
+#			・glmとかの応答変数がcbindのとき
+#			・modify.args.predict.treeとrpartでtypeを書き換える。
+#			・modify.args.predict.gbmでn.treesが指定されていなかったときの対応。
+#		☆
+#			・gbmとrandomForestはformulaを使わない方がパフォーマンスがよいらしい。
+#				svmはformula使わなきゃないらしい。
+#			・predicted probabilityのcolname
+#			・predict.cv.best.models()
+#			・cforestのチューニング対応？（要パラメーター選択）
+#			・plot.cv.models関数 2d, 3d, 4d?
+#			・cv.more関数とmerge関数、more.metrics()関数
 #
 #-------------------------------------------------------------------------------
 #	使い方の例
@@ -154,14 +163,22 @@ source(file.path(get.this.file.dir(), "R", "predict.gamm.r"), encoding = "CP932"
 # 関数の違いを吸収する関数群
 source(file.path(get.this.file.dir(), "R", "get.response.name.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.response.class.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "get.response.var.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "get.formula.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.tunable.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "expand.tunable.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "merge.tunable.args.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "modify.args.predict.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "modify.args.model.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "format.prediction.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "make.dummy.r"), encoding = "CP932")
+
+# パラメーターの整合性を調整する関数群
+source(file.path(get.this.file.dir(), "R", "modify.args.predict.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "modify.args.model.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "modify.response.var.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "modify.args.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "expand.dot.r"), encoding = "CP932")
+
 
 # クラス名・パッケージ名を取得する関数群
 source(file.path(get.this.file.dir(), "R", "get.class.name.r"), encoding = "CP932")
@@ -180,7 +197,6 @@ source(file.path(get.this.file.dir(), "R", "cv.one.fold.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "cross.validation.r"), encoding = "CP932")
 
 # パラメーター選択関連関数群
-source(file.path(get.this.file.dir(), "R", "check.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "run.dredge.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "cv.models.r"), encoding = "CP932")
 

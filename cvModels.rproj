@@ -65,6 +65,9 @@
     <Content Include="R\calc.cv.metrics.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="R\expand.dot.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="R\modify.args.r">
       <SubType>Content</SubType>
     </Content>
