@@ -102,11 +102,9 @@ cv.models <- function(
 
 ){
 	# パラメーターが整合性を保つように修正する。
-	modified <- modify.args(
-		check.args, function.name, args.model, args.predict, data
-	)
+	dummy <- make.dummy(function.name, package.name)
+	modified <- modify.args(check.args, dummy, args.model, args.predict, data)
 	# パラメーター候補の組み合わせを作る。
-	dummy <- make.dummy(function.name)
 	expanded.args <- expand.tunable.args(dummy, modified$args.model, "model")
 	# 候補パラメーターの数によって、並列計算する場所を変える。
 	cores <- assign.cores(expanded.args, n.cores)
@@ -117,12 +115,11 @@ cv.models <- function(
 		expanded.args, cross.validation, model.function = model.function,
 		data = modified$data, args.predict = modified$args.predict,
 		cv.folds = cv.folds, cv.metrics = cv.metrics, n.cores = cores$cv,
-		seed = seed, positive.label = positive.label,
-		function.name = function.name, package.name = package.name
+		seed = seed, positive.label = positive.label, cv.dummy = dummy
 	)
 	# 候補パラメーターをCVの結果に結合。
 	cv.metrics <- merge.tunable.args(
-		function.name , lapply(metrics, "[[", "cv.metrics"), args.model, "model"
+		dummy, lapply(metrics, "[[", "cv.metrics"), args.model, "model"
 	)
 	cv.metrics <-do.call(rbind, cv.metrics)
 	# CVの予測値を取り出し。

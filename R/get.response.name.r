@@ -16,7 +16,7 @@
 #		‰“š•Ï”‚Ì–¼‘O‚ğ•\‚·•¶š—ñB
 #-------------------------------------------------------------------------------
 get.response.name <- function(object, args.model = NULL){
-	if (is(object, "cv.models.dummy") & is.null(args.model)){
+	if (is(object, "cv.dummy") & is.null(args.model)){
 		stop("True object or non NULL args.model must be specified!")
 	}
 	UseMethod("get.response.name")
@@ -30,7 +30,7 @@ get.response.name <- function(object, args.model = NULL){
 #'	@method get.response.name default
 #-------------------------------------------------------------------------------
 get.response.name.default <- function(object, args.model = NULL){
-	if (is(object, "cv.models.dummy")){
+	if (is(object, "cv.dummy")){
 		return(as.character(get.formula(object, args.model))[2])
 	} else {
 		return(as.character(object$terms[[2]]))
@@ -43,7 +43,7 @@ get.response.name.default <- function(object, args.model = NULL){
 #'	@method get.response.name gbm
 #-------------------------------------------------------------------------------
 get.response.name.gbm <- function(object, args.model = NULL){
-	if (is(object, "cv.models.dummy")){
+	if (is(object, "cv.dummy")){
 		return(get.response.name.default(object, args.model))
 	} else {
     	return(object$response.name)
@@ -56,7 +56,7 @@ get.response.name.gbm <- function(object, args.model = NULL){
 #'	@method get.response.name RandomForest
 #-------------------------------------------------------------------------------
 get.response.name.RandomForest <- function(object, args.model = NULL){
-    if (is(object, "cv.models.dummy")){
+    if (is(object, "cv.dummy")){
 		return(get.response.name.default(object, args.model))
 	} else {
 		return(names(object@responses@variables))
@@ -69,7 +69,7 @@ get.response.name.RandomForest <- function(object, args.model = NULL){
 #'	@method get.response.name BinaryTree
 #-------------------------------------------------------------------------------
 get.response.name.BinaryTree <- function(object, args.model = NULL){
-    if (is(object, "cv.models.dummy")){
+    if (is(object, "cv.dummy")){
 		return(get.response.name.default(object, args.model))
 	} else {
 	    return(names(object@responses@variables))
@@ -82,7 +82,7 @@ get.response.name.BinaryTree <- function(object, args.model = NULL){
 #'	@method get.response.name lmerMod
 #-------------------------------------------------------------------------------
 get.response.name.lmerMod <- function(object, args.model = NULL){
-    if (is(object, "cv.models.dummy")){
+    if (is(object, "cv.dummy")){
 		return(get.response.name.default(object, args.model))
 	} else {
     	return(names(object@frame)[1])
@@ -95,7 +95,7 @@ get.response.name.lmerMod <- function(object, args.model = NULL){
 #'	@method get.response.name glmerMod
 #-------------------------------------------------------------------------------
 get.response.name.glmerMod <- function(object, args.model = NULL){
-    if (is(object, "cv.models.dummy")){
+    if (is(object, "cv.dummy")){
 		return(get.response.name.default(object, args.model))
 	} else {
 	    return(names(object@frame)[1])
@@ -108,7 +108,7 @@ get.response.name.glmerMod <- function(object, args.model = NULL){
 #'	@method get.response.name gamm
 #-------------------------------------------------------------------------------
 get.response.name.gamm <- function(object, args.model = NULL){
-    if (is(object, "cv.models.dummy")){
+    if (is(object, "cv.dummy")){
 		return(get.response.name.default(object, args.model))
 	} else {
     	get.response.name(object$gam)

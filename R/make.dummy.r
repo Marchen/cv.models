@@ -5,8 +5,8 @@
 #	Args:
 #		function.name: ŠÖ”–¼‚ğ•\‚·•¶š—ñB
 #-------------------------------------------------------------------------------
-make.dummy <- function(function.name){
-	object <- list()
-	class(object) <- c(get.class.name(function.name), "cv.models.dummy")
+make.dummy <- function(function.name, package.name){
+	object <- list(package = package.name)
+	class(object) <- c(get.class.name(function.name), "cv.dummy")
 	return(object)
 }

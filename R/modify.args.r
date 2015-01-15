@@ -24,16 +24,17 @@ check.consistency <- function(
 }
 
 modify.args <- function(
-	check.args, function.name, args.model, args.predict, data
+	check.args, cv.dummy, args.model, args.predict, data
 ){
 	if (check.args){
-		dummy <- make.dummy(function.name)
-		args.model <- modify.args.model(dummy, args.model, args.predict, data)
-		data[[get.response.name(dummy, args.model)]] <- modify.response.var(
-			dummy, data[[get.response.name(dummy, args.model)]]
+		args.model <- modify.args.model(
+			cv.dummy, args.model, args.predict, data
+		)
+		data[[get.response.name(cv.dummy, args.model)]] <- modify.response.var(
+			cv.dummy, data[[get.response.name(cv.dummy, args.model)]]
 		)
 		args.predict <- modify.args.predict(
-			dummy, args.model, args.predict, data
+			cv.dummy, args.model, args.predict, data
 		)
 	}
 	modified <- list(

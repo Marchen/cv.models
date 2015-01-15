@@ -23,12 +23,11 @@
 cross.validation <- function(
 	model.function, args.model, data, args.predict = list(), cv.folds = 10,
 	cv.metrics = c("auc"), n.cores = NULL, seed = NULL, positive.label = NULL,
-	function.name = as.character(substitute(model.function)),
-	package.name = get.package.name(function.name)
+	cv.dummy
 ){
 	# 計算クラスターを初期化
 	cl <- init.cluster(n.cores)
-	cl$library(package.name)
+	cl$library(cv.dummy$package)
 	# クロスバリデーションで予測値を計算
 	set.seed(seed)
 	cv.result <- cl$lapply(
@@ -46,7 +45,7 @@ cross.validation <- function(
 	cl$close()
 	# 結果を整形
 	cv.metrics <- merge.tunable.args(
-		function.name, lapply(metrics, "[[", "metrics"), args.predict, "predict"
+		cv.dummy, lapply(metrics, "[[", "metrics"), args.predict, "predict"
 	)
 	cv.metrics <- do.call(rbind, cv.metrics)
 	row.names(cv.metrics) <- NULL

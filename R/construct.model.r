@@ -15,6 +15,7 @@
 #			cv.metrics: そのモデルのクロスバリデーション性能指標。
 #			cv.prediction: クロスバリデーションで指標を計算するときの予測値。
 #			function.name: 呼び出した関数の名前。
+#			package.name: 関数が入ったパッケージ名。
 #-------------------------------------------------------------------------------
 construct.model <- function(x, metrics.index){
 	# モデルに渡す引数を準備
@@ -22,7 +23,8 @@ construct.model <- function(x, metrics.index){
 	args <- x$args.model
 	args$data <- x$data
 	tunable.args <- get.tunable.args(
-		make.dummy(x$function.name), x$cv.metrics[metrics.index, ], "model"
+		make.dummy(x$function.name, x$package.name),
+		x$cv.metrics[metrics.index, ], "model"
 	)
 	args[names(tunable.args)] <- tunable.args
 	# モデルを構築

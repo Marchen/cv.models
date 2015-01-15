@@ -3,7 +3,7 @@
 #	補助関数。
 #
 #	Args:
-#		function.name: モデル作成に使われる関数名を表す文字列。
+#		cv.dummy: 偽の推定結果のcv.dummyオブジェクト。
 #		metrics: モデルの性能評価指標が入った行列。
 #		args: モデル作成もしくはpredictに渡される引数が入ったリスト。
 #		type:
@@ -12,10 +12,9 @@
 #			"predict":
 #				argsがpredictに渡される引数だと仮定してパラメーターを追加。
 #-------------------------------------------------------------------------------
-merge.tunable.args <- function(function.name, metrics, args, type){
+merge.tunable.args <- function(cv.dummy, metrics, args, type){
 	# チューニングした候補パラメーターを取得する
-	dummy <- make.dummy(function.name)
-	tunable.args <- get.tunable.args(dummy, args, type)
+	tunable.args <- get.tunable.args(cv.dummy, args, type)
 	if (is.null(tunable.args)){
 		# なければそのままmetricsを返す
 		return(metrics)

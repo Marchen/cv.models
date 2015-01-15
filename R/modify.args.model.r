@@ -3,7 +3,7 @@
 #'	Internal function to modify parameters of modeling.
 #'
 #'	@param object
-#'		result of model function or \emph{cv.models.dummy} object created by
+#'		result of model function or \emph{cv.dummy} object created by
 #'		\code{\link{make.dummy}} function.
 #'	@param args.model a list containing parameters used for modeling.
 #'	@param args.predict a list containing parameters used for prediction.
