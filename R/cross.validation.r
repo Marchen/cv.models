@@ -51,5 +51,11 @@ cross.validation <- function(
 	cv.metrics <- do.call(rbind, cv.metrics)
 	row.names(cv.metrics) <- NULL
 	cv.prediction = do.call(cbind, lapply(metrics, "[[", "cv.prediction"))
-	return(list(cv.metrics = cv.metrics, cv.prediction = cv.prediction))
+	cv.response = do.call(cbind, lapply(metrics, "[[", "response"))
+	return(
+		list(
+			cv.metrics = cv.metrics, cv.prediction = cv.prediction,
+			cv.response = cv.response
+		)
+	)
 }

@@ -109,5 +109,7 @@ calc.cv.metrics <- function(
 	result = result[cv.metrics]			# 必要な指標だけ返す。
 	# YoudenのJで最適な閾値が決まらず、結果が複数になったとき、predictionを複製
 	prediction <- do.call(cbind, rep(list(prediction), nrow(result)))
-	return(list(metrics = result, cv.prediction = prediction))
+	return(
+		list(metrics = result, cv.prediction = prediction, response = response)
+	)
 }

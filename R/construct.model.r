@@ -30,6 +30,7 @@ construct.model <- function(x, metrics.index){
 		model = do.call(x$function.name, args),
 		cv.metrics = x$cv.metrics[metrics.index, ],
 		cv.prediction = x$cv.prediction[, metrics.index],
+		cv.response = x$cv.response[, metrics.index],
 		function.name = x$function.name
 	)
 	return(result)

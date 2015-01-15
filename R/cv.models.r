@@ -9,14 +9,14 @@
 #-------------------------------------------------------------------------------
 cv.models.object <- function(
 	model.function, function.name, package.name, data, args.model, args.predict,
-	cv.metrics, cv.prediction, seed, positive.label
+	cv.metrics, cv.prediction, cv.response, seed, positive.label
 ){
 	object <- list(
 		model.function = model.function, function.name = function.name,
 		package.name = package.name, data = data,
 		args.model = args.model, args.predict = args.predict,
-		cv.metrics = cv.metrics, cv.prediction = cv.prediction, seed = seed,
-		positive.label = positive.label
+		cv.metrics = cv.metrics, cv.prediction = cv.prediction,
+		cv.response = cv.response, seed = seed, positive.label = positive.label
 	)
 	class(object) <- "cv.models"
 	return(object)
@@ -90,6 +90,7 @@ cv.models.object <- function(
 #			args.predict: predict関数に渡されたパラメーターの候補。
 #			cv.metrics: クロスバリデーションで計算された性能評価指標。
 #			cv.prediction: クロスバリデーションで計算された予測値。
+#			cv.response: クロスバリデーションに使われた応答変数の値。
 #			seed: 計算に使った乱数の種子。
 #-------------------------------------------------------------------------------
 cv.models <- function(
@@ -126,10 +127,11 @@ cv.models <- function(
 	cv.metrics <-do.call(rbind, cv.metrics)
 	# CVの予測値を取り出し。
 	cv.prediction <- do.call(cbind, lapply(metrics, "[[", "cv.prediction"))
+	cv.response <- do.call(cbind, lapply(metrics, "[[", "cv.response"))
 	result <- cv.models.object(
 		model.function, function.name, package.name, modified$data,
 		modified$args.model, modified$args.predict, cv.metrics, cv.prediction,
-		seed, positive.label
+		cv.response, seed, positive.label
 	)
 	cl$close()
 	return(result)
