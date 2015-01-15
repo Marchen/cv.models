@@ -31,7 +31,7 @@ get.response.name <- function(object, args.model = NULL){
 #-------------------------------------------------------------------------------
 get.response.name.default <- function(object, args.model = NULL){
 	if (is(object, "cv.models.dummy")){
-		return(as.character(get.formula(object, args.model)[2]))
+		return(as.character(get.formula(object, args.model))[2])
 	} else {
 		return(as.character(object$terms[[2]]))
 	}
@@ -114,3 +114,4 @@ get.response.name.gamm <- function(object, args.model = NULL){
     	get.response.name(object$gam)
 	}
 }
+
