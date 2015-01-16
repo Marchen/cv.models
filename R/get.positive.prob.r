@@ -5,7 +5,7 @@
 #	Args:
 #		response: 応答変数の生データ。
 #		prediction: predictの結果
-#		positive.label:
+#		positive.class:
 #			陽性として扱うクラスを表す文字列。指定されなかった場合は
 #			(TRUE, FALSE), (1, 0), (+, -), (+, 0)のセットの左側を陽性として扱い、
 #			を自動的に陽性としてデータの取得を試みる。それでも陽性が決定できない
@@ -17,18 +17,18 @@
 #		responseが因子型の場合、陽性の上の方法で判定した陽性の確率を返す。
 #===============================================================================
 
-get.positive.prob <- function(response, prediction, positive.label = NULL){
+get.positive.prob <- function(response, prediction, positive.class = NULL){
 	# 因子型以外はそのまま値を返す。
 	if (!is.factor(response)){
 		return(prediction)
 	}
 	# どのラベルが陽性か指定されていたら、そのラベルの確率を返す。
-	if (!is.null(positive.label)){
-		return(prediction[, positive.label])
+	if (!is.null(positive.class)){
+		return(prediction[, positive.class])
 	}
 	# ３クラス以上の因子型は１番目の因子が陽性だと仮定して値を返す。
 	if (nlevels(response) > 2){
-		warning("Number of classes of response variable > 2 and 'positive.label' was not specified! \nMetrics were calculated by assuming the first level of the response variable is the positive case.")
+		warning("Number of classes of response variable > 2 and 'positive.class' was not specified! \nMetrics were calculated by assuming the first level of the response variable is the positive case.")
 		return(prediction[, 1])
 	}
 	# TRUE, 1, + がラベルに含まれていたら、それらを陽性と仮定して値を返す。
@@ -39,6 +39,6 @@ get.positive.prob <- function(response, prediction, positive.label = NULL){
 		}
 	}
 	# それでも指標を決定できないときには１番目が陽性だと仮定して値を返す。
-	warning("'positive.label' was not specified and could not determine positive class label. \nMetrics were calculated by assuming the first level of the response variable is the positive case.")
+	warning("'positive.class' was not specified and could not determine positive class label. \nMetrics were calculated by assuming the first level of the response variable is the positive case.")
 	return(prediction[, 1])
 }

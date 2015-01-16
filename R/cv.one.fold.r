@@ -14,7 +14,7 @@
 #		cv.group: クロスバリデーションのグループ。
 #		cv.index: クロスバリデーションでテストデータにするグループ番号。
 #		seed: 乱数の種子。
-#		positive.label: 応答変数が因子型の時、陽性として扱うクラスを表す文字列。
+#		positive.class: 応答変数が因子型の時、陽性として扱うクラスを表す文字列。
 #		
 #	Value:
 #		テストデータを使った予測値と応答変数の実測値が入った行列。
@@ -22,7 +22,7 @@
 #-------------------------------------------------------------------------------
 cv.one.fold <- function(
 	model.function, args.model, args.predict, data, cv.group, cv.index, seed,
-	positive.label = NULL
+	positive.class = NULL
 ){
 	# モデル構築
 	set.seed(seed)
@@ -38,6 +38,6 @@ cv.one.fold <- function(
 	predictions <- format.prediction(model, predictions)
 	# 予測値の中から陽性の確率を取り出す。
 	response <- data.test[[get.response.name(model)]]
-	predictions <- get.positive.prob(response, predictions, positive.label)
+	predictions <- get.positive.prob(response, predictions, positive.class)
 	return(as.data.frame(cbind(y = response, predictions)))
 }

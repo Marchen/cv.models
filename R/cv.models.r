@@ -9,14 +9,14 @@
 #-------------------------------------------------------------------------------
 cv.models.object <- function(
 	model.function, function.name, package.name, data, args.model, args.predict,
-	cv.metrics, cv.prediction, cv.response, seed, positive.label
+	cv.metrics, cv.prediction, cv.response, seed, positive.class
 ){
 	object <- list(
 		model.function = model.function, function.name = function.name,
 		package.name = package.name, data = data,
 		args.model = args.model, args.predict = args.predict,
 		cv.metrics = cv.metrics, cv.prediction = cv.prediction,
-		cv.response = cv.response, seed = seed, positive.label = positive.label
+		cv.response = cv.response, seed = seed, positive.class = positive.class
 	)
 	class(object) <- "cv.models"
 	return(object)
@@ -95,7 +95,7 @@ cv.models.object <- function(
 #-------------------------------------------------------------------------------
 cv.models <- function(
 	model.function, args.model, data, args.predict = list(), cv.folds = 10,
-	cv.metrics = c("auc"), n.cores = NULL, seed = NULL, positive.label = NULL,
+	cv.metrics = c("auc"), n.cores = NULL, seed = NULL, positive.class = NULL,
 	dredge = NULL, check.args = TRUE,
 	function.name = as.character(substitute(model.function)),
 	package.name = get.package.name(function.name)
@@ -115,7 +115,7 @@ cv.models <- function(
 		expanded.args, cross.validation, model.function = model.function,
 		data = modified$data, args.predict = modified$args.predict,
 		cv.folds = cv.folds, cv.metrics = cv.metrics, n.cores = cores$cv,
-		seed = seed, positive.label = positive.label, cv.dummy = dummy
+		seed = seed, positive.class = positive.class, cv.dummy = dummy
 	)
 	# 候補パラメーターをCVの結果に結合。
 	cv.metrics <- merge.tunable.args(
@@ -128,7 +128,7 @@ cv.models <- function(
 	result <- cv.models.object(
 		model.function, function.name, package.name, modified$data,
 		modified$args.model, modified$args.predict, cv.metrics, cv.prediction,
-		cv.response, seed, positive.label
+		cv.response, seed, positive.class
 	)
 	cl$close()
 	return(result)

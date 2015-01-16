@@ -22,7 +22,7 @@
 #-------------------------------------------------------------------------------
 cross.validation <- function(
 	model.function, args.model, data, args.predict = list(), cv.folds = 10,
-	cv.metrics = c("auc"), n.cores = NULL, seed = NULL, positive.label = NULL,
+	cv.metrics = c("auc"), n.cores = NULL, seed = NULL, positive.class = NULL,
 	cv.dummy
 ){
 	# 計算クラスターを初期化
@@ -34,7 +34,7 @@ cross.validation <- function(
 		1:cv.folds, cv.one.fold, model.function = model.function,
 		args.model = args.model, args.predict = args.predict, data = data,
 		cv.group = make.cv.group(data, cv.folds), seed = seed,
-		positive.label = positive.label
+		positive.class = positive.class
 	)
 	cv.result <- do.call(rbind, cv.result)
 	# 予測値からモデルの性能評価指標を計算
