@@ -6,9 +6,8 @@
 calc.mse <- function(response, prediction){
 	if (is.factor(response)){
 		return(NA)
-	} else {
-		return(mean((prediction - response) ^ 2))
 	}
+	return(mean((prediction - response) ^ 2))
 }
 # RMSE
 calc.rmse <- function(response, prediction){
@@ -16,6 +15,9 @@ calc.rmse <- function(response, prediction){
 }
 # R“ñæ
 calc.r.squared <- function(response, prediction, method = "pearson"){
+	if (is.factor(response)){
+		return(NA)
+	}
 	return(cor(response, prediction, method = method) ^ 2)
 }
 # informedness
