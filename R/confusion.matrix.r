@@ -30,12 +30,14 @@ confusion.matrix <- function(
 	positive.class <- ifelse(
 		is.null(positive.class), levels(as.factor(response))[2], positive.class
 	)
-	response <- ifelse(response == positive.class, 1, 0)
+	condition <- ifelse(response == positive.class, "positive", "negative")
+	condition <- factor(condition, levels = c("positive", "negative"))
 	
 	result <- list()
 	for (i in 1:length(thresholds)){
-		prediction <- as.numeric(prediction > thresholds[i])
-		result[[i]] <- table(response, prediction)
+		test <- ifelse(prediction > thresholds[i], "positive", "negative")
+		test <- factor(test, levels = c("positive", "negative"))
+		result[[i]] <- table(test, condition)
 		attr(result[[i]], "threshold") <- thresholds[i]
 	}
 	return(result)
