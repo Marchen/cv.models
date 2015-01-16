@@ -1,10 +1,13 @@
-Package: cvModels
+Package: cv.models
 Version: 0.0-0
 Title: Model selection and parameter tuning by cross validation.
 Author: FirstName LastName <emailName@some.domain.net>
 Maintainer: FirstName LastName <emailName@some.domain.net>
-Description: Package Description
+Description:
+	Interface for cross validation and parameter selection for several models.
 License: BSD
-Depends: R (>= 3.0.0), stats
-Imports: base, stats
-
+Depends: R (>= 3.0.0), base, stats, parallel, pROC
+Imports:
+	base, stats, parallel, pROC
+Suggests:
+	randomForest, party, gbm, svm, lme4, nlme, tree, rpart, mgcv, gam
