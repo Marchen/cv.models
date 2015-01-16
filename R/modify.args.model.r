@@ -3,12 +3,12 @@
 #'	Internal function that hodifis parameters used for modeling.
 #'
 #'	@param cv.dummy
-#'		\emph{cv.dummy} object created by \code{\link{make.dummy}} function.
+#'		A \emph{cv.dummy} object created by \code{\link{make.dummy}} function.
 #'		Because this function is always called before construction of model, 
-#'		'real' object created by model funcions cannot be used.
-#'	@param args.model a list containing parameters used for modeling.
-#'	@param args.predict a list containing parameters used for prediction.
-#'	@param data a data.frame containng data used for modeling.
+#'		'real' object created by actual model funcions cannot be used.
+#'	@param args.model A list containing parameters used for modeling.
+#'	@param args.predict A list containing parameters used for prediction.
+#'	@param data A data.frame containng data used for modeling.
 #'
 #'	@details
 #'	\describe{
@@ -47,7 +47,7 @@ modify.args.model <- function(cv.dummy, args.model, args.predict, data){
 
 #-------------------------------------------------------------------------------
 #'	@describeIn modify.args.model
-#'	default S3 method.
+#'	Default S3 method.
 #'	@method modify.args.model default
 #-------------------------------------------------------------------------------
 modify.args.model.default <- function(cv.dummy, args.model, args.predict, data){
@@ -56,7 +56,7 @@ modify.args.model.default <- function(cv.dummy, args.model, args.predict, data){
 
 #-------------------------------------------------------------------------------
 #'	@describeIn modify.args.model
-#'	method for \code{\link[e1071]{svm}} object in \emph{e1071} package.
+#'	Method for \code{\link[e1071]{svm}} object in \emph{e1071} package.
 #'	@method modify.args.model svm
 #-------------------------------------------------------------------------------
 #	確率を返すように挙動を変更する。
@@ -68,7 +68,7 @@ modify.args.model.svm <- function(cv.dummy, args.model, args.predict, data){
 
 #-------------------------------------------------------------------------------
 #'	@describeIn modify.args.model
-#'	method for \code{\link[gbm]{gbm}} object in \emph{gbm} package.
+#'	Method for \code{\link[gbm]{gbm}} object in \emph{gbm} package.
 #'	@method modify.args.model gbm
 #-------------------------------------------------------------------------------
 #	モデル構築用のn.treesがpredict用のn.treesがよりも少なかったら、
@@ -113,7 +113,7 @@ modify.args.model.gam <- function(cv.dummy, args.model, args.predict, data){
 
 #-------------------------------------------------------------------------------
 #'	@describeIn modify.args.model
-#'	method for \code{\link[mgcv]{gamm}} in \emph{mgcv} package.
+#'	Method for \code{\link[mgcv]{gamm}} in \emph{mgcv} package.
 #'	@method modify.args.model gamm
 #-------------------------------------------------------------------------------
 #	formulaの.を展開して、.のない式に変換する。
