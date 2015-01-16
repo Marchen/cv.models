@@ -1,4 +1,5 @@
 require(testthat)
+require(mgcv)
 
 #-------------------------------------------------------------------------------
 test_that("run cv.models with mgcv::gam (regression, no cluster)", {
