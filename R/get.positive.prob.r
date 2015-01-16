@@ -24,7 +24,7 @@ get.positive.prob <- function(response, prediction, positive.class = NULL){
 	# 陽性として使うクラスが見つからなかったら、１番目を返す。
 	positive.class <- get.positive.class(response, positive.class)
 	if (is.null(positive.class)){
-		return(prediction[, 1)
+		return(prediction[, 1])
 	} else {
 		return(prediction[, positive.class])
 	}
@@ -57,11 +57,11 @@ get.positive.class <- function(response, positive.class = NULL){
 		warning("Number of classes of response variable was > 2 and 'positive.class' was not specified! \nCalculations were done by assuming the first level of the response variable is the positive case.")
 		return(NULL)
 	}
-	# TRUE, 1, + がラベルに含まれていたら、それらを陽性と仮定して値を返す。
-	classes <- levels(response)
-	for (i in list(c("TRUE", "FALSE"), c("1", "0"), c("+", "-"), c("+", "0"))){
-		if (identical(classes, i) | identical(classes, rev(i))){
-			return(i[1])
+	# TRUE, 1がラベルに含まれていたら、それらを陽性と仮定して値を返す。
+	classes <- sort(levels(response))
+	for (i in list(c("FALSE", "TRUE"), c("0", "1"))){
+		if (identical(classes, i)){
+			return(i[2])
 		}
 	}
 	# それでも指標を決定できないときには１番目が陽性だと仮定して値を返す。
