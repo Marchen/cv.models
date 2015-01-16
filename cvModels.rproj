@@ -86,7 +86,10 @@
     <Content Include="roxygenize.r">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="R\calc.cv.metrics.r">
+    <Content Include="R\cv.performance.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\confusion.matrix.r">
       <SubType>Content</SubType>
     </Content>
     <Content Include="R\expand.dot.r">

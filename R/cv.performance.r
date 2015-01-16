@@ -53,6 +53,44 @@ calc.coords.metrics <- function(roc.object, coords.ret){
 }
 
 #-------------------------------------------------------------------------------
+#	すべての指標を計算する。引数はcv.performanceを参照。
+#-------------------------------------------------------------------------------
+calc.all.metrics <- function(
+	response, prediction, cv.metrics, cor.method = NULL
+){
+	coords.ret <- c(
+		"threshold", "specificity", "sensitivity", "accuracy",
+		"tn", "tp", "fn", "fp", "npv", "ppv",
+		"1-specificity", "1-sensitivity", "1-accuracy", "1-npv", "1-ppv"
+	)
+	# 結果を初期化
+	result <- matrix(nrow = 1, ncol = 0)
+	# 指標を計算
+	coords.dependent.metrics <- c("informedness", "markedness", "auc", "mcc")
+	if (any(c(coords.ret, coords.dependent.metrics) %in% cv.metrics)){
+		# YoudenのJで最適な閾値が決まらないと各指標が複数になる。
+		# 複数になるかを知るため、先にcoordsに依存する指標を計算してしまう。
+		require(pROC)
+		roc.object <- roc(response, prediction)
+		if (any(c("informedness", "mcc", coords.ret) %in% cv.metrics)){
+			result <- calc.coords.metrics(roc.object, coords.ret)
+			result <- cbind(result, informedness = calc.informedness(result))
+			result <- cbind(result, mcc = calc.mcc(result))
+		}
+		result <- cbind(result, auc = roc.object$auc)
+	}
+	result <- cbind(result, mse = calc.mse(response, prediction))
+	result <- cbind(result, rmse = calc.rmse(response, prediction))
+	result <- cbind(
+		result, r.squared = calc.r.squared(response, prediction, cor.method)
+	)
+	# 結果を整形
+	rownames(result) <- NULL
+	result <- data.frame(result)
+	return(result)
+}
+
+#-------------------------------------------------------------------------------
 #	モデルの性能評価指標を計算する関数。
 #
 #	Args:
@@ -76,43 +114,26 @@ calc.coords.metrics <- function(roc.object, coords.ret){
 #		計算した指標が入った行列。行が指標。もし、最適な閾値をYoudenの方法で決定
 #		出来ないときには複数の指標が列で返る。
 #-------------------------------------------------------------------------------
-calc.cv.metrics <- function(
-	response, prediction, cv.metrics, cor.method = NULL
+cv.performance <- function(
+	response, prediction, cv.metrics, positive.class = NULL, cor.method = NULL
 ){
-	coords.ret <- c(
-		"threshold", "specificity", "sensitivity", "accuracy",
-		"tn", "tp", "fn", "fp", "npv", "ppv",
-		"1-specificity", "1-sensitivity", "1-accuracy", "1-npv", "1-ppv"
+	metrics <- calc.all.metrics(response, prediction, cv.metrics, cor.method)
+	c.matrix <- confusion.matrix(
+		response, prediction, metrics[, "threshold"], positive.class
 	)
-	# 結果を初期化
-	result <- matrix(nrow = 1, ncol = 0)
-	# 指標を計算
-	coords.dependent.metrics <- c("informedness", "markedness", "auc", "mcc")
-	if (any(c(coords.ret, coords.dependent.metrics) %in% cv.metrics)){
-		# YoudenのJで最適な閾値が決まらないと各指標が複数になるので、
-		# 先にcoordsに依存する指標を計算してしまう。
-		require(pROC)
-		roc.object <- roc(response, prediction)
-		if (any(c("informedness", "mcc", coords.ret) %in% cv.metrics)){
-			result <- calc.coords.metrics(roc.object, coords.ret)
-			result <- cbind(result, informedness = calc.informedness(result))
-			result <- cbind(result, mcc = calc.mcc(result))
-		}
-		result <- cbind(result, auc = roc.object$auc)
-	}
-	result <- cbind(result, mse = calc.mse(response, prediction))
-	result <- cbind(result, rmse = calc.rmse(response, prediction))
-	result <- cbind(
-		result, r.squared = calc.r.squared(response, prediction, cor.method)
-	)
-	# 結果を整形
-	rownames(result) <- NULL
-	result <- data.frame(result)
-	result = result[cv.metrics]			# 必要な指標だけ返す。
+	metrics = metrics[cv.metrics]			# 必要な指標だけ返す。
 	# 最適な閾値が決まらず、結果が複数になったとき、predictionとresponseを複製
-	prediction <- do.call(cbind, rep(list(prediction), nrow(result)))
-	response <- do.call(cbind, rep(list(response), nrow(result)))
-	return(
-		list(metrics = result, cv.prediction = prediction, response = response)
+	prediction <- do.call(cbind, rep(list(prediction), nrow(metrics)))
+	response <- do.call(data.frame, rep(list(response), nrow(metrics)))
+	colnames(response) <- NULL
+	result <- list(
+		metrics = metrics, cv.prediction = prediction, response = response,
+		confusion.matrix = c.matrix
 	)
+	return(result)
 }
+
+
+
+
+

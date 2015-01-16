@@ -33,6 +33,7 @@ construct.model <- function(x, metrics.index){
 		cv.metrics = x$cv.metrics[metrics.index, ],
 		cv.prediction = x$cv.prediction[, metrics.index],
 		cv.response = x$cv.response[, metrics.index],
+		confusion.matrix = x$confusion.matrices[[metrics.index]],
 		function.name = x$function.name
 	)
 	return(result)

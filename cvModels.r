@@ -49,10 +49,11 @@
 #
 #	TODO:
 #		☆☆☆
-#		☆☆
 #			・confusion matrix
-#			・dredge & stepAIC
 #			・glmとかの応答変数がcbindのとき
+#		☆☆
+#			・get.positive.class関数の警告メッセージをcheck.args()関数へ移動。
+#			・dredge & stepAIC
 #			・modify.args.predict.treeとrpartでtypeを書き換える。
 #			・modify.args.predict.gbmでn.treesが指定されていなかったときの対応。
 #		☆
@@ -61,7 +62,7 @@
 #			・predicted probabilityのcolname
 #			・predict.cv.best.models()
 #			・cforestのチューニング対応？（要パラメーター選択）
-#			・plot.cv.models関数 2d, 3d, 4d?
+#			・plot.cv.models関数 2d, 3d, 4d? parsp
 #			・cv.more関数とmerge関数、more.metrics()関数
 #
 #-------------------------------------------------------------------------------
@@ -188,7 +189,8 @@ source(file.path(get.this.file.dir(), "R", "get.package.name.r"), encoding = "CP
 source(file.path(get.this.file.dir(), "R", "cluster.r"), encoding = "CP932")
 
 # モデル性能評価指標の計算関数群
-source(file.path(get.this.file.dir(), "R", "calc.cv.metrics.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "cv.performance.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "confusion.matrix.r"), encoding = "CP932")
 
 # クロスバリデーション関連関数群
 source(file.path(get.this.file.dir(), "R", "make.cv.group.r"), encoding = "CP932")

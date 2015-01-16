@@ -9,14 +9,16 @@
 #-------------------------------------------------------------------------------
 cv.models.object <- function(
 	model.function, function.name, package.name, data, args.model, args.predict,
-	cv.metrics, cv.prediction, cv.response, seed, positive.class
+	cv.metrics, cv.prediction, cv.response, confusion.matrices,
+	seed, positive.class
 ){
 	object <- list(
 		model.function = model.function, function.name = function.name,
 		package.name = package.name, data = data,
 		args.model = args.model, args.predict = args.predict,
 		cv.metrics = cv.metrics, cv.prediction = cv.prediction,
-		cv.response = cv.response, seed = seed, positive.class = positive.class
+		cv.response = cv.response, confusion.matrices = confusion.matrices,
+		seed = seed, positive.class = positive.class
 	)
 	class(object) <- "cv.models"
 	return(object)
@@ -92,6 +94,7 @@ cv.models.object <- function(
 #			cv.prediction: クロスバリデーションで計算された予測値。
 #			cv.response: クロスバリデーションに使われた応答変数の値。
 #			seed: 計算に使った乱数の種子。
+#			positive.class: 陽性として扱うクラスのラベル。
 #-------------------------------------------------------------------------------
 cv.models <- function(
 	model.function, args.model, data, args.predict = list(), cv.folds = 10,
@@ -122,13 +125,14 @@ cv.models <- function(
 		dummy, lapply(metrics, "[[", "cv.metrics"), args.model, "model"
 	)
 	cv.metrics <-do.call(rbind, cv.metrics)
-	# CVの予測値を取り出し。
+	# CVの予測値・応答変数・confusion matrixを取り出し。
 	cv.prediction <- do.call(cbind, lapply(metrics, "[[", "cv.prediction"))
 	cv.response <- do.call(cbind, lapply(metrics, "[[", "cv.response"))
+	cv.c.matrix <- do.call(c, lapply(metrics, "[[", "cv.confusion.matrices"))
 	result <- cv.models.object(
 		model.function, function.name, package.name, modified$data,
 		modified$args.model, modified$args.predict, cv.metrics, cv.prediction,
-		cv.response, seed, positive.class
+		cv.response, cv.c.matrix, seed, positive.class
 	)
 	cl$close()
 	return(result)

@@ -39,8 +39,8 @@ cross.validation <- function(
 	cv.result <- do.call(rbind, cv.result)
 	# 予測値からモデルの性能評価指標を計算
 	metrics <- cl$lapply(
-		cv.result[-1], calc.cv.metrics, response = cv.result[[1]],
-		cv.metrics = cv.metrics
+		cv.result[-1], cv.performance, response = cv.result[[1]],
+		cv.metrics = cv.metrics, positive.class = positive.class
 	)
 	cl$close()
 	# 結果を整形
@@ -51,10 +51,11 @@ cross.validation <- function(
 	row.names(cv.metrics) <- NULL
 	cv.prediction = do.call(cbind, lapply(metrics, "[[", "cv.prediction"))
 	cv.response = do.call(cbind, lapply(metrics, "[[", "response"))
+	cv.c.matrices = do.call(c, lapply(metrics, "[[", "confusion.matrix"))
 	return(
 		list(
 			cv.metrics = cv.metrics, cv.prediction = cv.prediction,
-			cv.response = cv.response
+			cv.response = cv.response, cv.confusion.matrices = cv.c.matrices
 		)
 	)
 }
