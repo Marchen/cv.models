@@ -1,7 +1,7 @@
 #-------------------------------------------------------------------------------
 #'	Modify class of response variable.
 #'
-#'	Some functions require factor response variable for binary classification.
+#'	Some functions require response variable of factor for binary classification
 #'	This function change the class of response variable to attain correct result. 
 #'	This function is an internal function and not intended to be used directly 
 #'	by users.
