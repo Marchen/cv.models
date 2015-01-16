@@ -39,5 +39,5 @@ cv.one.fold <- function(
 	# —\‘ª’l‚Ì’†‚©‚ç—z«‚ÌŠm—¦‚ðŽæ‚èo‚·B
 	response <- data.test[[get.response.name(model)]]
 	predictions <- get.positive.prob(response, predictions, positive.class)
-	return(as.data.frame(cbind(y = response, predictions)))
+	return(cbind(y = response, as.data.frame(predictions)))
 }
