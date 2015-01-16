@@ -89,19 +89,31 @@ modify.args.model.gbm <- function(cv.dummy, args.model, args.predict, data){
 
 #-------------------------------------------------------------------------------
 #'	@describeIn modify.args.model
-#'	method for merMod created by \code{\link[lme4]{lmer}} and 
-#'	\code{\link[lme4]{glmer}} functions in \emph{lme4} package.
-#'	@method modify.args.model merMod
+#'	Method for lmerMod class created by \code{\link[lme4]{lmer}} function in
+#'	\emph{lme4} package.
+#'	@method modify.args.model lmerMod
 #-------------------------------------------------------------------------------
 #	formulaの.を展開して、.のない式に変換する。
 #-------------------------------------------------------------------------------
-modify.args.model.merMod <- function(cv.dummy, args.model, args.predict, data){
+modify.args.model.lmerMod <- function(cv.dummy, args.model, args.predict, data){
 	return(expand.dot(cv.dummy, args.model, data))
 }
 
 #-------------------------------------------------------------------------------
 #'	@describeIn modify.args.model
-#'	method for \code{\link[mgcv]{gam}} in \emph{mgcv} package and 
+#'	Method for glmerMod class created by \code{\link[lme4]{glmer}} function in 
+#'	\emph{lme4} package.
+#'	@method modify.args.model gmerMod
+#-------------------------------------------------------------------------------
+#	formulaの.を展開して、.のない式に変換する。
+#-------------------------------------------------------------------------------
+modify.args.model.glmerMod <- function(cv.dummy, args.model, args.predict, data){
+	return(expand.dot(cv.dummy, args.model, data))
+}
+
+#-------------------------------------------------------------------------------
+#'	@describeIn modify.args.model
+#'	Method for \code{\link[mgcv]{gam}} in \emph{mgcv} package and 
 #'	\code{\link[gam]{gam}} functions in \emph{gam} package.
 #'	@method modify.args.model gam
 #-------------------------------------------------------------------------------
