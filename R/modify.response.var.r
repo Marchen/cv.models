@@ -117,6 +117,7 @@ response.var.to.factor <- function(response){
 	if (
 		identical(unique.values, c(FALSE, TRUE))
 		| identical(unique.values, c(0, 1))
+		| identical(unique.values, c(0L, 1L))
 	){
 		response <- as.factor(response)
 	}

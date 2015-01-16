@@ -21,7 +21,7 @@ test_that(
 {
 	data(iris)
 	iris <- subset(iris, Species != "setosa")
-	iris$Species <- as.numeric(iris$Species) - 2
+	iris$Species <- as.integer(iris$Species) - 2L
 	cv <- cv.models(
 		randomForest, args.model = list(Species ~ .), data = iris,
 		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
