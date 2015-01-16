@@ -1,40 +1,61 @@
 require(testthat)
 
-test.data <- read.csv(
-	"C:/Users/mic/Dropbox/‚¨‚µ‚²‚Æ/‚©‚¢‚¹‚«/2013.05.08 ‚¢‚Ü‚Ğ‚½‚ñ/Data/imahi.analyze.csv"
-)
-test.data2 <-test.data
-test.data2$dead <- as.factor(test.data2$dead)
-
-
 #-------------------------------------------------------------------------------
-test_that("ctreeA‰ñ‹A–â‘è", {
-	cvctree <- cv.models(
-		ctree, args.model = list(
-			formula = dead ~ ba.mizunara + ba.konara + ba.buna + ba.sugi
-		),
-		data = test.data, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		n.cores = 1
+test_that("run cv.models with ctree (regression, no cluster)", {
+	data(iris)
+	cv <- cv.models(
+		ctree, args.model = list(Sepal.Length ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
 	)
-	cvctree
-	r <- get.best.models(cvctree)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 
 #-------------------------------------------------------------------------------
-test_that("ctreeA¯•Ê–â‘è", {
-	cvctree <- cv.models(
-		ctree, args.model = list(
-			formula = dead ~ ba.mizunara + ba.konara + ba.buna + ba.sugi
-		),
-		data = test.data2,
-		cv.metrics = c("auc", "mse", "rmse", "informedness", "threshold"),
-		n.cores = 1
+test_that("run cv.models with ctree (classification, no cluster)", {
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		ctree, args.model = list(Species ~ .), data = iris,
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"),
+		n.cores = 1,
+		seed = 2
 	)
-	cvctree
-	r <- get.best.models(cvctree)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+#-------------------------------------------------------------------------------
+test_that("run cv.models with ctree (regression, with cluster)", {
+	data(iris)
+	cv <- cv.models(
+		ctree, args.model = list(Sepal.Length ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness")
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+#-------------------------------------------------------------------------------
+test_that("run cv.models with ctree (classification, with cluster)", {
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		ctree, args.model = list(Species ~ .), data = iris,
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"),
+		seed = 2
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 

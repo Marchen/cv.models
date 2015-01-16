@@ -29,7 +29,31 @@
     <Content Include="inst\tests\testthat\test-check.args.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-cforest.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="inst\tests\testthat\test-cv.models-run-ctree.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-gam-gam.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-mgcv-gamm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-glmer.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-lm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-lme.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-lmer.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-mgcv-gam.r">
       <SubType>Content</SubType>
     </Content>
     <Content Include="inst\tests\testthat\test-cv.models-run-svm.r">

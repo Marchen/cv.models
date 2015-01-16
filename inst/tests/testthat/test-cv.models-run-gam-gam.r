@@ -1,11 +1,12 @@
 require(testthat)
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with glm (regression, no cluster)", {
+test_that("run cv.models with mgcv::gam (regression, no cluster)", {
 	data(iris)
 	cv <- cv.models(
-		glm, args.model = list(Sepal.Length ~ ., family = gaussian), data = iris,
-		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
+		gam, args.model = list(Sepal.Length ~ ., family = gaussian), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1,
+		package.name = "gam"
 	)
 	print(cv)
 	bm <- get.best.models(cv)
@@ -14,14 +15,15 @@ test_that("run cv.models with glm (regression, no cluster)", {
 })
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with glm (classification, no cluster)", {
+test_that("run cv.models with mgcv::gam (classification, no cluster)", {
 	data(iris)
 	iris <- subset(iris, Species != "setosa")
 	iris$Species <- as.numeric(iris$Species) - 2
 	cv <- cv.models(
-		glm, args.model = list(Species ~ Petal.Length, family = binomial),
+		gam, args.model = list(Species ~ Petal.Length, family = binomial),
 		data = iris,
-		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"),
+		n.cores = 1, package.name = "gam"
 	)
 	print(cv)
 	bm <- get.best.models(cv)
@@ -30,11 +32,12 @@ test_that("run cv.models with glm (classification, no cluster)", {
 })
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with glm (regression, with cluster)", {
+test_that("run cv.models with mgcv::gam (regression, with cluster)", {
 	data(iris)
 	cv <- cv.models(
-		glm, args.model = list(Sepal.Length ~ ., family = gaussian), data = iris,
-		cv.metrics = c("auc", "mse", "rmse", "informedness")
+		gam, args.model = list(Sepal.Length ~ ., family = gaussian), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"),
+		package.name = "gam"
 	)
 	print(cv)
 	bm <- get.best.models(cv)
@@ -43,22 +46,20 @@ test_that("run cv.models with glm (regression, with cluster)", {
 })
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with glm (classification, with cluster)", {
+test_that("run cv.models with mgcv::gam (classification, with cluster)", {
 	data(iris)
 	iris <- subset(iris, Species != "setosa")
 	iris$Species <- as.numeric(iris$Species) - 2
 	cv <- cv.models(
-		glm, args.model = list(Species ~ Petal.Length, family = binomial),
+		gam, args.model = list(Species ~ Petal.Length, family = binomial),
 		data = iris,
-		cv.metrics = c("auc", "mse", "rmse", "informedness")
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"),
+		package.name = "gam"
 	)
 	print(cv)
 	bm <- get.best.models(cv)
 	print(bm)
 	summary(bm)
 })
-
-
-
 
 

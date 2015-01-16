@@ -1,5 +1,5 @@
-require(testthat)
-
-data(iris)
-
-r.svm <- svm(iris$Species~
+#require(testthat)
+#
+#data(iris)
+#
+#r.svm <- svm(iris$Species~

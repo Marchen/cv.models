@@ -1,57 +1,152 @@
-require(test_that)
-
-test.data <- read.csv(
-	"C:/Users/mic/Dropbox/おしごと/かいせき/2013.05.08 いまひたん/Data/imahi.analyze.csv"
-)
-test.data2 <-test.data
-test.data2$dead <- as.factor(test.data2$dead)
-
+require(testthat)
 
 #-------------------------------------------------------------------------------
-test_that("randomForest、識別、チューニングなし", {
-	cvrf <- cv.models(
-		randomForest,
-		args.model = list(
-			formula = dead ~ ba + ba.mizunara + ba.konara + ba.buna + ba.sugi,
-			ntrees = 2000
-		),
-		data = test.data2, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		n.cores = 4, seed = 1
+test_that(
+	"run cv.models with randomForest (regression, no tuning, no cluster)",
+{
+	data(iris)
+	cv <- cv.models(
+		randomForest, args.model = list(Sepal.Length ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
 	)
-	cvrf
-	r <- get.best.models(cvrf)
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 
 #-------------------------------------------------------------------------------
-test_that("randomForest、回帰、チューニングなし", {
-	cvrf <- cv.models(
-		randomForest,
-		args.model = list(
-			formula = dead ~ ba + ba.mizunara + ba.konara + ba.buna + ba.sugi,
-			ntrees = 2000
-		),
-		data = test.data, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		n.cores = 4, seed = 1
+test_that(
+	"run cv.models with randomForest (classification, no tuning, no cluster)",
+{
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		randomForest, args.model = list(Species ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
 	)
-	cvrf
-	r <- get.best.models(cvrf)
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 
 #-------------------------------------------------------------------------------
-test_that("randomForest、回帰、チューニングあり", {
-	cvrf <- cv.models(
+test_that(
+	"run cv.models with randomForest (regression, with tuning, no cluster)",
+{
+	data(iris)
+	cv <- cv.models(
 		randomForest,
 		args.model = list(
-			formula = n.mizunara ~ ba + ba.mizunara + ba.konara + ba.buna + ba.sugi,
-			mtry = 1:5
+			Sepal.Length ~ ., mtry = 1:3, sampsize = c(10, 30, 100),
+			nodesize = c(3, 5), maxnodes = c(2, 3)
 		),
-		data = test.data, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		n.cores = 4
+		data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
 	)
-	cvrf
-	r <- get.best.models(cvrf, metrics = "mse")
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with randomForest (classification, with tuning, no cluster)",
+{
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		randomForest,
+		args.model = list(
+			Species ~ ., mtry = 1:3, sampsize = c(10, 30),
+			nodesize = c(3, 5), maxnodes = c(2, 3)
+		),
+		data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with randomForest (regression, no tuning, with cluster)",
+{
+	data(iris)
+	cv <- cv.models(
+		randomForest, args.model = list(Sepal.Length ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness")
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with randomForest (classification, no tuning, with cluster)",
+{
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		randomForest, args.model = list(Species ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness")
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with randomForest (regression, with tuning, with cluster)",
+{
+	data(iris)
+	cv <- cv.models(
+		randomForest,
+		args.model = list(
+			Sepal.Length ~ ., mtry = 1:3, sampsize = c(10, 30, 100),
+			nodesize = c(3, 5), maxnodes = c(2, 3)
+		),
+		data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness")
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with randomForest (classification, with tuning, with cluster)",
+{
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		randomForest,
+		args.model = list(
+			Species ~ ., mtry = 1:3, sampsize = c(10, 30),
+			nodesize = c(3, 5), maxnodes = c(2, 3)
+		),
+		data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness")
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 

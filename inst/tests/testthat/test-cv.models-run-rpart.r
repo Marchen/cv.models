@@ -1,38 +1,63 @@
-
-test.data <- read.csv(
-	"C:/Users/mic/Dropbox/‚¨‚µ‚²‚Æ/‚©‚¢‚¹‚«/2013.05.08 ‚¢‚Ü‚Ğ‚½‚ñ/Data/imahi.analyze.csv"
-)
-test.data2 <-test.data
-test.data2$dead <- as.factor(test.data2$dead)
-
+require(testthat)
 
 #-------------------------------------------------------------------------------
-test_that("rpartA¯•Ê", {
-	cvrpart1 <- cv.models(
-		rpart, args.model = list(
-			formula = dead ~ ba.mizunara+ba.konara+ba.buna+ba.sugi
-		),
-		data = test.data2, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		n.cores = 1, seed=12
+test_that("run cv.models with rpart (classification, no cluster)", {
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		rpart, args.model = list(Species ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
 	)
-	cvrpart
-	r <- get.best.models(cvrpart)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 
 #-------------------------------------------------------------------------------
-test_that("rpartA‰ñ‹A", {
-	cvrpart2 <- cv.models(
-		rpart, args.model = list(
-			formula = dead ~ ba.mizunara+ba.konara+ba.buna+ba.sugi
-		),
-		data = test.data, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		n.cores = 1, seed=12
+test_that(
+	"run cv.models with rpart (regression, no cluster)",
+{
+	data(iris)
+	cv <- cv.models(
+		rpart, args.model = list(Sepal.Length ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
 	)
-	cvrpart
-	r <- get.best.models(cvrpart)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
+
+#-------------------------------------------------------------------------------
+test_that("run cv.models with rpart (classification, with cluster)", {
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		rpart, args.model = list(Species ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness")
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with rpart (regression, with cluster)",
+{
+	data(iris)
+	cv <- cv.models(
+		rpart, args.model = list(Sepal.Length ~ .), data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness")
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
 

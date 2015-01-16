@@ -1,98 +1,171 @@
 require(testthat)
 
-test.data <- read.csv(
-	"C:/Users/mic/Dropbox/おしごと/かいせき/2013.05.08 いまひたん/Data/imahi.analyze.csv"
-)
-test.data2 <-test.data
-test.data2$dead <- as.factor(test.data2$dead)
-
 #-------------------------------------------------------------------------------
-test_that("gbm、タイあり、モデル選択あり、分類問題", {
-	cvgbm <- cv.models(
+test_that(
+	"run cv.models with gbm (regression, with parameter tuning, no cluster)",
+{
+	data(iris)
+	cv <- cv.models(
 		gbm, args.model = list(
-			formula = dead ~ ba + ba.mizunara, distribution = "bernoulli",
-			shrinkage = c(0.1, 0.01),
-			interaction.depth = c(1, 3),
-			n.minobsinnode = c(5, 10),
-			bag.fraction = c(0.5, 0.8)
+			Sepal.Length~., shrinkage = c(0.1, 0.01, 0.001),
+			n.minobsinnode = c(1, 5, 10), interaction.depth = c(1, 3),
+			distribution = "gaussian", n.trees = 500
 		),
-		data = test.data[1:50, ],
-		cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		args.predict = list(n.trees = c(1, 10, 100)), seed = 1,
+		args.predict = list(n.trees = seq(5, 500, by = 5)),
+		data=iris, cv.metrics = c(
+			"threshold", "auc", "mse", "rmse", "mcc", "informedness"
+		),
 		n.cores = 1
 	)
-	cvgbm
-	r <- get.best.models(cvgbm)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 
 #-------------------------------------------------------------------------------
-test_that("gbm、タイなし、モデル選択あり、分類問題", {
-	cvgbm <- cv.models(
+test_that(
+	"run cv.models with gbm (classification, with parameter tuning, no cluster)",
+{
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
 		gbm, args.model = list(
-			formula = dead ~ ba + ba.mizunara, distribution = "bernoulli",
-			shrinkage = c(0.1, 0.01),
-			interaction.depth = c(1, 3),
-			n.minobsinnode = c(5, 10),
-			bag.fraction = c(0.5, 0.8)
+			Species~., shrinkage = c(0.1, 0.01, 0.001),
+			n.minobsinnode = c(1, 5, 10), interaction.depth = c(1, 3),
+			distribution = "bernoulli"
 		),
-		data = test.data, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		args.predict = list(n.trees = c(1, 10, 100)), seed = 1,
+		args.predict = list(n.trees = seq(5, 500, by = 5)),
+		data=iris,
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"),
 		n.cores = 1
 	)
-	cvgbm
-	r <- get.best.models(cvgbm)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 
 #-------------------------------------------------------------------------------
-test_that("gbm、タイあり、モデル選択なし、分類問題", {
-	cvgbm <- cv.models(
+test_that(
+	"run cv.models with gbm (regression, with parameter tuning, with cluster)",
+{
+	data(iris)
+	cv <- cv.models(
 		gbm, args.model = list(
-			formula = dead ~ ba + ba.mizunara, distribution = "bernoulli"
+			Sepal.Length~., shrinkage = c(0.1, 0.01, 0.001),
+			n.minobsinnode = c(1, 5, 10), interaction.depth = c(1, 3),
+			distribution = "gaussian", n.trees = 500
 		),
-		data = test.data[1:50, ],
-		cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		args.predict = list(n.trees = 100), seed = 1,
-		n.cores = 1
+		args.predict = list(n.trees = seq(5, 500, by = 5)),
+		data=iris,
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "mcc", "informedness")
 	)
-	cvgbm
-	r <- get.best.models(cvgbm)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 
 #-------------------------------------------------------------------------------
-test_that("gbm、タイなし、モデル選択なし、分類問題", {
-	cvgbm <- cv.models(
+test_that(
+	"run cv.models with gbm (classification, with parameter tuning, with cluster)",
+{
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
 		gbm, args.model = list(
-			formula = dead ~ ba + ba.mizunara, distribution = "bernoulli"
+			Species~., shrinkage = c(0.1, 0.01, 0.001),
+			n.minobsinnode = c(1, 5, 10), interaction.depth = c(1, 3),
+			distribution = "bernoulli"
 		),
-		data = test.data, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		args.predict = list(n.trees = 100), seed = 1,
-		n.cores = 1
+		args.predict = list(n.trees = seq(5, 500, by = 5)),
+		data=iris,
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness")
 	)
-	cvgbm
-	r <- get.best.models(cvgbm)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
 
-test_that("gbm、タイあり、モデル選択なし、回帰問題", {
-	cvgbm <- cv.models(
-		gbm, args.model = list(
-			formula = n.mizunara ~ ba + ba.mizunara, distribution = "gaussian"
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with gbm (regression, no parameter tuning, no cluster)",
+{
+	data(iris)
+	cv <- cv.models(
+		gbm, args.model = list(Sepal.Length~., distribution = "gaussian"),
+		args.predict = list(n.trees = 100),
+		data=iris, cv.metrics = c(
+			"threshold", "auc", "mse", "rmse", "mcc", "informedness"
 		),
-		data = test.data[1:50, ],
-		cv.metrics = c("auc", "mse", "rmse", "informedness"),
-		args.predict = list(n.trees = c(1,10,100)), seed = 1,
 		n.cores = 1
 	)
-	cvgbm
-	r <- get.best.models(cvgbm)
-	r
-	summary(r)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
 })
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with gbm (classification, no parameter tuning, no cluster)",
+{
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		gbm, args.model = list(Species~., distribution = "bernoulli"),
+		args.predict = list(n.trees = 100),
+		data=iris, cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"),
+		n.cores = 1
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with gbm (regression, no parameter tuning, with cluster)",
+{
+	data(iris)
+	cv <- cv.models(
+		gbm, args.model = list(Sepal.Length~., distribution = "gaussian"),
+		args.predict = list(n.trees = 100),
+		data=iris, cv.metrics = c(
+			"threshold", "auc", "mse", "rmse", "mcc", "informedness"
+		)
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+#-------------------------------------------------------------------------------
+test_that(
+	"run cv.models with gbm (classification, no parameter tuning, with cluster)",
+{
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	cv <- cv.models(
+		gbm, args.model = list(Species~., distribution = "bernoulli"),
+		args.predict = list(n.trees = 100),
+		data=iris, cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness")
+	)
+	print(cv)
+	bm <- get.best.models(cv)
+	print(bm)
+	summary(bm)
+})
+
+
+
+
 
