@@ -49,7 +49,6 @@
 #
 #	TODO:
 #		☆☆☆
-#			・confusion matrix
 #			・glmとかの応答変数がcbindのとき
 #		☆☆
 #			・get.positive.class関数の警告メッセージをcheck.args()関数へ移動。
@@ -113,6 +112,8 @@
 #	best1[[1]]$model			# ベストモデルのモデルオブジェクト
 #	best1[[1]]$cv.metrics		# ベストモデルのCV指標
 #	best1[[1]]$cv.prediction	# CV計算に使った予測値
+#	best1[[1]]$cv.response		# CV計算に使った並べ替え済み応答変数
+#	best1[[1]]$confusion.matrix	# 指標計算に使われたconfusion.matrix
 #	best1[[1]]$function.name	# 一応保存されてる関数名
 #
 #	# 複数もOK
