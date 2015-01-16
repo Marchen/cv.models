@@ -40,6 +40,8 @@ print.cv.best.models <- function(x, ...){
 		cat("Function name: ", i$function.name, "\n")
 		cat("Cross validation metrics:\n")
 		print(i$cv.metrics)
+		cat("\nConfusion matrix:\n")
+		print(i$confusion.matrix)
 		cat("\n")
 	}
 }
