@@ -7,7 +7,8 @@ test_that(
 	data(iris)
 	cv <- cv.models(
 		randomForest, args.model = list(Sepal.Length ~ .), data = iris,
-		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1,
+		seed = 1
 	)
 	print(cv)
 	bm <- get.best.models(cv)
@@ -24,7 +25,8 @@ test_that(
 	iris$Species <- as.integer(iris$Species) - 2L
 	cv <- cv.models(
 		randomForest, args.model = list(Species ~ .), data = iris,
-		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"), n.cores = 1,
+		seed = 1
 	)
 	print(cv)
 	bm <- get.best.models(cv)
@@ -44,7 +46,7 @@ test_that(
 			nodesize = c(3, 5), maxnodes = c(2, 3)
 		),
 		data = iris,
-		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
+		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"), n.cores = 1
 	)
 	print(cv)
 	bm <- get.best.models(cv)
