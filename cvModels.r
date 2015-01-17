@@ -17,7 +17,6 @@
 #		全般:
 #			predict関数のtypeは応答変数が因子型だと"prob"に、それ以外だと
 #			"response"に自動的に書き換えられます。
-#			R 2.x.xだと乱数の種子を指定しないと動きません。
 #		lme:
 #			predictがたまにNAを返すので、mseとかrmseが計算できないかも。
 #			計算にna.omitを入れちゃう？
@@ -50,6 +49,8 @@
 #	TODO:
 #		☆☆☆
 #			・glmとかの応答変数がcbindのとき
+#			・識別問題の時だけ、confusionマトリクスを計算する。
+#				→get.problem(function.name, args.model)関数
 #		☆☆
 #			・get.positive.class関数の警告メッセージをcheck.args()関数へ移動。
 #			・dredge & stepAIC
@@ -172,6 +173,7 @@ source(file.path(get.this.file.dir(), "R", "get.tunable.args.r"), encoding = "CP
 source(file.path(get.this.file.dir(), "R", "expand.tunable.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "merge.tunable.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "format.prediction.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "detect.model.type.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "make.dummy.r"), encoding = "CP932")
 
 # パラメーターの整合性を調整する関数群

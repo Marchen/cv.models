@@ -92,6 +92,9 @@
     <Content Include="R\confusion.matrix.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="R\detect.model.type.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="R\expand.dot.r">
       <SubType>Content</SubType>
     </Content>

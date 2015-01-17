@@ -94,7 +94,8 @@ export.functions <- function(cl){
 		"cv.one.fold", "init.cluster", "ncl.library", "make.cv.group",
 		"get.package.name", "get.class.name", "get.args", "make.dummy",
 		"merge.tunable.args", "predict.gamm", "get.positive.prob",
-		"get.positive.class",
+		"get.positive.class", "detect.type.from.response.var",
+		"detect.type.from.family",
 		"is.formula", "confusion.matrix", "cv.performance"
 	)
 	export.pattern <- paste(
@@ -102,7 +103,7 @@ export.functions <- function(cl){
 		"^get\\.tunable\\.args.*", "^modify\\.args\\.predict.*",
 		"^modify\\.args\\.model.*", "^modify\\.response\\.var.*",
 		"^get\\.formula.*", "^get\\.response\\.class.*",
-		"^format\\.prediction.*", sep = "|"
+		"^format\\.prediction.*", "^detect\\.model\\.type.*", sep = "|"
 	)
 	clusterExport(
 		cl,

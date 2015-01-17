@@ -30,6 +30,15 @@ summary.cv.best.models <- function(x, ...){
 		cat("-------------------------\n")
 		cat("Cross validation metrics:\n")
 		print(i$cv.metrics)
+		if (!is.null(i$confusion.matrix)){
+			cat(
+				sprintf(
+					"\nConfusion matrix (threshold = %.2f):\n",
+					attr(i$confusion.matrix, "threshold")
+				)
+			)
+			print(i$confusion.matrix)
+		}
 		cat("\n")
 	}
 }
@@ -40,8 +49,15 @@ print.cv.best.models <- function(x, ...){
 		cat("Function name: ", i$function.name, "\n")
 		cat("Cross validation metrics:\n")
 		print(i$cv.metrics)
-		cat("\nConfusion matrix:\n")
-		print(i$confusion.matrix)
+		if (!is.null(i$confusion.matrix)){
+			cat(
+				sprintf(
+					"\nConfusion matrix (threshold = %.2f):\n",
+					attr(i$confusion.matrix, "threshold")
+				)
+			)
+			print(i$confusion.matrix)
+		}
 		cat("\n")
 	}
 }

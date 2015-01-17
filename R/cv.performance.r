@@ -56,7 +56,7 @@ calc.coords.metrics <- function(roc.object, coords.ret){
 #	すべての指標を計算する。引数はcv.performanceを参照。
 #-------------------------------------------------------------------------------
 calc.all.metrics <- function(
-	response, prediction, cv.metrics, cor.method = NULL
+	response, prediction, cv.metrics, model.type, cor.method = NULL
 ){
 	coords.ret <- c(
 		"threshold", "specificity", "sensitivity", "accuracy",
@@ -67,9 +67,12 @@ calc.all.metrics <- function(
 	result <- matrix(nrow = 1, ncol = 0)
 	# 指標を計算
 	coords.dependent.metrics <- c("informedness", "markedness", "auc", "mcc")
-	if (any(c(coords.ret, coords.dependent.metrics) %in% cv.metrics)){
-		# YoudenのJで最適な閾値が決まらないと各指標が複数になる。
-		# 複数になるかを知るため、先にcoordsに依存する指標を計算してしまう。
+	if (
+		model.type == "classification"
+ 		| any(c(coords.ret, coords.dependent.metrics) %in% cv.metrics)
+	){
+		# YoudenのJで最適な閾値が決まらないと各指標が複数になる。複数になるか
+		# を先に判定するため、まずcoordsに依存する指標を計算してしまう。
 		require(pROC)
 		roc.object <- roc(response, prediction)
 		if (any(c("informedness", "mcc", coords.ret) %in% cv.metrics)){
@@ -107,6 +110,8 @@ calc.all.metrics <- function(
 #			"rmse": root mean square error
 #			"r.squared": R二乗値
 #			に対応。
+#		positive.class: 陽性として扱うクラスのラベル。
+#		model.type: "regression" or "classification"
 #		cor.method:
 #			R二乗値を計算するときの方法。デフォルトはSpearmanの積率相関係数。
 #
@@ -115,12 +120,19 @@ calc.all.metrics <- function(
 #		出来ないときには複数の指標が列で返る。
 #-------------------------------------------------------------------------------
 cv.performance <- function(
-	response, prediction, cv.metrics, positive.class = NULL, cor.method = NULL
+	response, prediction, cv.metrics, positive.class, model.type,
+	cor.method = NULL
 ){
-	metrics <- calc.all.metrics(response, prediction, cv.metrics, cor.method)
-	c.matrix <- confusion.matrix(
-		response, prediction, metrics[, "threshold"], positive.class
+	metrics <- calc.all.metrics(
+		response, prediction, cv.metrics, model.type, cor.method
 	)
+	if (model.type == "classification"){
+		c.matrix <- confusion.matrix(
+			response, prediction, metrics[, "threshold"], positive.class
+		)
+	} else {
+		c.matrix <- NULL
+	}
 	metrics = metrics[cv.metrics]			# 必要な指標だけ返す。
 	# 最適な閾値が決まらず、結果が複数になったとき、predictionとresponseを複製
 	prediction <- do.call(cbind, rep(list(prediction), nrow(metrics)))
@@ -130,6 +142,7 @@ cv.performance <- function(
 		metrics = metrics, cv.prediction = prediction, response = response,
 		confusion.matrix = c.matrix
 	)
+	class(result) <- "cv.performance"
 	return(result)
 }
 

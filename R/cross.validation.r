@@ -40,7 +40,8 @@ cross.validation <- function(
 	# 予測値からモデルの性能評価指標を計算
 	metrics <- cl$lapply(
 		cv.result[-1], cv.performance, response = cv.result[[1]],
-		cv.metrics = cv.metrics, positive.class = positive.class
+		cv.metrics = cv.metrics, positive.class = positive.class,
+		model.type = detect.model.type(cv.dummy, args.model, data)
 	)
 	cl$close()
 	# 結果を整形
