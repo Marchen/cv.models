@@ -19,7 +19,7 @@
 #'		levels(as.factor(response))[2] as positive, like \code{\link[pROC]{roc}}
 #'		function in \emph{pROC} package.
 #'
-#'	@return a list containing tables object of confusion matrices.
+#'	@return a list containing table objects of confusion matrix.
 #-------------------------------------------------------------------------------
 confusion.matrix <- function(
 	response, prediction, thresholds = 0.5, positive.class = NULL

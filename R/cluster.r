@@ -1,4 +1,12 @@
-
+#-------------------------------------------------------------------------------
+#'	(Internal) Wrapper function of clusterApplyLB.
+#'
+#'	This function wraps difference in arguments between 
+#'	\code{\link[base]{lapply}} and \code{\link[parallel]{clusterApplyLB}}.
+#'
+#'	@param X same as \emph{lapply}.
+#'	@param FUN same as \emph{lapply}.
+#'	@param ... same as \emph{lapply}.
 #-------------------------------------------------------------------------------
 #	lapplyのラッパー
 #-------------------------------------------------------------------------------
@@ -6,6 +14,17 @@ cl.lapply  <- function(X, FUN, ...){
 	return(clusterApplyLB(cl = cl, x = X, fun = FUN, ...))
 }
 
+#-------------------------------------------------------------------------------
+#'	(Internal) Wrapper function of clusterMap.
+#'
+#'	This function wraps difference in arguments between 
+#'	\code{\link[base]{mapply}} and \code{\link[parallel]{clusterMap}}.
+#'
+#'	@param FUN same as \emph{mapply}.
+#'	@param ... same as \emph{mapply}.
+#'	@param MoreArgs same as \emph{mapply}.
+#'	@param SIMPLIFY same as \emph{mapply}.
+#'	@param USE.NAMES same as \emph{mapply}.
 #-------------------------------------------------------------------------------
 #	mapplyのラッパー
 #-------------------------------------------------------------------------------
