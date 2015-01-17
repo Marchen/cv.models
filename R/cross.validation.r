@@ -29,7 +29,7 @@ cross.validation <- function(
 	cl <- init.cluster(n.cores)
 	cl$library(cv.dummy$package)
 	# クロスバリデーションで予測値を計算
-	set.seed(seed)
+	if (!is.null(seed)) set.seed(seed)
 	cv.result <- cl$lapply(
 		1:cv.folds, cv.one.fold, model.function = model.function,
 		args.model = args.model, args.predict = args.predict, data = data,
