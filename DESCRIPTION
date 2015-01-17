@@ -10,4 +10,4 @@ Depends: R (>= 3.0.0), base, stats, parallel, pROC
 Imports:
 	base, stats, parallel, pROC
 Suggests:
-	randomForest, party, gbm, svm, lme4, nlme, tree, rpart, mgcv, gam
+	randomForest, party, gbm, e1071, lme4, nlme, tree, rpart, mgcv, gam
