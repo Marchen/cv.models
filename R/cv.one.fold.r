@@ -25,7 +25,7 @@ cv.one.fold <- function(
 	positive.class = NULL
 ){
 	# ƒ‚ƒfƒ‹\’z
-	set.seed(seed)
+	if (!is.null(seed)) set.seed(seed)
 	data.test <- data[cv.group == cv.index, ]
 	data.train <- data[cv.group != cv.index, ]
 	args.model$data <- data.train

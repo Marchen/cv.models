@@ -19,7 +19,7 @@
 #-------------------------------------------------------------------------------
 construct.model <- function(x, metrics.index){
 	# ƒ‚ƒfƒ‹‚É“n‚·ˆø”‚ð€”õ
-	set.seed(x$seed)
+	if (!is.null(seed)) set.seed(x$seed)
 	args <- x$args.model
 	args$data <- x$data
 	tunable.args <- get.tunable.args(
