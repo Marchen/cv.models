@@ -34,7 +34,9 @@ construct.model <- function(x, metrics.index){
 		cv.prediction = x$cv.prediction[, metrics.index],
 		cv.response = x$cv.response[, metrics.index],
 		confusion.matrix = x$confusion.matrices[[metrics.index]],
-		function.name = x$function.name
+		function.name = x$function.name,
+		package.name = x$package.name
 	)
+	class(result) <- "cv.best.model"
 	return(result)
 }
