@@ -39,7 +39,7 @@ test_that("run cv.models with mgcv::gam (classification, no cluster)", {
 })
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with mgcv::gam (regression, no cluster)", {
+test_that("run cv.models with mgcv::gam (regression, with cluster)", {
 	set.seed(0)
 	dat <- gamSim(1, n = 200, scale = 2)
 	cv <- cv.models(
@@ -56,7 +56,7 @@ test_that("run cv.models with mgcv::gam (regression, no cluster)", {
 })
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with mgcv::gam (classification, no cluster)", {
+test_that("run cv.models with mgcv::gam (classification, wht cluster)", {
 	set.seed(0)
 	dat <- gamSim(1, n = 600, scale = .33, dist = "binary")
 	cv <- cv.models(
