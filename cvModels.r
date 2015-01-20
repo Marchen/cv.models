@@ -48,12 +48,10 @@
 #
 #	TODO:
 #		☆☆☆
-#			・glmとかの応答変数がcbindのとき
-#			・識別問題の時だけ、confusionマトリクスを計算する。
-#				→get.problem(function.name, args.model)関数
-#		☆☆
-#			・get.positive.class関数の警告メッセージをcheck.args()関数へ移動。
 #			・dredge & stepAIC
+#			・get.positive.class関数の警告メッセージをcheck.args()関数へ移動。
+#		☆☆
+#			・glmとかの応答変数がcbindのとき
 #			・modify.args.predict.treeとrpartでtypeを書き換える。
 #			・modify.args.predict.gbmでn.treesが指定されていなかったときの対応。
 #		☆

@@ -38,25 +38,15 @@ cross.validation <- function(
 	)
 	cv.result <- do.call(rbind, cv.result)
 	# 予測値からモデルの性能評価指標を計算
-	metrics <- cl$lapply(
+	performance <- cl$lapply(
 		cv.result[-1], cv.performance, response = cv.result[[1]],
 		cv.metrics = cv.metrics, positive.class = positive.class,
 		model.type = detect.model.type(cv.dummy, args.model, data)
 	)
 	cl$close()
 	# 結果を整形
-	cv.metrics <- merge.tunable.args(
-		cv.dummy, lapply(metrics, "[[", "metrics"), args.predict, "predict"
+	performance <- merge.tunable.args(
+		cv.dummy, performance, args.predict, "predict"
 	)
-	cv.metrics <- do.call(rbind, cv.metrics)
-	row.names(cv.metrics) <- NULL
-	cv.prediction = do.call(cbind, lapply(metrics, "[[", "cv.prediction"))
-	cv.response = do.call(cbind, lapply(metrics, "[[", "response"))
-	cv.c.matrices = do.call(c, lapply(metrics, "[[", "confusion.matrix"))
-	return(
-		list(
-			cv.metrics = cv.metrics, cv.prediction = cv.prediction,
-			cv.response = cv.response, cv.confusion.matrices = cv.c.matrices
-		)
-	)
+	return(merge.cv.performances(performance))
 }

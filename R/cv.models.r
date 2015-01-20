@@ -9,15 +9,16 @@
 #-------------------------------------------------------------------------------
 cv.models.object <- function(
 	model.function, function.name, package.name, data, args.model, args.predict,
-	cv.metrics, cv.prediction, cv.response, confusion.matrices,
-	seed, positive.class
+	cv.performance, seed, positive.class
 ){
 	object <- list(
 		model.function = model.function, function.name = function.name,
 		package.name = package.name, data = data,
 		args.model = args.model, args.predict = args.predict,
-		cv.metrics = cv.metrics, cv.prediction = cv.prediction,
-		cv.response = cv.response, confusion.matrices = confusion.matrices,
+		cv.metrics = cv.performance$metrics,
+		cv.prediction = cv.performance$prediction,
+		cv.response = cv.performance$response,
+		confusion.matrix = cv.performance$confusion.matrix,
 		seed = seed, positive.class = positive.class
 	)
 	class(object) <- "cv.models"
@@ -114,27 +115,22 @@ cv.models <- function(
 	# モデルの性能をクロスバリデーション。
 	cl <- init.cluster(cores$param.tune)
 	cl$library(package.name)
-	metrics <- cl$lapply(
+	performance <- cl$lapply(
 		expanded.args, cross.validation, model.function = model.function,
 		data = modified$data, args.predict = modified$args.predict,
 		cv.folds = cv.folds, cv.metrics = cv.metrics, n.cores = cores$cv,
 		seed = seed, positive.class = positive.class, cv.dummy = dummy
 	)
+	cl$close()
 	# 候補パラメーターをCVの結果に結合。
-	cv.metrics <- merge.tunable.args(
-		dummy, lapply(metrics, "[[", "cv.metrics"), args.model, "model"
-	)
-	cv.metrics <-do.call(rbind, cv.metrics)
-	# CVの予測値・応答変数・confusion matrixを取り出し。
-	cv.prediction <- do.call(cbind, lapply(metrics, "[[", "cv.prediction"))
-	cv.response <- do.call(cbind, lapply(metrics, "[[", "cv.response"))
-	cv.c.matrix <- do.call(c, lapply(metrics, "[[", "cv.confusion.matrices"))
+	performance <- merge.tunable.args(dummy, performance, args.model, "model")
+	performance <- merge.cv.performances(performance)	
+	# cv.modelsオブジェクトを作成。
 	result <- cv.models.object(
 		model.function, function.name, package.name, modified$data,
-		modified$args.model, modified$args.predict, cv.metrics, cv.prediction,
-		cv.response, cv.c.matrix, seed, positive.class
+		modified$args.model, modified$args.predict, performance, seed,
+		positive.class
 	)
-	cl$close()
 	return(result)
 }
 

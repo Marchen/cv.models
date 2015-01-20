@@ -139,7 +139,7 @@ cv.performance <- function(
 	response <- do.call(data.frame, rep(list(response), nrow(metrics)))
 	colnames(response) <- NULL
 	result <- list(
-		metrics = metrics, cv.prediction = prediction, response = response,
+		metrics = metrics, prediction = prediction, response = response,
 		confusion.matrix = c.matrix
 	)
 	class(result) <- "cv.performance"
@@ -147,6 +147,25 @@ cv.performance <- function(
 }
 
 
+#-------------------------------------------------------------------------------
+#	cv.performance用mergeメソッド。
+#
+#	Args:
+#		cv.performances: cv.performanceオブジェクトが入ったリスト。
+#-------------------------------------------------------------------------------
+merge.cv.performances <- function(cv.performances){
+	metrics <- do.call(rbind, lapply(cv.performances, "[[", "metrics"))
+	row.names(metrics) <- NULL
+	prediction = do.call(cbind, lapply(cv.performances, "[[", "prediction"))
+	response = do.call(cbind, lapply(cv.performances, "[[", "response"))
+	c.matrix = do.call(c, lapply(cv.performances, "[[", "confusion.matrix"))
+	result <- list(
+		metrics = metrics, prediction = prediction, response = response,
+		confusion.matrix = c.matrix
+	)
+	class(result) <- "cv.performance"
+	return(result)
+}
 
 
 

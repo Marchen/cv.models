@@ -95,7 +95,7 @@ export.functions <- function(cl){
 		"get.package.name", "get.class.name", "get.args", "make.dummy",
 		"merge.tunable.args", "predict.gamm", "get.positive.prob",
 		"get.positive.class", "detect.type.from.response.var",
-		"detect.type.from.family",
+		"detect.type.from.family", "merge.cv.performances",
 		"is.formula", "confusion.matrix", "cv.performance"
 	)
 	export.pattern <- paste(
