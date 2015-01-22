@@ -27,6 +27,7 @@ cross.validation <- function(
 ){
 	# 計算クラスターを初期化
 	cl <- init.cluster(n.cores)
+	on.exit(cl$close())
 	cl$library(cv.dummy$package)
 	# クロスバリデーションで予測値を計算
 	if (!is.null(seed)) set.seed(seed)

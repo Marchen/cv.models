@@ -114,6 +114,7 @@ cv.models <- function(
 	cores <- assign.cores(expanded.args, n.cores)
 	# モデルの性能をクロスバリデーション。
 	cl <- init.cluster(cores$param.tune)
+	on.exit(cl$close())
 	cl$library(package.name)
 	performance <- cl$lapply(
 		expanded.args, cross.validation, model.function = model.function,
