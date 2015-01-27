@@ -122,7 +122,6 @@ cv.models <- function(
 		cv.folds = cv.folds, cv.metrics = cv.metrics, n.cores = cores$cv,
 		seed = seed, positive.class = positive.class, cv.dummy = dummy
 	)
-	cl$close()
 	# 候補パラメーターをCVの結果に結合。
 	performance <- merge.tunable.args(dummy, performance, args.model, "model")
 	performance <- merge.cv.performances(performance)	

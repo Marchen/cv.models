@@ -44,7 +44,6 @@ cross.validation <- function(
 		cv.metrics = cv.metrics, positive.class = positive.class,
 		model.type = detect.model.type(cv.dummy, args.model, data)
 	)
-	cl$close()
 	# Œ‹‰Ê‚ð®Œ`
 	performance <- merge.tunable.args(
 		cv.dummy, performance, args.predict, "predict"
