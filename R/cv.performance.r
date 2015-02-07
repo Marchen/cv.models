@@ -126,12 +126,11 @@ cv.performance <- function(
 	metrics <- calc.all.metrics(
 		response, prediction, cv.metrics, model.type, cor.method
 	)
+	c.matrix <- NULL
 	if (model.type == "classification"){
 		c.matrix <- confusion.matrix(
 			response, prediction, metrics[, "threshold"], positive.class
 		)
-	} else {
-		c.matrix <- NULL
 	}
 	metrics = metrics[cv.metrics]			# 必要な指標だけ返す。
 	# 最適な閾値が決まらず、結果が複数になったとき、predictionとresponseを複製
