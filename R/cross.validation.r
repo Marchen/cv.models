@@ -30,6 +30,7 @@ cross.validation <- function(
 	on.exit(cl$close())
 	cl$library(cv.dummy$package)
 	# クロスバリデーションで予測値を計算
+	rownames(data) <- as.character(1:nrow(data))
 	if (!is.null(seed)) set.seed(seed)
 	cv.result <- cl$lapply(
 		1:cv.folds, cv.one.fold, model.function = model.function,
@@ -38,6 +39,7 @@ cross.validation <- function(
 		positive.class = positive.class
 	)
 	cv.result <- do.call(rbind, cv.result)
+	cv.result <- cv.result[order(as.numeric(rownames(cv.result))), ]
 	# 予測値からモデルの性能評価指標を計算
 	performance <- cl$lapply(
 		cv.result[-1], cv.performance, response = cv.result[[1]],
