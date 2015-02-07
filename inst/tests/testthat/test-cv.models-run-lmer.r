@@ -16,7 +16,7 @@ test_that("run cv.models with lmer (no cluster)", {
 
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with lmer (no cluster)", {
+test_that("run cv.models with lmer (with cluster)", {
 	data(iris)
 	cv <- cv.models(
 		lmer, args.model = list(Sepal.Length ~ . + (1|Species)),

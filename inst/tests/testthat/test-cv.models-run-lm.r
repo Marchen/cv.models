@@ -1,7 +1,7 @@
 require(testthat)
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with glm (regression, no cluster)", {
+test_that("run cv.models with lm (regression, no cluster)", {
 	data(iris)
 	cv <- cv.models(
 		lm, args.model = list(Sepal.Length ~ .), data = iris,
@@ -14,7 +14,7 @@ test_that("run cv.models with glm (regression, no cluster)", {
 })
 
 #-------------------------------------------------------------------------------
-test_that("run cv.models with glm (regression, with cluster)", {
+test_that("run cv.models with lm (regression, with cluster)", {
 	data(iris)
 	cv <- cv.models(
 		lm, args.model = list(Sepal.Length ~ .), data = iris,
