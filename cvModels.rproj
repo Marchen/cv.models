@@ -29,6 +29,9 @@
     <Content Include="inst\tests\testthat\test-check.args.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="inst\tests\testthat\test-confusion.matrix.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="inst\tests\testthat\test-cv.models-run-cforest.r">
       <SubType>Content</SubType>
     </Content>
