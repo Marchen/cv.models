@@ -63,6 +63,6 @@ print.cv.best.models <- function(x, ...){
 }
 
 predict.cv.best.models <- function(object, ..., index = 1){
-	predict(object$model[[index]], ...)
+	predict(object[[index]]$model, ...)
 }
 
