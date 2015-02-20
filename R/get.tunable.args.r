@@ -12,10 +12,11 @@
 #		type:
 #			"model": モデル構築に渡される引数だと仮定してパラメーターを取り出す。
 #			"predict": predictに渡される引数だと仮定してパラメーターを取り出す。
+#			"best": 最良構築に使われる引数だと仮定してパラメーターを取り出す。
 #
 #	Value:
 #		候補パラメーターの入ったリスト。
-#-------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 get.tunable.args <- function(model, args, type){
 	UseMethod("get.tunable.args")
 }
@@ -30,7 +31,11 @@ get.tunable.args.gbm <- function(model, args, type){
 		model = c(
 			"n.minobsinnode", "interaction.depth", "bag.fraction", "shrinkage"
 		),
-		predict = "n.trees"
+		predict = "n.trees",
+		best = c(
+			"n.minobsinnode", "interaction.depth", "bag.fraction", "shrinkage",
+			"n.trees"
+		)
 	)
 	return(get.args(args, arg.names))
 }
@@ -42,3 +47,4 @@ get.tunable.args.randomForest <- function(model, args, type){
 		return(get.args(args, c("mtry","sampsize", "nodesize", "maxnodes")))
 	}
 }
+
