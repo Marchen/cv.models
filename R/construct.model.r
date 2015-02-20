@@ -24,7 +24,7 @@ construct.model <- function(x, metrics.index){
 	args$data <- x$data
 	tunable.args <- get.tunable.args(
 		make.dummy(x$function.name, x$package.name),
-		x$cv.metrics[metrics.index, ], "model"
+		x$cv.metrics[metrics.index, ], "best"
 	)
 	args[names(tunable.args)] <- tunable.args
 	# ƒ‚ƒfƒ‹‚ð\’z
