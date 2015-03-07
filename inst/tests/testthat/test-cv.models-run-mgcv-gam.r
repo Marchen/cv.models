@@ -73,3 +73,5 @@ test_that("run cv.models with mgcv::gam (classification, wht cluster)", {
 	print(bm)
 	summary(bm)
 })
+
+detach("package:mgcv", unload=TRUE)

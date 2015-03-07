@@ -60,3 +60,4 @@ test_that("run cv.models with svm (classification, with cluster)", {
 })
 
 
+detach("package:e1071", unload=TRUE)

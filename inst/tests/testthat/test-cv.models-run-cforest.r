@@ -58,3 +58,4 @@ test_that("run cv.models with cforest (classification, with cluster)", {
 	summary(bm)
 })
 
+detach("package:party", unload=TRUE)

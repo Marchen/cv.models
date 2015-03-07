@@ -29,6 +29,7 @@ test_that("run cv.models with lmer (with cluster)", {
 	summary(bm)
 })
 
+detach("package:lme4", unload=TRUE)
 
 
 
