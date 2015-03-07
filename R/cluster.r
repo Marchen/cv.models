@@ -43,25 +43,29 @@ cl.mapply <- function(
 #	クラスターでパッケージを読み込む関数。
 #
 #	Args:
-#		package.name: パッケージ名を表す文字列
+#		package.names: パッケージ名を表す文字列
 #-------------------------------------------------------------------------------
-cl.library <- function(package.name){
-	ncl.library(package.name)
-	expr <- parse(text = sprintf("require(%s)", package.name))
-	clusterExport(cl, "expr", environment())
-	clusterEvalQ(cl, eval(expr))
-	clusterEvalQ(cl, rm(expr))
+cl.library <- function(package.names){
+	ncl.library(package.names)
+	for (name in package.names){
+		expr <- parse(text = sprintf("require(%s)", name))
+		clusterExport(cl, "expr", environment())
+		clusterEvalQ(cl, eval(expr))
+		clusterEvalQ(cl, rm(expr))
+	}
 }
 
 #-------------------------------------------------------------------------------
 #	文字列で指定されたパッケージを読み込む関数。
 #
 #	Args:
-#		package.name: パッケージ名を表す文字列
+#		package.names: パッケージ名を表す文字列。複数指定可能。
 #-------------------------------------------------------------------------------
-ncl.library <- function(package.name){
-	expr <- parse(text = sprintf("require(%s)", package.name))
-	eval(expr)
+ncl.library <- function(package.names){
+	for (name in package.names){
+		expr <- parse(text = sprintf("require(%s)", name))
+		eval(expr)
+	}
 }
 
 #-------------------------------------------------------------------------------
@@ -151,6 +155,4 @@ init.cluster <- function(n.cores, seed = NULL){
 	}
 	return(result)
 }
-
-
 
