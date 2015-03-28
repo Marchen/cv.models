@@ -1,16 +1,17 @@
 #-------------------------------------------------------------------------------
-#'	Get best models from cv.models object.
+#'	Get best models from cv.models objects.
 #'
 #'	This function construct best model(s) from \emph{cv.models} object(s) by
 #'	maximizing specified performance metrics.
 #'
 #'	@param ... \emph{cv.models} objects.
 #'	@param metrics 
-#'		a character vector containing names of performance metrics calculated by 
+#'		a character vector specifying names of performance metrics calculated by 
 #'		cross validation by which performances of the models are evaluated. The 
 #'		metrics used for this function must be specified in the argument of
-#'		\code{\link{cv.models}} funciton. For the detail, see the document of 
-#'		\code{\link{cv.models}} funciton.
+#'		\code{\link{cv.models}} function. For the detail of each performance
+#'		metrics, see the document of \code{\link{cv.models}} function.
+#'		If multiple metrics are specified, 
 #'
 #'	@return
 #'		a \emph{cv.best.models} object, which is a list containing 
