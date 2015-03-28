@@ -1,4 +1,5 @@
 require(testthat)
+require(mgcv)
 #
 #	cv.responseに入っている応答変数の値がオリジナルと同じかどうかをチェックする。
 #
@@ -293,3 +294,4 @@ test_that("Test response variable in a result is correct (tree)", {
 	}
 })
 
+detach("package:mgcv", unload=TRUE)
