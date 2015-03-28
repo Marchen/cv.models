@@ -99,12 +99,12 @@ detect.model.type.gamm <- function(cv.dummy, args.model, data){
 #-------------------------------------------------------------------------------
 detect.model.type.gbm <- function(cv.dummy, args.model, data){
 	# 分布が指定されているとき
-	if (!is.null(args.model$family)){
+	if (!is.null(args.model$distribution)){
 		# 以下が識別、それ以外は回帰として扱う。
 		classification.families <- c(
 			"bernoulli", "huberized", "multinomial", "adaboost"
 		)
-		if (args.model$family %in% classification.families){
+		if (args.model$distribution %in% classification.families){
 			return("classification")
 		} else {
 			return("regression")
