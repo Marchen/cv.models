@@ -210,3 +210,6 @@ source(file.path(get.this.file.dir(), "R", "construct.model.r"), encoding = "CP9
 source(file.path(get.this.file.dir(), "R", "get.best.models.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "CP932")
 
+# その他ユーティリティ関数群
+source(file.path(get.this.file.dir(), "R", "format.family.r"), encoding = "CP932")
+

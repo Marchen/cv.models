@@ -137,13 +137,7 @@ detect.type.from.family <- function(args.model){
 		return("regression")
 	}
 	# familyを文字列に変換。
-	if (is.character(args.model$family)){
-		family <- args.model$family
-	} else if (is.function(args.model$family)){
-		family <- args.model$family()$family
-	} else {
-		family <- eval(args.model$family)$family
-	}
+	family <- format.family(args.model$family, type = "character")
 	# glmとgamの以下のfamilyが識別。それ以外は回帰
 	classification.families <- c(
 		"binomial", "quasibinomial", "negbin", "ocat", "nb", "betar", "cox.ph"
