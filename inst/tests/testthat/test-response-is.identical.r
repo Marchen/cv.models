@@ -42,6 +42,8 @@ test_that("Test response variable in a result is correct (ctree)", {
 		expect_identical(bm[[i]]$cv.response, as.factor(iris$Species))
 	}
 })
+detach("package:party", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (gam::gam)", {
@@ -62,6 +64,8 @@ test_that("Test response variable in a result is correct (gam::gam)", {
 		expect_identical(bm[[i]]$cv.response, iris$Species)
 	}
 })
+detach("package:gam", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (gbm)", {
@@ -87,6 +91,8 @@ test_that("Test response variable in a result is correct (gbm)", {
 		expect_identical(bm[[i]]$cv.response, iris$Species)
 	}
 })
+detach("package:gbm", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (glm)", {
@@ -107,6 +113,31 @@ test_that("Test response variable in a result is correct (glm)", {
 		expect_identical(bm[[i]]$cv.response, iris$Species)
 	}
 })
+
+
+#-------------------------------------------------------------------------------
+test_that("Test response variable in a result is correct (glmmML)", {
+	data(iris)
+	iris <- subset(iris, Species != "setosa")
+	iris$Species <- as.numeric(iris$Species) - 2
+	iris$Random <- factor(c(rep(1:5, 10), rep(6:10, 10)))
+	cv <- cv.models(
+		glmmML, args.model = args.model(
+			Species ~ Sepal.Length, cluster = Random, family = binomial
+		),
+ 		data = iris,
+		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
+	)
+	bm <- get.best.models(cv)	
+	for (i in 1:ncol(cv$cv.response)){
+		expect_identical(cv$cv.response[[i]], iris$Species)
+	}
+	for (i in 1:length(bm)){
+		expect_identical(bm[[i]]$cv.response, iris$Species)
+	}
+})
+detach("package:glmmML", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (glmer)", {
@@ -129,6 +160,8 @@ test_that("Test response variable in a result is correct (glmer)", {
 		expect_identical(bm[[i]]$cv.response, iris$Species)
 	}
 })
+detach("package:lme4", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (lm)", {
@@ -165,6 +198,7 @@ test_that("Test response variable in a result is correct (lme)", {
 	}
 })
 
+
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (lmer)", {
 	data(iris)
@@ -181,6 +215,7 @@ test_that("Test response variable in a result is correct (lmer)", {
 		expect_identical(bm[[i]]$cv.response, iris$Sepal.Length)
 	}
 })
+detach("package:lme4", unload = TRUE)
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (mgcv::gam)", {
@@ -223,6 +258,8 @@ test_that("Test response variable in a result is correct (mgcv::gamm)", {
 		expect_identical(bm[[i]]$cv.response, dat$y)
 	}
 })
+detach("package:mgcv", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (randomForest)", {
@@ -243,6 +280,8 @@ test_that("Test response variable in a result is correct (randomForest)", {
 		expect_identical(bm[[i]]$cv.response, as.factor(iris$Species))
 	}
 })
+detach("package:randomForest", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (rpart)", {
@@ -261,6 +300,8 @@ test_that("Test response variable in a result is correct (rpart)", {
 		expect_identical(bm[[i]]$cv.response, as.factor(iris$Species))
 	}
 })
+detach("package:rpart", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (svm)", {
@@ -277,6 +318,8 @@ test_that("Test response variable in a result is correct (svm)", {
 		expect_identical(bm[[i]]$cv.response, iris$Sepal.Length)
 	}
 })
+detach("package:e1071", unload = TRUE)
+
 
 #-------------------------------------------------------------------------------
 test_that("Test response variable in a result is correct (tree)", {
@@ -293,5 +336,5 @@ test_that("Test response variable in a result is correct (tree)", {
 		expect_identical(bm[[i]]$cv.response, iris$Sepal.Length)
 	}
 })
+detach("package:tree", unload = TRUE)
 
-detach("package:mgcv", unload=TRUE)
