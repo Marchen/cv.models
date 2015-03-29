@@ -48,6 +48,15 @@ detect.model.type.glm <- function(cv.dummy, args.model, data){
 
 #-------------------------------------------------------------------------------
 #'	@describeIn detect.model.type
+#'	method for \code{\link[glmmML]{glmmML}} in \emph{glmmML} package.
+#'	@method detect.model.type glmmML
+#-------------------------------------------------------------------------------
+detect.model.type.glmmML <- function(cv.dummy, args.model, data){
+	return(get.model.type.from.family(args.model))
+}
+
+#-------------------------------------------------------------------------------
+#'	@describeIn detect.model.type
 #'	method for \code{\link[nlme]{lme}} in \emph{nlme} package.
 #'	@method detect.model.type lme
 #-------------------------------------------------------------------------------
