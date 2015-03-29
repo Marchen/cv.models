@@ -60,5 +60,5 @@ test_that(
 	summary(bm)
 })
 
-detach("package:rpart", unload=TRUE)
+detach("package:rpart", unload = TRUE)
 

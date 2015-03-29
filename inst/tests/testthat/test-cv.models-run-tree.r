@@ -59,5 +59,5 @@ test_that("run cv.models with tree (classification, with cluster)", {
 	summary(bm)
 })
 
-detach("package:tree", unload=TRUE)
+detach("package:tree", unload = TRUE)
 

@@ -35,7 +35,7 @@ test_that("run cv.models with glmer (with cluster)", {
 })
 
 
-detach("package:lme4", unload=TRUE)
+detach("package:lme4", unload = TRUE)
 
 
 

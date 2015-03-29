@@ -152,4 +152,4 @@ test_that(
 	summary(bm)
 })
 
-detach("package:randomForest", unload=TRUE)
+detach("package:randomForest", unload = TRUE)

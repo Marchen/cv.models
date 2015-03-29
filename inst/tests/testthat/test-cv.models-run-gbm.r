@@ -166,7 +166,7 @@ test_that(
 })
 
 
-detach("package:gbm", unload=TRUE)
+detach("package:gbm", unload = TRUE)
 
 
 

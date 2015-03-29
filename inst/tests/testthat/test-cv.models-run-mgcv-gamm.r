@@ -75,4 +75,4 @@ test_that("run cv.models with mgcv::gamm (classification, with cluster)", {
 })
 
 
-detach("package:mgcv", unload=TRUE)
+detach("package:mgcv", unload = TRUE)

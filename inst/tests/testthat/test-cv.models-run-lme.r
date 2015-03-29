@@ -29,5 +29,5 @@ test_that("run cv.models with lme (with cluster)", {
 })
 
 
-detach("package:nlme", unload=TRUE)
+detach("package:nlme", unload = TRUE)
 
