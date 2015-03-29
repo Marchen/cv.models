@@ -25,7 +25,7 @@ detect.model.type <- function(cv.dummy, args.model, data){
 #'	@method detect.model.type default
 #-------------------------------------------------------------------------------
 detect.model.type.default <- function(cv.dummy, args.model, data){
-	return(detect.type.from.response.var(cv.dummy, args.model, data))
+	return(get.model.type.from.response.var(cv.dummy, args.model, data))
 }
 
 #-------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ detect.model.type.lm <- function(cv.dummy, args.model, data){
 #'	@method detect.model.type glm
 #-------------------------------------------------------------------------------
 detect.model.type.glm <- function(cv.dummy, args.model, data){
-	return(detect.type.from.family(args.model))
+	return(get.model.type.from.family(args.model))
 }
 
 #-------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ detect.model.type.lmerMod <- function(cv.dummy, args.model, data){
 #'	@method detect.model.type glmerMod
 #-------------------------------------------------------------------------------
 detect.model.type.glmerMod <- function(cv.dummy, args.model, data){
-	return(detect.type.from.family(args.model))
+	return(get.model.type.from.family(args.model))
 }
 
 #-------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ detect.model.type.glmerMod <- function(cv.dummy, args.model, data){
 #'	@method detect.model.type gam
 #-------------------------------------------------------------------------------
 detect.model.type.gam <- function(cv.dummy, args.model, data){
-	return(detect.type.from.family(args.model))
+	return(get.model.type.from.family(args.model))
 }
 
 #-------------------------------------------------------------------------------
@@ -89,7 +89,7 @@ detect.model.type.gam <- function(cv.dummy, args.model, data){
 #'	@method detect.model.type gamm
 #-------------------------------------------------------------------------------
 detect.model.type.gamm <- function(cv.dummy, args.model, data){
-	return(detect.type.from.family(args.model))
+	return(get.model.type.from.family(args.model))
 }
 
 #-------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ detect.model.type.gbm <- function(cv.dummy, args.model, data){
 #'	@inheritParams modify.args.model
 #'	@return a character "classification" or "regression".
 #-------------------------------------------------------------------------------
-detect.type.from.family <- function(args.model){
+get.model.type.from.family <- function(args.model){
 	# familyがなかったらデフォルトは正規分布なので、回帰。
 	if (is.null(args.model$family)){
 		return("regression")
@@ -156,7 +156,7 @@ detect.type.from.family <- function(args.model){
 #'	@inheritParams modify.args.model
 #'	@return a character "classification" or "regression".
 #-------------------------------------------------------------------------------
-detect.type.from.response.var <- function(cv.dummy, args.model, data){
+get.model.type.from.response.var <- function(cv.dummy, args.model, data){
 	if (is(get.response.var(cv.dummy, data, args.model), "factor")){
 		return("classification")
 	} else {
