@@ -38,7 +38,6 @@ test_that("run cv.models with glmmML (with cluster)", {
 	summary(bm)
 })
 
-print("aho")
 
 detach("package:glmmML", unload = TRUE)
 
