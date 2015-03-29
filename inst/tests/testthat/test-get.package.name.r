@@ -68,8 +68,7 @@ test_that("Test get.package.name() can handle model objects.",{
 	model <- gam::gam(Sepal.Length ~ ., data = iris)
 	expect_equal(get.package.name(model), "gam")
 	
-	require(mgcv)
-	gamm.data <- gamSim(1, n = 200, scale = 2)
+	gamm.data <- mgcv::gamSim(1, n = 200, scale = 2)
 	
 	model <- mgcv::gam(y ~ s(x0) + s(x1) + s(x2) + s(x3), data = gamm.data)
 	expect_equal(get.package.name(model), "mgcv")
@@ -77,6 +76,5 @@ test_that("Test get.package.name() can handle model objects.",{
 	model <- mgcv::gamm(y ~ s(x0) + s(x1) + s(x2) + s(x3), data = gamm.data)
 	expect_equal(get.package.name(model), "mgcv")
 	
-	detach("package:mgcv", unload=TRUE)
 })
 
