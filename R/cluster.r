@@ -97,10 +97,11 @@ export.functions <- function(cl){
 	export.objects <- c(
 		"cv.one.fold", "init.cluster", "ncl.library", "make.cv.group",
 		"get.package.name", "get.class.name", "get.args", "make.dummy",
-		"merge.tunable.args", "predict.gamm", "get.positive.prob",
-		"get.positive.class", "detect.type.from.response.var",
-		"detect.type.from.family", "merge.cv.performances",
-		"is.formula", "confusion.matrix", "cv.performance"
+		"merge.tunable.args", "predict.gamm", "predict.glmmML",
+		"get.positive.prob", "get.positive.class",
+		"get.model.type.from.response.var", "get.model.type.from.family",
+		"merge.cv.performances", "is.formula", "confusion.matrix",
+		"cv.performance", "format.family"
 	)
 	export.pattern <- paste(
 		"^get\\.response\\.name.*", "^get\\.response\\.var", "^calc\\..*",
@@ -155,4 +156,48 @@ init.cluster <- function(n.cores, seed = NULL){
 	}
 	return(result)
 }
+
+
+#-------------------------------------------------------------------------------
+#'	Model prediction with parallel computing.
+#'
+#'	This function call predict method with parallel computation. When predict 
+#'	is called, newdata is splitted into (nearly) equall number of rows
+#'
+#'	@param object a model object to be passed to predict method.
+#'	@param newdata passed to predict method.
+#'	@param ... other arguments passed to predict method.
+#'	@param n.cores
+#'		number of cores used for prediction. If not specified, the number of 
+#'		logical cores of the machine is used.
+#'	@param package.names 
+#'		a character vector specifying package names to be loaded in the cluster.
+#'
+#-------------------------------------------------------------------------------
+#	並列計算でpredictを実行する。
+#
+#	Args:
+#		object, newdata, ...: predictに渡される。
+#		n.cores: 並列計算で使うコアの数
+#		package.names:
+#			クラスターでロードするパッケージ名を表すベクトル。
+#			指定しないとobjectを元に自動判定する。
+#-------------------------------------------------------------------------------
+parallel.predict <- function(
+	object, newdata = NULL, ..., n.cores = NULL,
+	package.names = get.package.name(object)
+){
+	cl <- init.cluster(n.cores)
+	# コアが１個だけだったら、ふつうのpredict結果を返す。
+	if (is.null(cl$cl)){
+		return(predict(object, newdata = newdata, ...))
+	}
+	on.exit(cl$close())
+	cl$library(package.names)
+	newdata = split(newdata, cut(1:nrow(newdata), breaks = length(cl$cl)))
+	result <- cl$lapply(newdata, FUN = predict, object = object, ...)
+	result <- do.call(c, result)
+	return(result)
+}
+
 

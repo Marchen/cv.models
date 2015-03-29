@@ -3,11 +3,11 @@ require(testthat)
 #-------------------------------------------------------------------------------
 test_that("Test get.package.name() can handle function name.", {
 	function.names <- c(
-		"lm", "glm", "lme", "lmer", "glmer", "ctree", "cforest",
+		"lm", "glm", "glmmML", "lme", "lmer", "glmer", "ctree", "cforest",
 		"randomForest", "gbm", "svm", "tree", "rpart", "gam", "gamm"
 	)
 	package.names <- c(
-		"stats", "stats", "nlme", "lme4", "lme4", "party", "party",
+		"stats", "stats", "glmmML", "nlme", "lme4", "lme4", "party", "party",
 		"randomForest", "gbm", "e1071", "tree", "rpart", "mgcv", "mgcv"
 	)
 	for (i in 1:length(function.names)){
@@ -30,6 +30,12 @@ test_that("Test get.package.name() can handle model objects.",{
 	
 	model <- glm(Sepal.Length ~ ., data = iris)
 	expect_equal(get.package.name(model), "stats")
+	
+	model <- glmmML::glmmML(
+		as.integer(Sepal.Length) ~ . - Species, data = iris, cluster = Species,
+		family = poisson
+	)
+	expect_equal(get.package.name(model), "glmmML")
 	
 	model <- nlme::lme(
 		Sepal.Length ~ . - Species, random = ~ 1 | Species, data = iris

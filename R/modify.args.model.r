@@ -134,3 +134,20 @@ modify.args.model.gamm <- function(cv.dummy, args.model, args.predict, data){
 	return(expand.dot(cv.dummy, args.model, data))
 }
 
+#-------------------------------------------------------------------------------
+#'	Make a list containing arguments.
+#'
+#'	This function handle delayed evaluation of the \emph{cluster} argument of 
+#'	\code{\link{[glmmML]glmmML}} function.
+#-------------------------------------------------------------------------------
+#	glmmML‚Ìcluster‚Ì’x‰„•]‰¿‚É‘Î‰ž‚·‚é‚½‚ß‚ÌŠÖ”B
+#-------------------------------------------------------------------------------
+args.model <- function(..., cluster = NULL){
+	result <- list(...)
+	# glmmML‚Ìcluster‚Ì’x‰„•]‰¿‚É‘Î‰ž‚·‚é‚½‚ß‚Ìˆ—
+	if (!missing(cluster)) result$cluster <- as.name(substitute(cluster))
+	return(result)
+}
+
+
+

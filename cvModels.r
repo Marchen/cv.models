@@ -2,8 +2,8 @@
 #	‚¢‚ë‚¢‚ë‚Èƒ‚ƒfƒ‹‚É‘Î‚µ‚ÄƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚Å«”\Žw•W‚ðŒvŽZ‚·‚éB
 #
 #	¡‚Ì‚Æ‚±‚ë‚ÌƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‘Î‰žŠÖ”
-#		lm, glm, lme, lmer, glmer, ctree, cforest, randomForest, gbm, svm, tree,
-#		rpart, mgcv::gam, mgcv::gamm, gam::gam
+#		lm, glm, lme, glmmML, lmer, glmer, ctree, cforest, randomForest, 
+#		gbm, svm, tree, rpart, mgcv::gam, mgcv::gamm, gam::gam
 #
 #	¡‚Ì‚Æ‚±‚ë‚Ìƒpƒ‰ƒ[ƒ^[ƒ`ƒ…[ƒjƒ“ƒO‘Î‰žŠÖ”
 #		gbm (shrinkage, interaction.depth, n.minobsinnode, bag.fraction, n.trees)
@@ -11,15 +11,18 @@
 #
 #	‘Î‰ž•s‰Â”\ŠÖ”
 #		MCMCglmmipredict‚ªnewdata‚É‘Î‰ž‚µ‚Ä‚È‚¢j
-#		glmmMLipredict‚ª‚È‚¢j
 #
 #	ŠeŠÖ”‚Ì’ˆÓ“_
 #		‘S”Ê:
 #			predictŠÖ”‚Ìtype‚Í‰ž“š•Ï”‚ªˆöŽqŒ^‚¾‚Æ"prob"‚ÉA‚»‚êˆÈŠO‚¾‚Æ
 #			"response"‚ÉŽ©“®“I‚É‘‚«Š·‚¦‚ç‚ê‚Ü‚·B
+#			‰ž“š•Ï”‚ª“ñ€•ª•z‚ÌŽžA‰ž“š•Ï”‚ðcbind‚ÅŽw’è‚·‚é‚Ì‚É‚Í‘Î‰ž‚µ‚Ä‚¢‚Ü‚¹‚ñB
 #		lme:
 #			predict‚ª‚½‚Ü‚ÉNA‚ð•Ô‚·‚Ì‚ÅAmse‚Æ‚©rmse‚ªŒvŽZ‚Å‚«‚È‚¢‚©‚àB
 #			ŒvŽZ‚Éna.omit‚ð“ü‚ê‚¿‚á‚¤H
+#		glmmML:
+#			predict‚Íƒ‰ƒ“ƒ_ƒ€Œø‰Ê‚ð–³Ž‹‚µ‚ÄA‘S‘Ì‚ÌŠÖŒWŽ®‚©‚ç
+#			—\‘ª’l‚ðŒvŽZ‚µ‚Ä‚¢‚Ü‚·Bpredict‚ÍŽ©‘O‚ÅŽÀ‘•‚µ‚Ä‚¢‚Ü‚·B
 #		randomForest:
 #			formula‚ðŽg‚Á‚Äƒ‚ƒfƒ‹‚ðŽw’è‚·‚éê‡‚¾‚¯‘Î‰žB
 #		svm:
@@ -37,21 +40,35 @@
 #			Žw’è‚µ‚Ä‚­‚¾‚³‚¢B
 #		gamm:
 #			summary‚âpredict‚É‚Ígamm$gamƒIƒuƒWƒFƒNƒg‚ðŽg‚Á‚Ä‚¢‚Ü‚·B
-#			predict‚·‚é‚½‚ß‚ÉApredict.gammŠÖ”‚ð’è‹`‚µ‚Ä‚¢‚Ü‚·B
+#			predict‚·‚é‚½‚ß‚ÉApredict.gammŠÖ”‚ð’è‹`‚µ‚Ä‚ ‚èA—\‘ªŽž‚É‚Í
+#			ƒ‰ƒ“ƒ_ƒ€Œø‰Ê‚Í–³Ž‹‚µ‚Ä‘S‘Ì‚ÌŠÖŒWŽ®‚©‚ç—\‘ª’l‚ðŒvŽZ‚µ‚Ä‚¢‚Ü‚·B
 #
 #	V‚µ‚¢ŠÖ”‚Ö‚Ì‘Î‰ž
 #		Eget.package.name()ŠÖ”‚Æget.class.name()ŠÖ”‚ðV‚µ‚¢ŠÖ”‚É‘Î‰ž‚³‚¹‚éB
-#		E•K—v‚È‚çget.response.name(), get.data(), format.prediction(),
-#		  modify.args.predict()ŠÖ”‚ð‘‚­B
+#		E•K—v‚È‚çAˆÈ‰º‚ÌŠÖ”‚ðV‚µ‚¢ƒ‚ƒfƒ‹ŠÖ”‚É‘Î‰ž‚³‚¹‚éB
+#			detect.model.type
+#			expand.dot
+#			format.prediction
+#			get.formula
+#			get.response.class
+#			get.response.name
+#			get.tunable.args
+#			modify.args.model
+#			modify.args.predict
+#			modify.response.var
 #		Eƒpƒ‰ƒ[ƒ^[ƒ`ƒ…[ƒjƒ“ƒO‚É‘Î‰ž‚·‚é‚É‚ÍAget.tunable.args()ŠÖ”‚ð‘‚­B
 #		E•K—v‚È‚çprint‚Æsummaryƒƒ\ƒbƒh‚É‘Î‰ž‚ð‘‚­B
 #
 #	TODO:
 #		™™™
+#			Epositive class‚Ì”»•Ê‚ª‚¤‚Ü‚­‚¢‚Á‚Ä‚¢‚È‚¢‚Á‚Û‚¢B
 #			Edredge & stepAIC
 #			Eget.positive.classŠÖ”‚ÌŒxƒƒbƒZ[ƒW‚ðcheck.args()ŠÖ”‚ÖˆÚ“®B
+#			E‰ž“š•Ï”i‚Æ‚©j‚Élog‚ð‚©‚Ü‚µ‚½‚è‚µ‚½‚Æ‚«A‚¤‚Ü‚­“®‚©‚È‚¢–â‘èB
+#				‚«‚Á‚ÆI(x^2)‚Æ‚©‚à‚¾‚æ‚ËB
 #		™™
 #			Eglm‚Æ‚©‚Ì‰ž“š•Ï”‚ªcbind‚Ì‚Æ‚«
+#			Edetect.model.type‚Í‰ž“š•Ï”‚ªcbind‚ÌŒ^‚Ì‚Æ‚«‚¤‚Ü‚­s‚©‚È‚¢‚Í‚¸B
 #			Emodify.args.predict.tree‚Ærpart‚Åtype‚ð‘‚«Š·‚¦‚éB
 #			Emodify.args.predict.gbm‚Ån.trees‚ªŽw’è‚³‚ê‚Ä‚¢‚È‚©‚Á‚½‚Æ‚«‚Ì‘Î‰žB
 #		™
@@ -63,6 +80,24 @@
 #			Eplot.cv.modelsŠÖ” 2d, 3d, 4d? parsp
 #			Ecv.moreŠÖ”‚ÆmergeŠÖ”Amore.metrics()ŠÖ”
 #
+#-------------------------------------------------------------------------------
+#	function		class			package
+#	-----------------------------------------------
+#	lm				lm				stats
+#	glm				glm, lm			stats
+#	lme				lme				nlme
+#	glmmML			glmmML			glmmML
+#	lmer			lmerMod			lme4
+#	glmer			glmerMod		lme4
+#	ctree			BinaryTree		party
+#	cforest			RandomForest	party
+#	randomForest	randomForest	randomForest
+#	gbm				gbm				gbm
+#	svm				svm.formula		e1071
+#	tree			tree			tree
+#	rpart			rpart			rpart
+#	gam				gam				mgcv, gam
+#	gamm			gamm			mgcv
 #-------------------------------------------------------------------------------
 #	Žg‚¢•û‚Ì—á
 #
@@ -158,8 +193,8 @@ get.this.file.dir <- function(){
 #	ƒ\[ƒX“Ç‚Ýž‚Ý
 #-------------------------------------------------------------------------------
 
-# gamm‚ðpredict‚É‘Î‰ž‚³‚¹‚é
-source(file.path(get.this.file.dir(), "R", "predict.gamm.r"), encoding = "CP932")
+# predict‚ðgamm‚ÆglmmML‚É‘Î‰ž‚³‚¹‚é
+source(file.path(get.this.file.dir(), "R", "predict.method.r"), encoding = "CP932")
 
 # ŠÖ”‚Ìˆá‚¢‚ð‹zŽû‚·‚éŠÖ”ŒQ
 source(file.path(get.this.file.dir(), "R", "get.response.name.r"), encoding = "CP932")
@@ -210,6 +245,6 @@ source(file.path(get.this.file.dir(), "R", "construct.model.r"), encoding = "CP9
 source(file.path(get.this.file.dir(), "R", "get.best.models.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "CP932")
 
-# ãã®ä»–ãƒ¦ãƒ¼ãƒ†ã‚£ãƒªãƒ†ã‚£é–¢æ•°ç¾¤
+# ‚»‚Ì‘¼ƒ†[ƒeƒBƒŠƒeƒBŠÖ”ŒQ
 source(file.path(get.this.file.dir(), "R", "format.family.r"), encoding = "CP932")
 

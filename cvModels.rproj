@@ -41,6 +41,9 @@
     <Content Include="inst\tests\testthat\test-cv.models-run-gam-gam.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="inst\tests\testthat\test-cv.models-run-glmmML.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="inst\tests\testthat\test-cv.models-run-mgcv-gamm.r">
       <SubType>Content</SubType>
     </Content>
@@ -77,10 +80,22 @@
     <Content Include="inst\tests\testthat\test-cv.models-run-rpart.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="inst\tests\testthat\test-format.family.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="inst\tests\testthat\test-format.prediction.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="inst\tests\testthat\test-get.package.name.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="inst\tests\testthat\test-response-is.identical.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="NAMESPACE">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="profile.r">
       <SubType>Content</SubType>
     </Content>
     <Content Include="README">
@@ -99,6 +114,12 @@
       <SubType>Content</SubType>
     </Content>
     <Content Include="R\expand.dot.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\format.family.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.r">
       <SubType>Content</SubType>
     </Content>
     <Content Include="R\modify.args.r">
@@ -179,7 +200,7 @@
     <Content Include="R\modify.args.predict.r">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="R\predict.gamm.r">
+    <Content Include="R\predict.method.r">
       <SubType>Content</SubType>
     </Content>
     <Content Include="R\cv.one.fold.r">
