@@ -39,6 +39,7 @@ predict.gamm <- function(
 #'	@param type
 #'		type of prediction. Default is scale of response variable.
 #'		If "link" is specified, prediction is of link scale is calculated.
+#'	@param ... further arguments passed to other methods.
 #-------------------------------------------------------------------------------
 #	glmmML用のpredictメソッド。
 #
@@ -48,8 +49,9 @@ predict.gamm <- function(
 #		type:
 #			予測を計算するスケール。デフォルトでは応答変数のスケールで予測を計算
 #			する。"link"を指定すると、リンク関数のスケールで予測を計算する。
+#		...: 他のメソッドに渡される引数。
 #-------------------------------------------------------------------------------
-predict.glmmML <- function(object, newdata, type = c("response", "link")){
+predict.glmmML <- function(object, newdata, type = c("response", "link"), ...){
 	type = match.arg(type)
 #	warning("Prediction will use the unconditional (population-level) values and random effects are ignored.")
 	design.matrix <- model.matrix(object, data = newdata)
