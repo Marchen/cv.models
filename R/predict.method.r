@@ -68,7 +68,7 @@ predict.glmmML <- function(
 	result <- design.matrix %*% coef(object)
 	# ランダム効果を使う時にはランダム効果分の切片のずれを加算する。
 	if (conditional){
-		cluster <- eval(object$call$cluster, eval(object$call$data))
+		cluster <- eval(object$call$cluster, newdata)
 		result <- result + object$posterior.mode[as.numeric(cluster)]
 	}
 	if (type == "link"){
