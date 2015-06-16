@@ -31,7 +31,10 @@
 #			各クラスの確率が計算されます。
 #		lmer, glmer
 #			ランダム効果のグループがCVのテストデータと学習データで違っちゃうと、
-#			predictに失敗する。そういうランダム効果は使えない。
+#			predictに失敗します。
+#			そういうときは、args.predict = list(allow.new.levels = TRUE)を指定して、
+#			新しいランダム効果のクラスが存在してもpredictが失敗しないように出来ます。
+#			（どう考えるかはユーザーの目的次第だと思うので、自動設定はしていません）
 #		tree, mgcv:
 #			predictのtypeは書き換えていません。
 #		gam:
@@ -42,6 +45,10 @@
 #			summaryやpredictにはgamm$gamオブジェクトを使っています。
 #			predictするために、predict.gamm関数を定義してあり、予測時には
 #			ランダム効果は無視して全体の関係式から予測値を計算しています。
+#		gbm:
+#			distribution = "bernoulli"の時には応答変数を0/1かTRUE/FALSEで
+#			指定して下さい（gbmはそういう仕様になっています）。
+#			因子型を指定すると、gbmの仕様上、計算がうまくいきません。
 #
 #	新しい関数への対応
 #		・get.package.name()関数とget.class.name()関数を新しい関数に対応させる。
@@ -66,6 +73,7 @@
 #			・get.positive.class関数の警告メッセージをcheck.args()関数へ移動。
 #			・応答変数（とか）にlogをかましたりしたとき、うまく動かない問題。
 #				きっとI(x^2)とかもだよね。
+#			・cv.metrics()関数とかで、指標の再計算を出来るように。
 #		☆☆
 #			・glmとかの応答変数がcbindのとき
 #			・detect.model.typeは応答変数がcbindの型のときうまく行かないはず。
@@ -216,7 +224,6 @@ source(file.path(get.this.file.dir(), "R", "modify.response.var.r"), encoding = 
 source(file.path(get.this.file.dir(), "R", "modify.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "expand.dot.r"), encoding = "CP932")
 
-
 # クラス名・パッケージ名を取得する関数群
 source(file.path(get.this.file.dir(), "R", "get.class.name.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.package.name.r"), encoding = "CP932")
@@ -247,4 +254,24 @@ source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "CP93
 
 # その他ユーティリティ関数群
 source(file.path(get.this.file.dir(), "R", "format.family.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "make.weight.r"), encoding = "CP932")
 
+#===============================================================================
+
+# 関数の設定を保持するオブジェクトを操作
+source(file.path(get.this.file.dir(), "R", "model.settings.r"), encoding = "CP932")
+
+# モデルの違いを吸収するクラス
+source(file.path(get.this.file.dir(), "R", "model.adapter.default.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.gam.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.gamm.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.gbm.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.glm.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.glmer.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.lm.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.lme.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.lmer.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.svm.r"), encoding = "CP932")
+
+# 新しい評価関数
+source(file.path(get.this.file.dir(), "R", "model.perf.r"), encoding = "CP932")

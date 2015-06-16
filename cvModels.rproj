@@ -119,7 +119,43 @@
     <Content Include="R\format.family.r">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="R\model.adapter.r">
+    <Content Include="R\make.weight.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.default.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.gam.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.gamm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.gbm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.glm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.glmer.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.lm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.lme.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.lmer.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.adapter.svm.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.perf.r">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="R\model.settings.r">
       <SubType>Content</SubType>
     </Content>
     <Content Include="R\modify.args.r">
