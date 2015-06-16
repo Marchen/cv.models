@@ -113,9 +113,6 @@
     <Content Include="R\detect.model.type.r">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="R\expand.dot.r">
-      <SubType>Content</SubType>
-    </Content>
     <Content Include="R\format.family.r">
       <SubType>Content</SubType>
     </Content>
@@ -185,7 +182,7 @@
     <Content Include="R\get.best.models.r">
       <SubType>Content</SubType>
     </Content>
-    <Content Include="R\get.formula.r">
+    <Content Include="R\utils.r">
       <SubType>Content</SubType>
     </Content>
     <Content Include="R\get.response.class.r">

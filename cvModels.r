@@ -21,8 +21,7 @@
 #			predictがたまにNAを返すので、mseとかrmseが計算できないかも。
 #			計算にna.omitを入れちゃう？
 #		glmmML:
-#			predictはランダム効果を無視して、全体の関係式から
-#			予測値を計算しています。predictは自前で実装しています。
+#			predictは自前で実装しています。
 #		randomForest:
 #			formulaを使ってモデルを指定する場合だけ対応。
 #		svm:
@@ -208,7 +207,6 @@ source(file.path(get.this.file.dir(), "R", "predict.method.r"), encoding = "CP93
 source(file.path(get.this.file.dir(), "R", "get.response.name.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.response.class.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.response.var.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.formula.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.tunable.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "expand.tunable.args.r"), encoding = "CP932")
@@ -222,7 +220,6 @@ source(file.path(get.this.file.dir(), "R", "modify.args.predict.r"), encoding = 
 source(file.path(get.this.file.dir(), "R", "modify.args.model.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "modify.response.var.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "modify.args.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "expand.dot.r"), encoding = "CP932")
 
 # クラス名・パッケージ名を取得する関数群
 source(file.path(get.this.file.dir(), "R", "get.class.name.r"), encoding = "CP932")
@@ -255,6 +252,7 @@ source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "CP93
 # その他ユーティリティ関数群
 source(file.path(get.this.file.dir(), "R", "format.family.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "make.weight.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "utils.r"), encoding = "CP932")
 
 #===============================================================================
 

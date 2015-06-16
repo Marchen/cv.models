@@ -123,7 +123,6 @@ model.adapter <- function(settings){
 	modify.args.model = function(){}
 )
 
-
 #-------------------------------------------------------------------------------
 #'	Get formula from parameters.
 #'
@@ -161,5 +160,34 @@ model.adapter <- function(settings){
 	}
 )
 
-
+#-------------------------------------------------------------------------------
+#'	(Internal) Expand dot in formula.
+#'
+#'	This internal function expand dot ('.') in model formula used for modeling.
+#'
+#'	@inheritParams modify.args.model
+#'	@param specials A vector of character which passed to 
+#'	\code{\link[stats]{terms.formula}} function.
+#-------------------------------------------------------------------------------
+#	args.model‚Ì’†‚Ìformula‚Ì.‚ðŽÀÛ‚Ì•Ï”‚É’u‚«Š·‚¦‚é‘ÌŠÖ”B
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#'	@describeIn expand.dot
+#'	Default S3 method. Intended to be used for \emph{lmerMod} object created by
+#'	\code{\link[lme4]{lmer}} and \emph{glmerMod} object created by 
+#'	\code{\link[lme4]{glmer}} function in \emph{lme4} package.
+#'	@method expand.dot default
+#-------------------------------------------------------------------------------
+.model.adapter.default$methods(
+	expand.dot = function(specials = NULL){
+		# Ž®‚Ì€”õ
+		f <- get.formula()
+		f <- terms(f, data = settings$data, specials = specials)
+		attributes(f) <- NULL
+		f <- as.formula(f)
+		args.model <- settings$args.model
+		args.model[[which(sapply(args.model, is.formula))]] <- f
+		settings$args.model <- args.model
+	}
+)
 

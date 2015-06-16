@@ -10,3 +10,15 @@
 	)
 )
 
+#-------------------------------------------------------------------------------
+#'	@describeIn expand.dot
+#'	Method for \code{\link[mgcv]{gamm}} function in \emph{mgcv} package.
+#'	@method expand.dot gamm
+#-------------------------------------------------------------------------------
+.model.adapter.gamm$methods(
+	expand.dot = function(){
+		callSuper(specials = c("s", "te", "ti", "t2"))
+	}
+)
+
+
