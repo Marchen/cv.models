@@ -41,7 +41,7 @@ model.adapter <- function(settings){
 	get.model.type = function(cv.dummy, args.model, data){
 		return(get.model.type.from.response.var(cv.dummy, args.model, data))
 	}
-}
+)
 
 #-------------------------------------------------------------------------------
 #'	(Internal) Detect type of model from family.
@@ -187,7 +187,7 @@ model.adapter <- function(settings){
 		f <- as.formula(f)
 		args.model <- settings$args.model
 		args.model[[which(sapply(args.model, is.formula))]] <- f
-		settings$args.model <- args.model
+		settings$args.model <<- args.model
 	}
 )
 

@@ -17,7 +17,7 @@
 #-------------------------------------------------------------------------------
 .model.adapter.gamm$methods(
 	expand.dot = function(){
-		callSuper(specials = c("s", "te", "ti", "t2"))
+		.self$callSuper(specials = c("s", "te", "ti", "t2"))
 	}
 )
 

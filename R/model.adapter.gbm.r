@@ -3,7 +3,7 @@
 #-------------------------------------------------------------------------------
 .model.adapter.gbm <- setRefClass(
 	"model.adapter.gbm", contains = "model.adapter"
-}
+)
 
 .model.adapter.gbm$methods(
 	get.model.type = function(cv.dummy, args.model, data){
