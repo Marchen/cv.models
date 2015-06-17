@@ -204,7 +204,6 @@ get.this.file.dir <- function(){
 source(file.path(get.this.file.dir(), "R", "predict.method.r"), encoding = "CP932")
 
 # ŠÖ”‚Ìˆá‚¢‚ð‹zŽû‚·‚éŠÖ”ŒQ
-source(file.path(get.this.file.dir(), "R", "get.response.name.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.response.class.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.response.var.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.args.r"), encoding = "CP932")

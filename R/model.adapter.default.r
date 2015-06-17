@@ -37,6 +37,20 @@ model.adapter <- function(settings){
 	)
 )
 
+#-------------------------------------------------------------------------------
+#'	(Internal) Detect type of model.
+#'
+#'	This internal function detects type of model (classification/regression).
+#'
+#'	@inheritParams modify.args.model
+#'	@return a character "classification" or "regression".
+#-------------------------------------------------------------------------------
+#	モデルが識別なのか回帰なのかを判定する。
+#
+#	Args:
+#		cv.dummy: cv.dummyオブジェクト
+#		args.model: モデル構築に使われるパラメーター。
+#-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	get.model.type = function(cv.dummy, args.model, data){
 		return(get.model.type.from.response.var(cv.dummy, args.model, data))
@@ -190,4 +204,38 @@ model.adapter <- function(settings){
 		settings$args.model <<- args.model
 	}
 )
+
+#-------------------------------------------------------------------------------
+#'	Get name of response variable from parameters.
+#'
+#'	This internal function retrieves the name of the response variable in 
+#'	specified parameters used for modeling.
+#'
+#'	@inheritParams modify.args.model
+#-------------------------------------------------------------------------------
+#	応答変数の名前を返す総称関数
+#	いまのところ、関数の対応必要なし。
+#
+#	Args:
+#		object: モデルオブジェクト。
+#		args.model: モデル構築に使われる引数を入れたリスト。
+#
+#	Value:
+#		応答変数の名前を表す文字列。
+#
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#'	@describeIn get.response.name
+#'		Default S3 method. This function handles result of \code{\link[stats]{lm}}, 
+#'		\code{\link[stats]{glm}}, \code{\link[nlme]{lme}} and 
+#'		\code{\link[randomForest]{randomForest}} functions. 
+#'	@method get.response.name default
+#-------------------------------------------------------------------------------
+.model.adapter.default$methods(
+	get.response.name = function(){
+		return(as.character(get.formula())[2])
+	}
+)
+
+
 
