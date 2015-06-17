@@ -263,7 +263,7 @@ model.adapter <- function(settings){
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	get.response.var = function(){
-		return(data[[get.response.name()]])
+		return(settings$data[[get.response.name()]])
 	}
 )
 
