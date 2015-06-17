@@ -20,9 +20,11 @@
 #-------------------------------------------------------------------------------
 model.adapter <- function(settings){
 	if (settings$is.default){
-		code <- ".model.adapter.default$new()"
+		code <- ".model.adapter.default$new(settings = settings)"
 	} else {
-		code <- sprintf(".model.adapter.%s$new()", settings$function.name)
+		code <- sprintf(
+			".model.adapter.%s$new(settings = settings)", settings$function.name
+		)
 	}
 	object <- eval(parse(text = code))
 	return(object)	
