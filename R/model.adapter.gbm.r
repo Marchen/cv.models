@@ -5,22 +5,27 @@
 	"model.adapter.gbm", contains = "model.adapter"
 )
 
+#-------------------------------------------------------------------------------
+#'	@describeIn detect.model.type
+#'	method for \code{\link[gbm]{gbm}} in \emph{gbm} package.
+#'	@method detect.model.type gbm
+#-------------------------------------------------------------------------------
 .model.adapter.gbm$methods(
-	get.model.type = function(cv.dummy, args.model, data){
+	get.model.type = function(){
 		# 分布が指定されているとき
-		if (!is.null(args.model$distribution)){
+		if (!is.null(settings$args.model$distribution)){
 			# 以下が識別、それ以外は回帰として扱う。
 			classification.families <- c(
 				"bernoulli", "huberized", "multinomial", "adaboost"
 			)
-			if (args.model$distribution %in% classification.families){
+			if (settings$args.model$distribution %in% classification.families){
 				return(MODEL_TYPE_CLASSIFICATION)
 			} else {
 				return(MODEL_TYPE_REGRESSION)
 			}
 		}
 		# 分布が指定されていなかったら、gbmと同じように推定。
-		response <- get.response.var(cv.dummy, data, args.model)
+		response <- get.response.var()
 		if (nlevels(as.factor(response)) == 2){
 			# 2クラスだったら識別。
 			return(MODEL_TYPE_CLASSIFICATION)

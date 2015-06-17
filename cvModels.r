@@ -210,7 +210,6 @@ source(file.path(get.this.file.dir(), "R", "get.tunable.args.r"), encoding = "CP
 source(file.path(get.this.file.dir(), "R", "expand.tunable.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "merge.tunable.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "format.prediction.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "detect.model.type.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "make.dummy.r"), encoding = "CP932")
 
 # パラメーターの整合性を調整する関数群
@@ -264,6 +263,7 @@ source(file.path(get.this.file.dir(), "R", "model.adapter.gamm.r"), encoding = "
 source(file.path(get.this.file.dir(), "R", "model.adapter.gbm.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "model.adapter.glm.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "model.adapter.glmer.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "model.adapter.glmmML.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "model.adapter.lm.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "model.adapter.lme.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "model.adapter.lmer.r"), encoding = "CP932")

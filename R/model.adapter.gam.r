@@ -2,12 +2,19 @@
 #	gam関数用の.model.adapterクラスのジェネレータークラス。
 #-------------------------------------------------------------------------------
 .model.adapter.gam <- setRefClass(
-	"model.adapter.gam", contains = "model.adapter",
-	methods = list(
-		get.model.type = function(cv.dummy, args.model, data){
-			return(get.model.type.from.family(args.model))
-		}
-	)
+	"model.adapter.gam", contains = "model.adapter"
+)
+
+#-------------------------------------------------------------------------------
+#'	@describeIn detect.model.type
+#'	method for \code{\link[mgcv]{gam}} in \emph{mgcv} package and 
+#'	\code{\link[gam]{gam}} in \emph{gam} package.
+#'	@method detect.model.type gam
+#-------------------------------------------------------------------------------
+.model.adapter.gam$methods(
+	get.model.type = function(){
+		return(get.model.type.from.family())
+	}
 )
 
 #-------------------------------------------------------------------------------

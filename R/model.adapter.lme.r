@@ -2,12 +2,18 @@
 #	lme関数用の.model.adapterクラスのジェネレータークラス。
 #-------------------------------------------------------------------------------
 .model.adapter.lme <- setRefClass(
-	"model.adapter.lme", contains = "model.adapter",
-	methods = list(
-		get.model.type <- function(cv.dummy, args.model, data){
-			return(MODEL_TYPE_REGRESSION)
-		}
-	)
+	"model.adapter.lme", contains = "model.adapter"
+)
+
+#-------------------------------------------------------------------------------
+#'	@describeIn detect.model.type
+#'	method for \code{\link[nlme]{lme}} in \emph{nlme} package.
+#'	@method detect.model.type lme
+#-------------------------------------------------------------------------------
+.model.adapter.lme$methods(
+	get.model.type = function(){
+		return(MODEL_TYPE_REGRESSION)
+	}
 )
 
 #-------------------------------------------------------------------------------

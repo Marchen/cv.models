@@ -52,8 +52,8 @@ model.adapter <- function(settings){
 #		args.model: モデル構築に使われるパラメーター。
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
-	get.model.type = function(cv.dummy, args.model, data){
-		return(get.model.type.from.response.var(cv.dummy, args.model, data))
+	get.model.type = function(){
+		return(get.model.type.from.response.var())
 	}
 )
 
@@ -66,13 +66,13 @@ model.adapter <- function(settings){
 #'	@return a character "classification" or "regression".
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
-	get.model.type.from.family = function(args.model){
+	get.model.type.from.family = function(){
 		# familyがなかったらデフォルトは正規分布なので、回帰。
-		if (is.null(args.model$family)){
+		if (is.null(settings$args.model$family)){
 			return(MODEL_TYPE_REGRESSION)
 		}
 		# familyを文字列に変換。
-		family <- format.family(args.model$family, type = "character")
+		family <- format.family(settings$args.model$family, type = "character")
 		# glmとgamの以下のfamilyが識別。それ以外は回帰
 		classification.families <- c(
 			"binomial", "quasibinomial", "negbin", "ocat", "nb",
@@ -94,8 +94,8 @@ model.adapter <- function(settings){
 #'	@return a character "classification" or "regression".
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
-	get.model.type.from.response.var = function(cv.dummy, args.model, data){
-		if (is(get.response.var(cv.dummy, data, args.model), "factor")){
+	get.model.type.from.response.var = function(){
+		if (is(get.response.var(), "factor")){
 			return(MODEL_TYPE_CLASSIFICATION)
 		} else {
 			return(MODEL_TYPE_REGRESSION)
@@ -145,6 +145,7 @@ model.adapter <- function(settings){
 #'	@inheritParams modify.args.model
 #-------------------------------------------------------------------------------
 #	モデル構築に使われる引数からモデル式をあらわすformulaを取得する。
+#	lmeだけ、別処理。
 #
 #	Args:
 #		object: モデルオブジェクト。計算には使われない。
@@ -249,12 +250,12 @@ model.adapter <- function(settings){
 #'	@inheritParams modify.args.model
 #'	@param data data used for modeling.
 #-------------------------------------------------------------------------------
-#	窶ｰﾅｾ窶愬｡窶｢ﾃ渉絶昶堙ｰ窶｢ﾃ披堋ｷﾂ。ﾂ債｡窶堙娯堙�窶堋ｱ窶堙ｫﾂ、ﾅﾃ鳴絶昶堙問堙娯佚寂ｰﾅｾ窶｢K窶牌窶堙遺堋ｵﾂ。
+#	応答変数を返す。今のところ、関数への対応必要なし。
 #
 #	Args:
-#		object: ﾆ停堡断ﾆ停ｹﾆ棚ﾆ置ﾆ淡ﾆ巽ﾆ誰ﾆ暖
-#		data: ﾆ停堡断ﾆ停ｹﾂ構窶凛窶堙嫁ｽg窶堙ｭ窶堙ｪ窶堙ｩﾆ断ﾂーﾆ耽ﾂ。
-#		args.model: ﾆ停堡断ﾆ停ｹﾂ構窶凛窶堙嫁ｽg窶堙ｭ窶堙ｪ窶堙ｩﾆ恥ﾆ停ｰﾆ陳�ﾂーﾆ耽ﾂーﾂ。
+#		object: モデルオブジェクト
+#		data: モデル構築に使われるデータ。
+#		args.model: モデル構築に使われるパラメーター。
 #-------------------------------------------------------------------------------
 #-------------------------------------------------------------------------------
 #'	@describeIn get.response.var
