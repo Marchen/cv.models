@@ -239,3 +239,30 @@ model.adapter <- function(settings){
 
 
 
+
+#-------------------------------------------------------------------------------
+#'	Get response variable from parameters.
+#'
+#'	This internal function retrieves  the response variable in specified 
+#'	parameters used for modeling.
+#'
+#'	@inheritParams modify.args.model
+#'	@param data data used for modeling.
+#-------------------------------------------------------------------------------
+#	‰ž“š•Ï”‚ð•Ô‚·B¡‚Ì‚Æ‚±‚ëAŠÖ”‚Ö‚Ì‘Î‰ž•K—v‚È‚µB
+#
+#	Args:
+#		object: ƒ‚ƒfƒ‹ƒIƒuƒWƒFƒNƒg
+#		data: ƒ‚ƒfƒ‹\’z‚ÉŽg‚í‚ê‚éƒf[ƒ^B
+#		args.model: ƒ‚ƒfƒ‹\’z‚ÉŽg‚í‚ê‚éƒpƒ‰ƒ[ƒ^[B
+#-------------------------------------------------------------------------------
+#-------------------------------------------------------------------------------
+#'	@describeIn get.response.var
+#'	@method get.response.var default Default S3 method.
+#-------------------------------------------------------------------------------
+.model.adapter.default$methods(
+	get.response.var = function(){
+		return(data[[get.response.name()]])
+	}
+)
+

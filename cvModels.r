@@ -205,7 +205,6 @@ source(file.path(get.this.file.dir(), "R", "predict.method.r"), encoding = "CP93
 
 # ŠÖ”‚Ìˆá‚¢‚ğ‹zû‚·‚éŠÖ”ŒQ
 source(file.path(get.this.file.dir(), "R", "get.response.class.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.response.var.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "get.tunable.args.r"), encoding = "CP932")
 source(file.path(get.this.file.dir(), "R", "expand.tunable.args.r"), encoding = "CP932")
