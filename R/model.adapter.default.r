@@ -1,5 +1,3 @@
-MODEL_TYPE_REGRESSION = "regression"
-MODEL_TYPE_CLASSIFICATION = "classification"
 
 
 #-------------------------------------------------------------------------------
@@ -69,7 +67,7 @@ model.adapter <- function(settings){
 	get.model.type.from.family = function(){
 		# familyがなかったらデフォルトは正規分布なので、回帰。
 		if (is.null(settings$args.model$family)){
-			return(MODEL_TYPE_REGRESSION)
+			return("regression")
 		}
 		# familyを文字列に変換。
 		family <- format.family(settings$args.model$family, type = "character")
@@ -79,9 +77,9 @@ model.adapter <- function(settings){
 			"betar", "cox.ph"
 		)
 		if (family %in% classification.families){
-			return(MODEL_TYPE_CLASSIFICATION)
+			return("classification")
 		}
-		return(MODEL_TYPE_REGRESSION)
+		return("regression")
 	}
 )
 
@@ -96,9 +94,9 @@ model.adapter <- function(settings){
 .model.adapter.default$methods(
 	get.model.type.from.response.var = function(){
 		if (is(get.response.var(), "factor")){
-			return(MODEL_TYPE_CLASSIFICATION)
+			return("classification")
 		} else {
-			return(MODEL_TYPE_REGRESSION)
+			return("regression")
 		}
 	}
 )

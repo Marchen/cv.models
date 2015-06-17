@@ -19,22 +19,22 @@
 				"bernoulli", "huberized", "multinomial", "adaboost"
 			)
 			if (settings$args.model$distribution %in% classification.families){
-				return(MODEL_TYPE_CLASSIFICATION)
+				return("classification")
 			} else {
-				return(MODEL_TYPE_REGRESSION)
+				return("regression")
 			}
 		}
 		# 分布が指定されていなかったら、gbmと同じように推定。
 		response <- get.response.var()
 		if (nlevels(as.factor(response)) == 2){
 			# 2クラスだったら識別。
-			return(MODEL_TYPE_CLASSIFICATION)
+			return("classification")
 		}
 		if (is(response, "factor")){
 			# 応答変数が因子だったら識別。
-			return(MODEL_TYPE_CLASSIFICATION)
+			return("classification")
 		}
-		return(MODEL_TYPE_REGRESSION)
+		return("regression")
 	}
 )
 

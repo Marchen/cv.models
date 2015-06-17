@@ -12,7 +12,7 @@
 #-------------------------------------------------------------------------------
 .model.adapter.lme$methods(
 	get.model.type = function(){
-		return(MODEL_TYPE_REGRESSION)
+		return("regression")
 	}
 )
 
