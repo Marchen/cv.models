@@ -32,7 +32,11 @@ predict.gamm <- function(
 #'	This is a predict method for \emph{glmmML} object.
 #'
 #'	@param object a glmmML object.
-#'	@param newdata a data.frame containing data used for prediction.
+#'	@param newdata 
+#		a data.frame containing data used for prediction. If missing, the data
+#		used for the modeling is used. However, because glmmML object does not 
+#		contain original data used for the modeling, retrieving the data used
+#		for the modeling may fail if the data is removed from workspace.
 #'	@param type
 #'		type of prediction. Default is scale of response variable.
 #'		If "link" is specified, prediction is of link scale is calculated.
@@ -49,6 +53,9 @@ predict.gamm <- function(
 #			glmmMLオブジェクト。
 #		newdata:
 #			予測に使うデータが入ったデータフレーム。
+#			指定しなかった場合、予測に用いたデータを使うがglmmMLオブジェクトには
+#			データが保存されていないので、データがワークスペースに残っていない場合、
+#			データの取得に失敗する可能性がある。
 #		type:
 #			予測を計算するスケール。
 #			デフォルトでは応答変数のスケールで予測を計算
@@ -63,6 +70,9 @@ predict.gamm <- function(
 predict.glmmML <- function(
 	object, newdata, type = c("response", "link"), conditional = FALSE, ...
 ){
+	if (missing(newdata)){
+		newdata <- eval(object$call$data)
+	}
 	type = match.arg(type)
 	design.matrix <- model.matrix(object, data = newdata)
 	result <- design.matrix %*% coef(object)
