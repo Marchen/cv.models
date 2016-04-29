@@ -72,3 +72,26 @@ format.prediction.svm <- function(object, prediction){
 	return(prediction)
 }
 
+#-------------------------------------------------------------------------------
+#'	@describeIn format.prediction svm class of \code{\link[e1071]{svm}} function in \emph{e1071} package.
+#'	@method format.prediction svm
+#-------------------------------------------------------------------------------
+#	rangerはいろんな情報を持ったオブジェクトを返すので、
+#	中から予測値を取り出して返す。
+#-------------------------------------------------------------------------------
+format.prediction.ranger <- function(object, prediction) {
+	if (object$treetype == "Classification"){
+		nclass <- length(object$forest$class.values)
+		result <- matrix(nrow = nrow(prediction$prediction), ncol = nclass)
+		for (i in object$forest$class.values){
+			result[, i] <- rowSums(prediction$prediction == i)
+		}
+		result <- result / prediction$num.trees
+		colnames(result) <- object$forest$levels
+		return(result)
+	} else {
+		return(prediction$prediction)
+	}
+}
+
+

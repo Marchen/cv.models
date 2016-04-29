@@ -33,6 +33,7 @@ cv.one.fold <- function(
 	# Žw•W‚ª³‚µ‚­ŒvŽZ‚Å‚«‚é‚æ‚¤‚ÉApredict‚Ìˆø”‚ðC³
 	args.predict$object <- model
 	args.predict$newdata <- data.test
+	args.predict$data <- data.test#ranger‘Î‰ž
 	# —\‘ª’l‚ðŒvŽZ
 	predictions <- do.call(predict, args.predict)
 	predictions <- format.prediction(model, predictions)

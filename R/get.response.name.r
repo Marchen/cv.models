@@ -115,3 +115,17 @@ get.response.name.gamm <- function(object, args.model = NULL){
 	}
 }
 
+#-------------------------------------------------------------------------------
+#'	@describeIn get.response.name
+#		Method for \code{\link[ranger]{ranger}} function in \emph{ranger} 
+#		package.
+#'	@method get.response.name ranger
+#-------------------------------------------------------------------------------
+get.response.name.ranger <- function(object, args.model = NULL){
+	if (is(object, "cv.dummy")){
+		return(get.response.name.default(object, args.model))
+	} else {
+		f <- get.formula(object, args.model)
+		return(as.character(get.formula(object, args.model)[2]))
+	}
+}

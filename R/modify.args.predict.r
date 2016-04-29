@@ -94,3 +94,18 @@ modify.args.predict.svm <- function(object, args.model, args.predict, data){
 }
 
 
+#-------------------------------------------------------------------------------
+#'	@describeIn modify.args.predict
+#'	Method for \code{\link[ranger]{ranger}} class of \emph{ranger} package.
+#'	@method modify.args.predict ranger
+#-------------------------------------------------------------------------------
+modify.args.predict.ranger <- function(object, args.model, args.predict, data){
+	model.type <- detect.model.type(object, args.model, data)
+	if (model.type == "classification"){
+		args.predict$predict.all = TRUE
+	}
+	return(args.predict)
+}
+
+
+

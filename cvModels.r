@@ -3,7 +3,7 @@
 #
 #	今のところのクロスバリデーション対応関数
 #		lm, glm, lme, glmmML, lmer, glmer, ctree, cforest, randomForest, 
-#		gbm, svm, tree, rpart, mgcv::gam, mgcv::gamm, gam::gam
+#		gbm, svm, tree, rpart, mgcv::gam, mgcv::gamm, gam::gam, ranger
 #
 #	今のところのパラメーターチューニング対応関数
 #		gbm (shrinkage, interaction.depth, n.minobsinnode, bag.fraction, n.trees)
@@ -98,6 +98,7 @@
 #	rpart			rpart			rpart
 #	gam				gam				mgcv, gam
 #	gamm			gamm			mgcv
+#	ranger			ranger			ranger
 #-------------------------------------------------------------------------------
 #	使い方の例
 #
