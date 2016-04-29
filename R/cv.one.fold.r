@@ -38,7 +38,7 @@ cv.one.fold <- function(
 	predictions <- do.call(predict, args.predict)
 	predictions <- format.prediction(model, predictions)
 	# 予測値の中から陽性の確率を取り出す。
-	response <- data.test[[get.response.name(model)]]
+	response <- data.test[[get.response.name(model, args.model)]]
 	predictions <- get.positive.prob(response, predictions, positive.class)
 	# 結果を整形
 	result <- cbind(y = response, as.data.frame(predictions))
