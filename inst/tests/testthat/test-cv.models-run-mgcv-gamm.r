@@ -9,7 +9,7 @@ test_that("run cv.models with mgcv::gamm (regression, no cluster)", {
 		gamm, args.model = list(
 			y ~ s(x0) + s(x1) + s(x2) + s(x3)
 		),
- 		data = dat,
+		data = dat,
 		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1,
 		seed = 1
 	)
@@ -28,7 +28,7 @@ test_that("run cv.models with mgcv::gamm (classification, no cluster)", {
 			y ~ s(x0) + s(x1) + s(x2) + s(x3), family = binomial,
 			niterPQL = 100
 		),
- 		data = dat,
+		data = dat,
 		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"),
 		n.cores = 1, seed = 1
 	)
@@ -46,7 +46,7 @@ test_that("run cv.models with mgcv::gamm (regression, with cluster)", {
 		gamm, args.model = list(
 			y ~ s(x0) + s(x1) + s(x2) + s(x3)
 		),
- 		data = dat,
+		data = dat,
 		cv.metrics = c("auc", "mse", "rmse", "informedness"), seed = 1
 	)
 	print(cv)
@@ -64,7 +64,7 @@ test_that("run cv.models with mgcv::gamm (classification, with cluster)", {
 			y ~ s(x0) + s(x1) + s(x2) + s(x3), family = binomial,
 			niterPQL = 100
 		),
- 		data = dat,
+		data = dat,
 		cv.metrics = c("threshold", "auc", "mse", "rmse", "informedness"),
 		seed = 1
 	)
