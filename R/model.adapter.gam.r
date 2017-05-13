@@ -1,4 +1,10 @@
 #-------------------------------------------------------------------------------
+#'	model.adapter class for gam
+#'
+#'	This reference class contains methods for \code{\link[mgcv]{gam}} in 
+#'	\emph{mgcv} package and \code{\link[gam]{gam}} in \emph{gam} package.
+#'	Following methods are overriden.
+#-------------------------------------------------------------------------------
 #	gam関数用の.model.adapterクラスのジェネレータークラス。
 #-------------------------------------------------------------------------------
 .model.adapter.gam <- setRefClass(
@@ -6,10 +12,7 @@
 )
 
 #-------------------------------------------------------------------------------
-#'	@describeIn detect.model.type
-#'	method for \code{\link[mgcv]{gam}} in \emph{mgcv} package and 
-#'	\code{\link[gam]{gam}} in \emph{gam} package.
-#'	@method detect.model.type gam
+#	モデルの種類を返す。
 #-------------------------------------------------------------------------------
 .model.adapter.gam$methods(
 	get.model.type = function(){
@@ -18,10 +21,8 @@
 )
 
 #-------------------------------------------------------------------------------
-#'	@describeIn expand.dot
-#'	Method for \code{\link[gam]{gam}} function in \emph{gam} package and 
-#'	\code{\link[mgcv]{gam}} function \emph{mgcv} package.
-#'	@method expand.dot gam
+#	formulaの.を展開する。
+#	mgcv::gamとgam::gamで動作を変える。
 #-------------------------------------------------------------------------------
 .model.adapter.gam$methods(
 	expand.dot = function(){

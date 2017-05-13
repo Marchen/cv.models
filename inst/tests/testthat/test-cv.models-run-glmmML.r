@@ -2,15 +2,13 @@ require(testthat)
 
 #-------------------------------------------------------------------------------
 test_that("run cv.models with glmmML (no cluster)", {
-	data(iris)
-	iris <- subset(iris, Species != "setosa")
-	iris$Species <- as.numeric(iris$Species) - 2
-	iris$Random <- factor(c(rep(1:5, 10), rep(6:10, 10)))
+	id <- factor(rep(1:20, rep(5, 20)))
+	y <- rbinom(100, prob = rep(runif(20), rep(5, 20)), size = 1)
+	x <- rnorm(100)
+	dat <- data.frame(y = y, x = x, id = id)
 	cv <- cv.models(
-		glmmML, args.model = args.model(
-			Species ~ Sepal.Length, cluster = Random, family = binomial
-		),
- 		data = iris,
+		glmmML, args.model = args.model(y ~ x, cluster = id, family = binomial),
+ 		data = dat,
 		cv.metrics = c("auc", "mse", "rmse", "informedness"), n.cores = 1
 	)
 	print(cv)
@@ -21,15 +19,13 @@ test_that("run cv.models with glmmML (no cluster)", {
 
 #-------------------------------------------------------------------------------
 test_that("run cv.models with glmmML (with cluster)", {
-	data(iris)
-	iris <- subset(iris, Species != "setosa")
-	iris$Species <- as.numeric(iris$Species) - 2
-	iris$Random <- c(rep(1:5, 10), rep(6:10, 10))
+	id <- factor(rep(1:20, rep(5, 20)))
+	y <- rbinom(100, prob = rep(runif(20), rep(5, 20)), size = 1)
+	x <- rnorm(100)
+	dat <- data.frame(y = y, x = x, id = id)
 	cv <- cv.models(
-		glmmML, args.model = args.model(
-			Species ~ Sepal.Length, cluster = Random, family = binomial
-		),
- 		data = iris,
+		glmmML, args.model = args.model(y ~ x, cluster = id, family = poisson),
+ 		data = dat,
 		cv.metrics = c("auc", "mse", "rmse", "informedness")
 	)
 	print(cv)

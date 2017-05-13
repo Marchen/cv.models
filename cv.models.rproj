@@ -89,6 +89,9 @@
     <Content Include="inst\tests\testthat\test-get.package.name.r">
       <SubType>Content</SubType>
     </Content>
+    <Content Include="inst\tests\testthat\test-model.adapter-get.model.type.r">
+      <SubType>Content</SubType>
+    </Content>
     <Content Include="inst\tests\testthat\test-response-is.identical.r">
       <SubType>Content</SubType>
     </Content>

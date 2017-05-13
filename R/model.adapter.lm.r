@@ -1,4 +1,10 @@
 #-------------------------------------------------------------------------------
+#'	model.adapter class for lm
+#'
+#'	This reference class contains methods for \code{\link[stats]{lm}} in 
+#'	\emph{stats} package.
+#'	Following methods are overriden.
+#-------------------------------------------------------------------------------
 #	lm関数用の.model.adapterクラスのジェネレータークラス。
 #-------------------------------------------------------------------------------
 .model.adapter.lm <- setRefClass(
@@ -6,12 +12,14 @@
 )
 
 #-------------------------------------------------------------------------------
-#'	@describeIn detect.model.type
-#'	method for \code{\link[stats]{lm}} in \emph{stats} package.
-#'	@method detect.model.type lm
+#	モデルの種類を返す。
 #-------------------------------------------------------------------------------
 .model.adapter.lm$methods(
 	get.model.type = function(){
+		"
+		return a character vector specifying model type 
+		(regression or classification).
+		"
 		return("regression")
 	}
 )

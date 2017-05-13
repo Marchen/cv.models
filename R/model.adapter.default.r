@@ -1,8 +1,24 @@
-
-
+#-------------------------------------------------------------------------------
+#'	Make a model.adapter object.
+#'
+#'	This function makes an object of a derived class of \emph{model.adapter} 
+#'	class that abstract differences in specifications of supported modeling 
+#'	functions.
+#'	Inheritance of the derived class is determined by this function using the 
+#'	value of \emph{function.name} field of \emph{settings} field rather than the
+#'	standard generic function mechanism of R. So, if a programer wants to add 
+#'	a support for a new function, he or she needs to implement a generator 
+#'	object of a Reference Class named .model.adapter.FUNCTION_NAME.
+#'
+#'	@param settings a \code{\link{model.settings}} object.
+#'	@return
+#'		an object of derived class of \code{\link{model.adapter-class}}
+#'		depending on the function specified in \emph{settings}.
 #-------------------------------------------------------------------------------
 #	モデルの違いを吸収するアダプタークラスのオブジェクトを作る関数。
-#	Rのポリモーフィズムを使わず、自前でクラスの初期化を行う。
+#	Rのポリモーフィズムを使わず、自前でクラスの初期化を行うので、新規関数への
+#	対応を追加するためには、.model.adapter.関数名のReference Classの
+#	ジェネレーターを実装する必要がある。
 #
 #	Args:
 #		settings: model.settingsのインスタンス
@@ -10,13 +26,6 @@
 #	Value:
 #		model.adapterクラスのオブジェクト
 #
-#	model.adapter
-#		Field:
-#			settings: model.settingsクラスのオブジェクト
-#		Methods:
-#			initialize(model.settings)
-#			get.model.type()
-#				モデルの種類とクラス数を取得
 #-------------------------------------------------------------------------------
 model.adapter <- function(settings){
 	if (settings$is.default){
@@ -30,6 +39,42 @@ model.adapter <- function(settings){
 	return(object)	
 }
 
+#-------------------------------------------------------------------------------
+#'	Abstraction layer for model functions/objects.
+#'
+#'	This class encapsulates differences in specifications of statistical/machine
+#'	learning functions and model objects to provide standard way to access 
+#'	data and properties of models. To add support for a new modeling function,
+#'	function, new generator object of a reference class inheriting this class
+#'	must be implimented and methods that cannot work well with the model should
+#'	be overriden. Because 
+#'
+#'	@field settings
+#'		an object of \code{\link{model.settings}} to keep settings of the 
+#'		object.
+#'	@export
+#-------------------------------------------------------------------------------
+#	モデリング関数の違いを吸収するReference Class、model.adapterクラスの
+#	ジェネレーターオブジェクト。
+#	この基底クラスを継承して、様々なモデルに対応させる。
+#	（いまのところ）継承が必要なメソッドは以下の通り。
+#
+#			メソッド名							継承クラスでの関数への対応
+#			get.model.type()					必要
+#			get.model.type.from.family()		不要
+#			get.model.type.from.response.var()	不要
+#			modify.args.model()					必要
+#			get.formula()						必要
+#			expand.dot()						必要
+#			get.response.name()					不要
+#			get.response.var()					不要
+#
+#		Field:
+#			settings: model.settingsクラスのオブジェクト
+#
+#		Methods:
+#			以下を参照。
+#-------------------------------------------------------------------------------
 .model.adapter.default <- setRefClass(
 	"model.adapter",
 	fields = list(
@@ -38,35 +83,39 @@ model.adapter <- function(settings){
 )
 
 #-------------------------------------------------------------------------------
-#'	(Internal) Detect type of model.
-#'
-#'	This internal function detects type of model (classification/regression).
-#'
-#'	@inheritParams modify.args.model
-#'	@return a character "classification" or "regression".
-#-------------------------------------------------------------------------------
 #	モデルが識別なのか回帰なのかを判定する。
-#
-#	Args:
-#		cv.dummy: cv.dummyオブジェクト
-#		args.model: モデル構築に使われるパラメーター。
+#	Values:
+#		回帰なら"regression"、識別なら"classification"。
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	get.model.type = function(){
+		"
+		Return a character vector specifying model type 
+		(regression or classification).
+		If the model is regression model, it returns 'regression'.
+		If the model is classification model, it returns 'classification'
+		"
 		return(get.model.type.from.response.var())
 	}
 )
 
 #-------------------------------------------------------------------------------
-#'	(Internal) Detect type of model from family.
-#'
-#'	This internal function detects type of model from glm and mgcv::gam family.
-#'
-#'	@inheritParams modify.args.model
-#'	@return a character "classification" or "regression".
+#	settings$args.model$familyに基づいて、モデルが識別なのか回帰なのかを判定する。
+#
+#	Values:
+#		回帰なら"regression"、識別なら"classification"。	
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	get.model.type.from.family = function(){
+		"
+		Return a character vector specifying model type 
+		(regression or classification).
+		Detection is based on the type of family in \\emph{family} in 
+		\\emph{args.model} field of \\emph{settings} field (i.e. 
+		settings$args.model$family).
+		If the model is regression model, it returns 'regression'.
+		If the model is classification model, it returns 'classification'
+		"
 		# familyがなかったらデフォルトは正規分布なので、回帰。
 		if (is.null(settings$args.model$family)){
 			return("regression")
@@ -86,15 +135,20 @@ model.adapter <- function(settings){
 )
 
 #-------------------------------------------------------------------------------
-#'	(Internal) Detect type of model from class of response variable.
-#'
-#'	This internal function detects type of model from class of response variable.
-#'
-#'	@inheritParams modify.args.model
-#'	@return a character "classification" or "regression".
+#	応答変数の型に基づいて、モデルが識別なのか回帰なのかを判定する。
+#
+#	Values:
+#		回帰なら"regression"、識別なら"classification"。	
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	get.model.type.from.response.var = function(){
+		"
+		Return a character vector specifying model type
+		(regression or classification).
+		Detection is based on the class of response variable.
+		If the model is regression model, it returns 'regression'.
+		If the model is classification model, it returns 'classification'
+		"
 		if (is(get.response.var(), "factor")){
 			return("classification")
 		} else {
@@ -104,68 +158,35 @@ model.adapter <- function(settings){
 )
 
 #-------------------------------------------------------------------------------
-#'	Modify settings of modeling.
-#'
-#'	Internal function that hodifis parameters used for modeling.
-#'
-#'	@details
-#'	\describe{
-#'		\item{\code{\link[e1071]{svm}}}{
-#'			This function set \emph{probability} in \emph{args.model} to TRUE.
-#'		}
-#'		\item{\code{\link[gbm]{gbm}}}{
-#'			If the maximum value of n.trees specified in \emph{args.predict}
-#'			is larger than the value of n.trees specified in \emph{args.model},
-#'			this function change the value of n.trees in \emph{args.model} to the
-#'			maximum value.
-#'		}
-#'		\item{
-#'			merMod object created by \code{\link[lme4]{lmer}} and 
-#'			\code{\link[lme4]{glmer}} functions, \code{\link[gam]{gam}} 
-#'			in \emph{gam} and \emph{mgcv} packages, \code{\link[mgcv]{gamm}}
-#'		}{
-#'			This function expands '.' in specified formula and makes formula
-#'			without '.'.
-#'		}
-#'	}
-#'
-#'	@return A list containing modified parameters for model construction.
-#-------------------------------------------------------------------------------
 #	モデルが性能指標を正しく計算するように、モデル構築の引数を修正する総称関数。
+#	基底クラスの関数はなにもしない。
+#	継承したクラスの関数がargs.modelを変更する場合、オリジナルのargs.modelを
+#	args.model.srcに保存する必要がある。
+#	修正がない場合、args.model.srcは長さ0のリストである必要がある。
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
-	modify.args.model = function(){}
+	modify.args.model = function(){
+		"
+		Modify arguments used for model construction to obtain correct 
+		calculation of performance measures.
+		Default function in this base class do nothing.
+		If an overiding function in an inherited class modifies args.model, it 
+		should store original arg.model in args.model.src. Otherwise, 
+		args.model.src should be a list of length zero (list()).
+		"
+		NULL
+	}
 )
 
 #-------------------------------------------------------------------------------
-#'	Get formula from parameters.
-#'
-#'	This internal function retrieves formula from arguments used for modeling.
-#'
-#'	@inheritParams modify.args.model
-#-------------------------------------------------------------------------------
 #	モデル構築に使われる引数からモデル式をあらわすformulaを取得する。
-#	lmeだけ、別処理。
-#
-#	Args:
-#		object: モデルオブジェクト。計算には使われない。
-#		args.model: モデル構築に使われる引数を入れたリスト。
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-#'	@describeIn get.formula Default S3 method.
-#'	This function is used for handling a result of
-#'		\code{\link[stats]{lm}}, \code{\link[stats]{glm}},
-#'		\code{\link[lme4]{lmer}}, \code{\link[lme4]{glmer}}, 
-#'		\code{\link[party]{ctree}}, \code{\link[party]{cforest}}, 
-#'		\code{\link[randomForest]{randomForest}}, \code{\link[gbm]{gbm}}, 
-#'		\code{\link[e1071]{svm}}, \code{\link[tree]{tree}}, 
-#'		\code{\link[rpart]{rpart}}, \code{\link[gam]{gam}} in \emph{gam} package,
-#'		\code{\link[mgcv]{gam}} in \emph{mgcv} package and
-#'		\code{\link[mgcv]{gamm}}.
-#'	@method get.formula default
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	get.formula = function(){
+		"
+		Retrieve model formula (of fixed effect) from the arguments for the
+		modeling function.
+		"
 		args.model <- settings$args.model
 		if (!is.null(args.model$formula)){
 			return(args.model$formula)
@@ -176,25 +197,23 @@ model.adapter <- function(settings){
 )
 
 #-------------------------------------------------------------------------------
-#'	(Internal) Expand dot in formula.
-#'
-#'	This internal function expand dot ('.') in model formula used for modeling.
-#'
-#'	@inheritParams modify.args.model
-#'	@param specials A vector of character which passed to 
-#'	\code{\link[stats]{terms.formula}} function.
-#-------------------------------------------------------------------------------
 #	args.modelの中のformulaの.を実際の変数に置き換える総称関数。
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-#'	@describeIn expand.dot
-#'	Default S3 method. Intended to be used for \emph{lmerMod} object created by
-#'	\code{\link[lme4]{lmer}} and \emph{glmerMod} object created by 
-#'	\code{\link[lme4]{glmer}} function in \emph{lme4} package.
-#'	@method expand.dot default
+#	lmer, glmerの式の.を展開するために使われる。
+#
+#	Args:
+#		specials: terms.formula関数に渡される。
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	expand.dot = function(specials = NULL){
+		"
+		Expand dot ('.') in model formula used for modeling and store it in
+		\\emph{args.model} field of \\emph{settings} field.
+		Argument \\emph{specials} is passed to 
+		\\code{\\link[stats]{terms.formula}} function.
+		This function is intended to be used when users use 
+		\\code{\\link[lme4]{lmer}} and \\code{\\link[lme4]{glmer}} functions in
+		\\emph{lme4} package.
+		"
 		# 式の準備
 		f <- get.formula()
 		f <- terms(f, data = settings$data, specials = specials)
@@ -207,63 +226,29 @@ model.adapter <- function(settings){
 )
 
 #-------------------------------------------------------------------------------
-#'	Get name of response variable from parameters.
-#'
-#'	This internal function retrieves the name of the response variable in 
-#'	specified parameters used for modeling.
-#'
-#'	@inheritParams modify.args.model
-#-------------------------------------------------------------------------------
-#	応答変数の名前を返す総称関数
-#	いまのところ、関数の対応必要なし。
-#
-#	Args:
-#		object: モデルオブジェクト。
-#		args.model: モデル構築に使われる引数を入れたリスト。
-#
-#	Value:
-#		応答変数の名前を表す文字列。
-#
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-#'	@describeIn get.response.name
-#'		Default S3 method. This function handles result of \code{\link[stats]{lm}}, 
-#'		\code{\link[stats]{glm}}, \code{\link[nlme]{lme}} and 
-#'		\code{\link[randomForest]{randomForest}} functions. 
-#'	@method get.response.name default
+#	応答変数の名前を取り出す関数。
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	get.response.name = function(){
+		"
+		Retrieve the name of the response variable from arguments used for 
+		modeling.
+		"
 		return(as.character(get.formula())[2])
 	}
 )
 
-
-
-
 #-------------------------------------------------------------------------------
-#'	Get response variable from parameters.
-#'
-#'	This internal function retrieves  the response variable in specified 
-#'	parameters used for modeling.
-#'
-#'	@inheritParams modify.args.model
-#'	@param data data used for modeling.
-#-------------------------------------------------------------------------------
-#	応答変数を返す。今のところ、関数への対応必要なし。
-#
-#	Args:
-#		object: モデルオブジェクト
-#		data: モデル構築に使われるデータ。
-#		args.model: モデル構築に使われるパラメーター。
-#-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
-#'	@describeIn get.response.var
-#'	@method get.response.var default Default S3 method.
+#	応答変数をモデルの引数から取り出す。
 #-------------------------------------------------------------------------------
 .model.adapter.default$methods(
 	get.response.var = function(){
+		"
+		Retrieves the response variable from arguments used for modeling.
+		"
 		return(settings$data[[get.response.name()]])
 	}
 )
+
+
 

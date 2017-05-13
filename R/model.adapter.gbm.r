@@ -1,4 +1,10 @@
 #-------------------------------------------------------------------------------
+#'	model.adapter class for gbm
+#'
+#'	This reference class contains methods for \code{\link[gbm]{gbm}} in 
+#'	\emph{gbm} package.
+#'	Following methods are overriden.
+#-------------------------------------------------------------------------------
 #	gbm関数用の.model.adapterクラスのジェネレータークラス。
 #-------------------------------------------------------------------------------
 .model.adapter.gbm <- setRefClass(
@@ -6,12 +12,14 @@
 )
 
 #-------------------------------------------------------------------------------
-#'	@describeIn detect.model.type
-#'	method for \code{\link[gbm]{gbm}} in \emph{gbm} package.
-#'	@method detect.model.type gbm
+#	モデルの種類を返す。
 #-------------------------------------------------------------------------------
 .model.adapter.gbm$methods(
 	get.model.type = function(){
+		"
+		return a character vector specifying model type 
+		(regression or classification).
+		"
 		# 分布が指定されているとき
 		if (!is.null(settings$args.model$distribution)){
 			# 以下が識別、それ以外は回帰として扱う。
@@ -39,15 +47,17 @@
 )
 
 #-------------------------------------------------------------------------------
-#'	@describeIn modify.args.model
-#'	Method for \code{\link[gbm]{gbm}} object in \emph{gbm} package.
-#'	@method modify.args.model gbm
-#-------------------------------------------------------------------------------
 #	モデル構築用のn.treesがpredict用のn.treesがよりも少なかったら、
 #	自動的にn.treesを増やす。
 #-------------------------------------------------------------------------------
 .model.adapter.gbm$methods(
 	modify.args.model = function(){
+		"
+		If the maximum value of n.trees specified in \\emph{args.predict}
+		is larger than the value of n.trees specified in \\emph{args.model},
+		this function change the value of n.trees in \\emph{args.model} to the
+		maximum value.
+		"
 		args.model <- settings$args.model
 		args.predict <- settings$args.predict
 		if (!is.null(args.predict$n.trees)){

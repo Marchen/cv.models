@@ -10,4 +10,49 @@ Depends: R (>= 3.0.0), base, stats, parallel, pROC
 Imports:
 	base, stats, parallel, pROC
 Suggests:
-	randomForest, party, gbm, e1071, lme4, nlme, tree, rpart, mgcv, gam
+	randomForest, party, gbm, e1071, lme4, nlme, tree, rpart, mgcv, gam, glmmML
+Collate:
+	cluster.r
+	confusion.matrix.r
+	construct.model.r
+	cross.validation.r
+	cv.best.models.r
+	cv.models.r
+	cv.one.fold.r
+	cv.performance.r
+	expand.tunable.args.r
+	format.family.r
+	format.prediction.r
+	get.args.r
+	get.best.metrics.index.r
+	get.best.models.r
+	get.class.name.r
+	get.package.name.r
+	get.positive.prob.r
+	get.response.class.r
+	get.tunable.args.r
+	make.cv.group.r
+	make.dummy.r
+	make.weight.r
+	merge.tunable.args.r
+	model.settings.r
+	model.adapter.default.r
+	model.adapter.gam.r
+	model.adapter.gamm.r
+	model.adapter.gbm.r
+	model.adapter.glm.r
+	model.adapter.glmer.r
+	model.adapter.glmmML.r
+	model.adapter.lm.r
+	model.adapter.lme.r
+	model.adapter.lmer.r
+	model.adapter.svm.r
+	model.perf.r
+	modify.args.model.r
+	modify.args.predict.r
+	modify.args.r
+	modify.response.var.r
+	predict.method.r
+	run.dredge.r
+	utils.r
+	which.min.max.r

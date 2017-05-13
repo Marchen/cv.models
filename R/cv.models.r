@@ -25,7 +25,37 @@ cv.models.object <- function(
 	return(object)
 }
 
-#'	Cross validation and parameter selection.
+#'	Cross validation and parameter tuning of models.
+#'
+#'	This function conducts cross validation and calculates performance metrics.
+#'	For the models having hyper parameters (e.g. \emph{gam}), this function 
+#'	calculate performance metrics for each combination of  candidate parameters.
+#'
+#'	@param model.function
+#'		a model function to be used for cross validation. Currently, this 
+#'		function can handle \code{\link[stats]{lm}}, \code{\link[stats]{glm}},
+#'		\code{\link[nlme]{lme}}, \code{\link[lme4]{lmer}},
+#'		\code{\link[gam]{gam}} in \emph{gam} package,
+#'		\code{\link[mgcv]{gam}} in \emph{mgcv} package, \code{\link[mgcv]{gamm}}, 
+#'		\code{\link[lme4]{glmer}}, \code{\link[tree]{tree}},
+#'		\code{\link[rpart]{rpart}}, \code{\link[randomForest]{randomForest}},
+#'		\code{\link[party]{ctree}}, \code{\link[party]{cforest}},
+#'		\code{\link[gbm]{gbm}} and \code{\link[svm]{svm}}.
+#'	@param args.model
+#'		a list containing all arguments used for modeling. \emph{data} argument
+#'		specified in this list is automatically replaced by the function. So 
+#'		DON'T specify \emph{data} in this list and use the \emph{data} argument
+#'		of this function (see below).
+#'
+#'		If a modeling function has hyper parameters that can affect predictive
+#'		ability of resultant models, you can specify candidate parameters as a
+#'		vector. For the details, see the Examples below.
+#'	@param data
+#'		a data.frame containing all the data used for the modeling. All data used
+#'		for the modeling should be in this data.frame.
+#'	@param args.predict
+#'		a list contatining arguments passed to \emph{predict} method.
+#
 #'	@export
 #-------------------------------------------------------------------------------
 #	モデルの性能に影響するパラメーターの候補を組み合わせてモデルを作り、
@@ -62,7 +92,7 @@ cv.models.object <- function(
 #			結果を固定したいときには乱数の種を指定する。ここで種子を固定すると、
 #			get.best.models()関数の結果も固定される。種子を固定すると結果は
 #			クラスターを使っても使わなくても同じになる。
-#		positive.lael:
+#		positive.label:
 #			陽性として扱うクラスを表す文字列。指定されなかった場合は
 #			(TRUE, FALSE), (1, 0), (+, -), (+, 0)のセットの左側を陽性として扱い、
 #			を自動的に陽性としてデータの取得を試みる。それでも陽性が決定できない
@@ -105,6 +135,12 @@ cv.models <- function(
 	package.name = get.package.name(function.name)
 
 ){
+	#settings <- .model.settings$new(
+		#function.name = function.name, package.name = package.name,
+		#args.model = args.model, args.predict = args.predict, data = data
+	#)
+	#adapter <- model.adapter(settings)
+	
 	# パラメーターが整合性を保つように修正する。
 	dummy <- make.dummy(function.name, package.name)
 	modified <- modify.args(check.args, dummy, args.model, args.predict, data)
@@ -150,3 +186,4 @@ print.cv.models <- function(x, ...){
 	print(x$cv.metrics)
 	cat("\n")
 }
+
