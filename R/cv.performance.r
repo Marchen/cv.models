@@ -20,6 +20,15 @@ calc.r.squared <- function(response, prediction, method = "pearson"){
 	}
 	return(cor(response, prediction, method = method) ^ 2)
 }
+# Q二乗
+calc.q.squared <- function(response, prediction) {
+	if (is.factor(response)) {
+		return(NA)
+	}
+	press <- sum((prediction - response) ^ 2)
+	tss <- sum((response - mean(response)) ^ 2)
+	return(1 - press / tss)
+}
 # informedness
 calc.informedness <- function(metrics){
 	return(metrics[, "sensitivity"] + metrics[, "specificity"] - 1)
@@ -87,6 +96,7 @@ calc.all.metrics <- function(
 	result <- cbind(
 		result, r.squared = calc.r.squared(response, prediction, cor.method)
 	)
+	result <- cbind(result, q.squared = calc.q.squared(response, prediction))
 	# 結果を整形
 	rownames(result) <- NULL
 	result <- data.frame(result)
@@ -109,6 +119,7 @@ calc.all.metrics <- function(
 #			"mse": Mean square error
 #			"rmse": root mean square error
 #			"r.squared": R二乗値
+#			"q.squared": Q二乗値
 #			に対応。
 #		positive.class: 陽性として扱うクラスのラベル。
 #		model.type: "regression" or "classification"

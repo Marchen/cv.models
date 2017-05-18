@@ -55,6 +55,7 @@ cv.models.object <- function(
 #			"mse": Mean square error
 #			"rmse": root mean square error
 #			"r.squared": R二乗値
+#			"q.squared": Q二乗値
 #			に対応。
 #		n.cores:
 #			計算に使うコアの数。何も指定しないと全てのコアを使って計算します。
@@ -124,7 +125,7 @@ cv.models <- function(
 	)
 	# 候補パラメーターをCVの結果に結合。
 	performance <- merge.tunable.args(dummy, performance, args.model, "model")
-	performance <- merge.cv.performances(performance)	
+	performance <- merge.cv.performances(performance)
 	# cv.modelsオブジェクトを作成。
 	result <- cv.models.object(
 		model.function, function.name, package.name, modified$data,

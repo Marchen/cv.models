@@ -60,7 +60,7 @@ test_that(
 		),
 		args.predict = list(n.trees = seq(5, 500, by = 5)),
 		data=iris,
-		cv.metrics = c("mse", "rmse", "r.squared")
+		cv.metrics = c("mse", "rmse", "r.squared", "q.squared")
 	)
 	print(cv)
 	bm <- get.best.models(cv, metrics = "r.squared")
