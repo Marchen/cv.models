@@ -76,7 +76,9 @@ cluster.manager$methods(
 			# Initialize cluster
 			.self$cl <- makeCluster(.self$n.cores)
 			.self$export.functions()
-			clusterExport(.self$cl, ls(envir = object$envir))
+			clusterExport(
+				.self$cl, ls(envir = object$envir), envir = object$envir
+			)
 			clusterEvalQ(.self$cl, library(model.adapter))
 			clusterEvalQ(.self$cl, library(cv.models))
 			clusterCall(
