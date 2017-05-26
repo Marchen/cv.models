@@ -385,21 +385,6 @@ cv.metrics.calculator$methods(
 
 
 #------------------------------------------------------------------------------
-#	全ての回帰モデルの性能評価指標を計算する。
-#------------------------------------------------------------------------------
-cv.metrics.calculator$methods(
-	metrics.for.regression = function() {
-		"
-		Calculate all metrics for regression models.
-		"
-		metrics <- lapply(.self$fits, .self$calc.metrics.for.regression)
-		metrics <- do.call(rbind, metrics)
-		return(metrics)
-	}
-)
-
-
-#------------------------------------------------------------------------------
 #	全ての識別モデルの性能評価指標を計算する。
 #------------------------------------------------------------------------------
 cv.metrics.calculator$methods(
@@ -428,30 +413,18 @@ cv.metrics.calculator$methods(
 
 
 #------------------------------------------------------------------------------
-#	全ての識別モデルの性能評価指標を計算する。
-#------------------------------------------------------------------------------
-cv.metrics.calculator$methods(
-	metrics.for.classification = function() {
-		"
-		Calculate all metrics for classification models.
-		"
-		metrics <- lapply(.self$fits, .self$calc.metrics.for.classification)
-		metrics <- do.call(rbind, metrics)
-		return(metrics)
-	}
-)
-
-
-#------------------------------------------------------------------------------
 #	全ての性能評価指標を計算する。
 #------------------------------------------------------------------------------
 cv.metrics.calculator$methods(
 	metrics = function() {
+		f <- .self$fits
 		if (.self$model.type == "regression") {
-			return(metrics.for.regression())
+			metrics <- lapply(f, .self$calc.metrics.for.regression)
 		} else {
-			return(metrics.for.classification())
+			metrics <- lapply(f, .self$calc.metrics.for.classification)
 		}
+		metrics <- do.call(rbind, metrics)
+		return(metrics)
 	}
 )
 
@@ -472,4 +445,3 @@ cv.metrics <- function(object) {
 	cal <- cv.metrics.calculator(object)
 	return(cal$metrics())
 }
-
