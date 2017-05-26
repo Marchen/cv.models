@@ -1,10 +1,9 @@
-
 # callの中身に新しい数式を設定する補助関数。
 # object: cv.dummyオブジェクト。現状は特に使ってない。
 # call: formulaを設定するcall。
 # new.formula: 設定する新しいformula。
-set.formula <- function(object, call, new.formula){
-	if (!is.null(eval(call$args.model$formula))){
+set.formula <- function(object, call, new.formula) {
+	if (!is.null(eval(call$args.model$formula))) {
 		call$args.model$formula <- new.formula
 	} else {
 		call$args.model[
@@ -18,7 +17,7 @@ set.formula <- function(object, call, new.formula){
 # クロスバリデーションを実行し、ベストモデルを取得し、callを保存する補助関数。
 # call: 実行するcv.modelsのcall。
 # metric: ベストモデルを選ぶ基準を表す文字列。
-eval.model <- function(call, metric){
+eval.model <- function(call, metric) {
 	result <- eval(call)
 	result$call <- call
 	result$best <- get.best.models(result, metrics = metric)
@@ -29,7 +28,7 @@ eval.model <- function(call, metric){
 # x: 除去する変数名
 # call: モデルの呼び出し式
 # metric: ベストモデルを選ぶ基準にする指標名。
-next.model <- function(x, call, metric){
+next.model <- function(x, call, metric) {
 	# モデル式を作成する。
 	dummy <- make.dummy(as.character(call$model.function), call$package.name)
 	args.model <- expand.dot(dummy, eval(call$args.model), eval(call$data))
@@ -43,8 +42,8 @@ next.model <- function(x, call, metric){
 #	オブジェクトのベストモデルから指定した指標を取り出す補助関数。
 #	x: モデルオブジェクト
 #	metric: 指標名を表す文字列。
-get.metric <- function(x, metric){
-	if (is.data.frame(x$best[[1]]$cv.metrics)){
+get.metric <- function(x, metric) {
+	if (is.data.frame(x$best[[1]]$cv.metrics)) {
 		return(x$best[[1]]$cv.metrics[, metric])
 	} else {
 		return(x$best[[1]]$cv.metrics)
@@ -54,7 +53,7 @@ get.metric <- function(x, metric){
 
 # モデルから除去できる項の一覧を取得する。
 #	call: cv.modelsの呼び出しを含むcall。
-get.drop.terms <- function(call){
+get.drop.terms <- function(call) {
 	dummy <- make.dummy(as.character(call$model.function), call$package.name)
 	args.model <- expand.dot(dummy, eval(call$args.model), eval(call$data))
 	formula <- get.formula(dummy, args.model)
@@ -126,7 +125,7 @@ get.drop.terms <- function(call){
 #	・真剣にテストしてない。
 #
 #==============================================================================
-select.params <- function(x, metric, n.cores = 1){
+select.params <- function(x, metric, n.cores = 1) {
 	# フルモデルを作成
 	call <- match.call(cv.models, substitute(x))
 	result <- list(models = list())
@@ -134,7 +133,7 @@ select.params <- function(x, metric, n.cores = 1){
 	# 除去可能な変数リストを作成。
 	drop.terms <- get.drop.terms(call)
 	# クラスター準備
-	if (n.cores > 1){
+	if (n.cores > 1) {
 		require(parallel)
 		cl <- makeCluster(detectCores())
 		on.exit(stopCluster(cl))
@@ -142,9 +141,9 @@ select.params <- function(x, metric, n.cores = 1){
 	}
 	# インデックスを初期化
 	index = 1
-	while (1){
+	while (1) {
 		# 候補モデルを作成。
-		if (n.cores > 1){
+		if (n.cores > 1) {
 			result$models[[index]] <- clusterApplyLB(
 				cl, drop.terms, next.model, call = call, metric = metric
 			)
@@ -157,16 +156,16 @@ select.params <- function(x, metric, n.cores = 1){
 		# 性能評価指標を抽出
 		metrics <- sapply(result$models[[index]], get.metric, metric)
 		# ひとつ前のモデルの性能が高かったら処理を抜ける。
-		if (all(metrics < get.metric(prev.model))){
+		if (all(metrics < get.metric(prev.model))) {
 			break
 		}
 		# 次のステップの準備
 		prev.model <- result$models[[index]][[which.max(metrics)]]
 		index <- index + 1
-		drop.terms  <- get.drop.terms(prev.model$call)
+		drop.terms <- get.drop.terms(prev.model$call)
 		call <- prev.model$call
 		# すべての項がなくなったら処理を抜ける。
-		if (length(drop.terms) == 0){
+		if (length(drop.terms) == 0) {
 			break
 		}
 	}
@@ -178,10 +177,10 @@ select.params <- function(x, metric, n.cores = 1){
 #==============================================================================
 #	実行例
 #==============================================================================
-if (0){
+if (0) {
 	source("cvModels.r", encoding = "CP932")
 	data(iris)
-#	set.seed(12345)
+	#	set.seed(12345)
 	iris$random1 <- runif(nrow(iris))
 	iris$random2 <- runif(nrow(iris))
 	iris$random3 <- runif(nrow(iris))
@@ -190,7 +189,7 @@ if (0){
 	cv <- select.params(
 		cv.models(
 			randomForest, args.model = list(Sepal.Length ~ .), data = iris,
-			cv.metrics = c("r.squared"), n.cores = 1#, seed = 12345
+			cv.metrics = c("r.squared"), n.cores = 1 #, seed = 12345
 		),
 		"r.squared", n.cores = 2
 	)
@@ -221,8 +220,3 @@ if (0){
 	# ベストモデルを取り出し。
 	best <- cv$best$best[[1]]$model
 }
-
-
-
-
-

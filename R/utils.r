@@ -42,8 +42,8 @@ calculate.model.index <- function(object, index) {
 	return(model.index)
 }
 
-calculate.predict.index <- function(object, index){
-	if (is.null(object$grid.predict)){
+calculate.predict.index <- function(object, index) {
+	if (is.null(object$grid.predict)) {
 		return(1L)
 	}
 	n.grid.predict <- nrow(expand.grid(object$grid.predict))
