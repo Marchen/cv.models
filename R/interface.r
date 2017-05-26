@@ -1,15 +1,29 @@
 #'	@export
-extract.fit <- function(object, index = 1){
-	model.index <- calculate.model.index(object, index)
-	predict.index <- calculate.predict.index(object, index)
-	fits <- object$cv.results[[model.index]]$fits[[predict.index]]
-	fits <- lapply(fits, as.data.frame)
+extract.fit <- function(object, index = 1) {
+	UseMethod("extract.fit")
+}
+
+#'	@export
+extract.fit.cv.models <- function(object, index = 1) {
+	fits <- lapply(object$cv.results[[index]]$fits, as.data.frame)
 	fits <- do.call(rbind, fits)
 	return(fits)
 }
 
 #'	@export
-plot.cv.models <- function(object, index = 1, ...){
+extract.fit.cv.result <- function(object, index = 1) {
+	dfs <- lapply(object$fits, as.data.frame)
+	result <- do.call(rbind, dfs)
+	return(result)
+}
+
+#'	@export
+extract.fit.cv.best.models <- function(object, index = 1) {
+	return(extract.fit(object[[index]]))
+}
+
+#'	@export
+plot.cv.models <- function(object, index = 1, ...) {
 	fits <- extract.fit(object, index)
 	plot(
 		fits$prediction, fits$response, xlab = "Prediction", ylab = "Reponse",
@@ -25,7 +39,34 @@ extract.metrics <- function(object) {
 	result <- do.call(rbind, metrics)
 	rownames(result) <- NULL
 	return(result)
-}#'	print method for \emph{cv.models} class.
+}
+
+#'	@export
+print.cv.result <- function(x, ...) {
+	cat("Result of cross validation\n")
+	cat(sprintf("Function name: %s\n", x$function.name))
+	cat("Cross validation metrics:\n")
+	print(x$metrics)
+	cat("\n")
+}
+
+
+#'	@export
+print.cv.best.models <- function(x, ...) {
+	hr <- "------------------------------------------------"
+	if (length(x) > 1) {
+		msg <- "-> 1 best model was found:"
+	} else {
+		msg <- sprintf("-> %s best models were found:", length(x))
+	}
+	cat(paste(hr, "Result of model selection by cross validation", msg, hr, sep = "\n"))
+	for (i in 1:length(x)) {
+		cat(paste(sprintf("\nModel index %s", i), hr, sep = "\n"), "\n")
+		print(x[[i]])
+	}
+}
+
+#'	print method for \emph{cv.models} class.
 #'	@describeIn cv.models
 #'	@export
 #------------------------------------------------------------------------------
@@ -42,3 +83,4 @@ print.cv.models <- function(x, ...) {
 	print(extract.metrics(x))
 	cat("\n")
 }
+

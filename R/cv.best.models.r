@@ -46,34 +46,38 @@ find.best.metrics.index <- function(metrics) {
 #'
 #'	@export
 #-------------------------------------------------------------------------------
-extract.model <- function(object, index) {
-	model.index <- calculate.model.index(object, index)
-	predict.index <- calculate.predict.index(object, index)
+extract.result <- function(object, index, criteria = NULL) {
 	best <- object
 	best$grid <- NULL
 	best$grid.predict <- NULL
-	best$metrics <- extract.metrics(best)[index, ]
-	best$call <- best$cv.results[[model.index]]$call
+	best$metrics <- best$cv.results[[index]]$metrics
+	best$criteria <- criteria
+	best$call <- best$cv.results[[index]]$call
+	best$fits <- best$cv.results[[index]]$fits
+	best$cv.group <- best$cv.results[[index]]$cv.group
 	best$model <- eval(best$call, envir = best$envir)
-	best$fits <- best$cv.results[[model.index]]$fits
-	best$cv.group <- best$cv.results[[model.index]]$cv.group
 	best$cv.results <- NULL
-	class(best) <- "cv.best.model"
+	class(best) <- "cv.result"
 	return(best)
 }
 
-#'	@export
-cv.best.models <- function(object, metrics) {
-	best.index <- get.best.metrics.index(extract.metrics(object)[metrics])
-	return(lapply(best.index, extract.model, object = object))
-}
-
 
 #'	@export
-print.cv.best.model <- function(x, ...) {
-	cat("Result of cross validation\n")
-	cat(sprintf("Function name: %s\n", x$function.name))
-	cat("Cross validation metrics:\n")
-	print(x$metrics)
-	cat("\n")
+find.best.models <- function(object, criteria) {
+	if (missing(criteria)) {
+		criteria <- ifelse(
+			object$adapter$model.type == "regression", "q.squared", "mcc"
+		)
+	}
+	if (is.null(object$grid) & is.null(object$grid.predict)) {
+		best.index <- 1
+	} else {
+		metrics <- extract.metrics(object)[criteria]
+		best.index <- find.best.metrics.index(metrics)
+	}
+	result <- lapply(
+		best.index, extract.result, object = object, criteria = criteria
+	)
+	class(result) <- "cv.best.models"
+	return(result)
 }

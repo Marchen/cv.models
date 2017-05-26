@@ -47,10 +47,15 @@ merge.grid.and.cv.results <- function(grid, cv.results) {
 		return(cv.results)
 	}
 	grid <- expand.grid(grid)
-	grids <- split(grid, 1:nrow(grid))
-	fun <- function(grid, cv.result) {
-		cv.result$metrics <- merge.grid.and.metrics(grid, cv.result$metrics)
-		return(cv.result)
+	grids <- lapply(1:nrow(grid), "[.data.frame", x = grid,)
+	fun <- function(grid, cv.results) {
+		result <- vector("list", length(cv.results))
+		for (i in 1:length(cv.results)) {
+			cv.results[[i]]$metrics <- merge.grid.and.metrics(
+				grid, cv.results[[i]]$metrics
+			)
+		}
+		return(cv.results)
 	}
 	return(mapply(fun, grids, cv.results, SIMPLIFY = FALSE))
 }
@@ -98,27 +103,32 @@ model.one.fold <- function(cv.index, object) {
 
 
 #------------------------------------------------------------------------------
-cv.result <- function(object) {
-	object <- object[c("call", "cv.group", "fits", "metrics")]
-	class(object) <- "cv.result"
-	return(object)
-}
-
-
-#------------------------------------------------------------------------------
 fit.cv.models <- function(object) {
+	# クロスバリデーションを実行。
 	object$cv.group <- cv.group(object)
-	cv.man <- cluster.manager(object, "cv")
-	fits <- cv.man$lapply(1:object$folds, model.one.fold, object)
-	rearrange <- function(i) {
-		return(lapply(fits, "[[", i = i))
+	cl.man <- cluster.manager(object, "cv")
+	fits <- cl.man$lapply(1:object$folds, model.one.fold, object)
+	# クロスバリデーションの結果を整形。
+	if (is.null(object$grid.predict)) {
+		n.results <- 1
+	} else {
+		n.results <- nrow(expand.grid(object$grid.predict))
 	}
-	object$fits <- lapply(1:length(fits[[1]]), rearrange)
+	object$fits <- lapply(1:n.results, function(i) lapply(fits, "[[", i = i))
+	# 性能評価指標を計算。
 	object$metrics <- cv.metrics(object)
 	object$metrics <- merge.grid.and.metrics(
 		object$grid.predict, object$metrics
 	)
-	return(cv.result(object))
+	# 結果を整形して、１回のCV結果が１要素のリストに変換する。
+	result <- vector("list", n.results)
+	for (i in 1:n.results) {
+		obj <- object[c("call", "cv.group", "fits", "metrics")]
+		obj$fits <- obj$fits[[i]]
+		obj$metrics <- obj$metrics[i,]
+		result[[i]] <- obj
+	}
+	return(result)
 }
 
 
@@ -157,9 +167,8 @@ cv.models <- function(
 	)
 	objects <- apply.grid.for.object(object)
 	cl.man <- cluster.manager(object, "grid")
-	object$cv.results <- cl.man$lapply(objects, fit.cv.models)
-	object$cv.results <- merge.grid.and.cv.results(grid, object$cv.results)
+	cv.results <- cl.man$lapply(objects, fit.cv.models)
+	cv.results <- merge.grid.and.cv.results(grid, cv.results)
+	object$cv.results <- do.call(c, cv.results)
 	return(object)
 }
-
-
