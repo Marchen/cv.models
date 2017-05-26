@@ -1,24 +1,3 @@
-
-
-#'	print method for \emph{cv.models} class.
-#'	@describeIn cv.models
-#'	@export
-#------------------------------------------------------------------------------
-#	cv.modelsクラス用のprint。
-#
-#	Args:
-#		x: cv.modelsオブジェクト。
-#		...: 使われていません。
-#------------------------------------------------------------------------------
-print.cv.models <- function(x, ...){
-	cat("Result of cross validation\n")
-	cat(sprintf("Function name: %s\n", x$function.name))
-	cat("Cross validation metrics:\n")
-	print(extract.metrics(x))
-	cat("\n")
-}
-
-
 #------------------------------------------------------------------------------
 apply.grid <- function(x, grid) {
 	if (is.null(grid)) {
