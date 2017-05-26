@@ -1,153 +1,186 @@
-#-------------------------------------------------------------------------------
-#	cv.modelsƒIƒuƒWƒFƒNƒg‚ðì‚é‚½‚ß‚Ì•â•ŠÖ”B
+
+
+#'	print method for \emph{cv.models} class.
+#'	@describeIn cv.models
+#'	@export
+#------------------------------------------------------------------------------
+#	cv.modelsã‚¯ãƒ©ã‚¹ç”¨ã®printã€‚
 #
 #	Args:
-#		Šeƒpƒ‰ƒ[ƒ^[‚É‘Î‰žBÚ×‚Í«ŽQÆB
-#
-#	Value:
-#		cv.modelsƒIƒuƒWƒFƒNƒgB
-#-------------------------------------------------------------------------------
+#		x: cv.modelsã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã€‚
+#		...: ä½¿ã‚ã‚Œã¦ã„ã¾ã›ã‚“ã€‚
+#------------------------------------------------------------------------------
+print.cv.models <- function(x, ...){
+	cat("Result of cross validation\n")
+	cat(sprintf("Function name: %s\n", x$function.name))
+	cat("Cross validation metrics:\n")
+	print(extract.metrics(x))
+	cat("\n")
+}
+
+
+#------------------------------------------------------------------------------
+apply.grid <- function(x, grid) {
+	if (is.null(grid)) {
+		return(list(x))
+	}
+	set.values <- function(index, x, grid) {
+		for (i in colnames(grid)) {
+			x[[i]] <- grid[index, i]
+		}
+		return(x)
+	}
+	grid <- expand.grid(grid)
+	result <- lapply(1:nrow(grid), set.values, x = x, grid = grid)
+	return(result)
+}
+
+
+#------------------------------------------------------------------------------
+apply.grid.for.object <- function(object) {
+	if (is.null(object$grid)) {
+		return(list(object))
+	}
+	calls <- apply.grid(object$call, object$grid)
+	assign.call <- function(call, object) {
+		object$call <- call
+		return(object)
+	}
+	objects <- lapply(calls, assign.call, object)
+	return(objects)
+}
+
+
+#------------------------------------------------------------------------------
+merge.grid.and.metrics <- function(grid, metrics) {
+	if (is.null(grid)) {
+		return(metrics)
+	}
+	grid <- expand.grid(grid)
+	metrics <- cbind(grid, metrics)
+	return(metrics)
+}
+
+
+#------------------------------------------------------------------------------
+merge.grid.and.cv.results <- function(grid, cv.results) {
+	if (is.null(grid)) {
+		return(cv.results)
+	}
+	grid <- expand.grid(grid)
+	grids <- split(grid, 1:nrow(grid))
+	fun <- function(grid, cv.result) {
+		cv.result$metrics <- merge.grid.and.metrics(grid, cv.result$metrics)
+		return(cv.result)
+	}
+	return(mapply(fun, grids, cv.results, SIMPLIFY = FALSE))
+}
+
+
+#------------------------------------------------------------------------------
+make.prediction <- function(predict.args, object, row.index) {
+	fit <- do.call(object$adapter$predict, predict.args)$fit
+	if (object$adapter$model.type == "regression") {
+		fit <- fit[, "fit"]
+		attributes(fit) <- NULL
+	}
+	# çµæžœã®ä½œæˆ
+	response <- object$adapter$y.vars()[row.index,]
+	result <- list(
+		response = response, prediction = fit, index = row.index
+	)
+	return(result)
+}
+
+
+#------------------------------------------------------------------------------
+model.one.fold <- function(cv.index, object) {
+	# ãƒ¢ãƒ‡ãƒ«æ§‹ç¯‰ç”¨ãƒ‡ãƒ¼ã‚¿ã‚’ä½œæˆ
+	if (!is.null(object$seed)) {
+		set.seed(object$seed)
+	}
+	data.test <- object$adapter$data[object$cv.group == cv.index, ]
+	data.train <- object$adapter$data[object$cv.group != cv.index, ]
+	row.index <- (1:nrow(object$adapter$data))[object$cv.group == cv.index]
+	# ãƒ¢ãƒ‡ãƒ«æ§‹ç¯‰
+	child.env <- new.env(parent = object$envir)
+	assign(as.character(object$call$data), data.train, envir = child.env)
+	model <- eval(object$call, child.env)
+	# äºˆæ¸¬å€¤ã‚’è¨ˆç®—
+	type <- ifelse(
+		object$adapter$model.type == "regression", "response", "prob"
+	)
+	predict.args <- c(
+		list(model, newdata = data.test, type = type), object$predict.args
+	)
+	predict.args <- apply.grid(predict.args, object$grid.predict)
+	return(lapply(predict.args, make.prediction, object, row.index))
+}
+
+
+#------------------------------------------------------------------------------
+cv.result <- function(object) {
+	object <- object[c("call", "cv.group", "fits", "metrics")]
+	class(object) <- "cv.result"
+	return(object)
+}
+
+
+#------------------------------------------------------------------------------
+fit.cv.models <- function(object) {
+	object$cv.group <- cv.group(object)
+	cv.man <- cluster.manager(object, "cv")
+	fits <- cv.man$lapply(1:object$folds, model.one.fold, object)
+	rearrange <- function(i) {
+		return(lapply(fits, "[[", i = i))
+	}
+	object$fits <- lapply(1:length(fits[[1]]), rearrange)
+	object$metrics <- cv.metrics(object)
+	object$metrics <- merge.grid.and.metrics(
+		object$grid.predict, object$metrics
+	)
+	return(cv.result(object))
+}
+
+
+#------------------------------------------------------------------------------
 cv.models.object <- function(
-	model.function, function.name, package.name, data, args.model, args.predict,
-	cv.performance, seed, positive.class
-){
+	call, folds, n.cores, seed, positive.class, package.name, envir,
+	aggregate.method = c("mean", "join"), grid, grid.predict, ...
+) {
+	aggregate.method <- match.arg(aggregate.method)
 	object <- list(
-		model.function = model.function, function.name = function.name,
-		package.name = package.name, data = data,
-		args.model = args.model, args.predict = args.predict,
-		cv.metrics = cv.performance$metrics,
-		cv.prediction = cv.performance$prediction,
-		cv.response = cv.performance$response,
-		confusion.matrix = cv.performance$confusion.matrix,
-		seed = seed, positive.class = positive.class
+		call = call, folds = folds, n.cores = n.cores, seed = seed,
+		positive.class = positive.class, package.name = package.name,
+		envir = envir, aggregate.method = aggregate.method, grid = grid,
+		grid.predict = grid.predict, predict.args = list(...),
+		adapter = model.adapter(call, envir, package.name), cv.results = NULL
 	)
 	class(object) <- "cv.models"
 	return(object)
 }
 
-#'	Cross validation and parameter selection.
+
+#------------------------------------------------------------------------------
+#'	cv.models.
 #'	@export
-#-------------------------------------------------------------------------------
-#	ƒ‚ƒfƒ‹‚Ì«”\‚É‰e‹¿‚·‚éƒpƒ‰ƒ[ƒ^[‚ÌŒó•â‚ð‘g‚Ý‡‚í‚¹‚Äƒ‚ƒfƒ‹‚ðì‚èA
-#	ƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚Å«”\•]‰¿‚ðs‚¤B
-#
-#	Args:
-#		model.function: ƒ‚ƒfƒ‹‚ðì¬‚·‚éŠÖ”B
-#		args.model:
-#			ƒ‚ƒfƒ‹‚Ì\’z‚É“n‚³‚ê‚éˆø”B
-#			gbm‚Ì‚æ‚¤‚Éƒ‚ƒfƒ‹‚Ì«”\‚É‰e‹¿‚·‚éƒpƒ‰ƒ[ƒ^[‚ðƒxƒNƒgƒ‹‚Å•¡”Žw’è
-#			‚·‚é‚ÆA‚»‚ê‚¼‚ê‚ÌŒó•â‚É‘Î‚µ‚ÄŽw•W‚ªŒvŽZ‚³‚ê‚éBdata‚ÍŽ©“®“I‚É
-#			’u‚«Š·‚¦‚ç‚ê‚é‚Ì‚ÅAŽw’è‚µ‚Ä‚àˆÓ–¡‚ª‚ ‚è‚Ü‚¹‚ñB
-#		data:
-#			ƒ‚ƒfƒ‹ì¬‚ÉŽg‚¤ƒf[ƒ^B‚±‚ê‚ð•ªŠ„‚µ‚ÄƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚ðs‚¤B
-#		args.predict:
-#			predictŠÖ”‚É“n‚³‚ê‚éˆø”Bgbm‚Ìn.trees‚Ì‚æ‚¤‚Éƒ‚ƒfƒ‹‚Ì«”\‚É‰e‹¿
-#			‚·‚éƒpƒ‰ƒ[ƒ^[‚Íget.tunable.args()ŠÖ”‚Å‘Î‰ž‚·‚é‚±‚Æ‚ÅA•¡”‚Ì’l
-#			‚»‚ê‚¼‚ê‚É‘Î‚µ‚ÄŽw•W‚ðŒvŽZ‚·‚é‚±‚Æ‚ªo—ˆ‚Ü‚·B
-#		cv.folds: ƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚Ì•ªŠ„”B
-#		cv.metrics:
-#			ƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚ÅŒvŽZ‚·‚éŽw•W‚Ì–¼‘O‚ð•\‚·•¶Žš—ñƒxƒNƒgƒ‹B
-#			•¡”Žw’è‰Â”\B
-#			pROC::coords‚ÅŒvŽZ‚Å‚«‚éŽw•W‘S‚Ä‚Æ
-#			"informedness": sensitivity + specificity - 1
-#			"auc": AUC: Area under curve
-#			"mcc": Matthews correlation coefficient
-#			"mse": Mean square error
-#			"rmse": root mean square error
-#			"r.squared": R“ñæ’l
-#			"q.squared": Q“ñæ’l
-#			‚É‘Î‰žB
-#		n.cores:
-#			ŒvŽZ‚ÉŽg‚¤ƒRƒA‚Ì”B‰½‚àŽw’è‚µ‚È‚¢‚Æ‘S‚Ä‚ÌƒRƒA‚ðŽg‚Á‚ÄŒvŽZ‚µ‚Ü‚·B
-#		seed:
-#			Œ‹‰Ê‚ðŒÅ’è‚µ‚½‚¢‚Æ‚«‚É‚Í—”‚ÌŽí‚ðŽw’è‚·‚éB‚±‚±‚ÅŽíŽq‚ðŒÅ’è‚·‚é‚ÆA
-#			get.best.models()ŠÖ”‚ÌŒ‹‰Ê‚àŒÅ’è‚³‚ê‚éBŽíŽq‚ðŒÅ’è‚·‚é‚ÆŒ‹‰Ê‚Í
-#			ƒNƒ‰ƒXƒ^[‚ðŽg‚Á‚Ä‚àŽg‚í‚È‚­‚Ä‚à“¯‚¶‚É‚È‚éB
-#		positive.lael:
-#			—z«‚Æ‚µ‚Äˆµ‚¤ƒNƒ‰ƒX‚ð•\‚·•¶Žš—ñBŽw’è‚³‚ê‚È‚©‚Á‚½ê‡‚Í
-#			(TRUE, FALSE), (1, 0), (+, -), (+, 0)‚ÌƒZƒbƒg‚Ì¶‘¤‚ð—z«‚Æ‚µ‚Äˆµ‚¢A
-#			‚ðŽ©“®“I‚É—z«‚Æ‚µ‚Äƒf[ƒ^‚ÌŽæ“¾‚ðŽŽ‚Ý‚éB‚»‚ê‚Å‚à—z«‚ªŒˆ’è‚Å‚«‚È‚¢
-#			ê‡AƒNƒ‰ƒX‚Ì‚P”Ô–Ú‚ð—z«‚Æ‚µ‚Äˆµ‚¤B
-#			ˆöŽq‚ª‚RƒNƒ‰ƒXˆÈã‚¾‚Á‚½ê‡A‚P—ñ–Ú‚ÌŠm—¦‚ð—p‚¢‚éB
-#		check.args:
-#			‚±‚ê‚ªTRUE‚¾‚Æ³‚µ‚¢Œ‹‰Ê‚ª“¾‚ç‚ê‚é‚æ‚¤‚ÉAƒ‚ƒfƒ‹\’zA„’è’lŒvŽZ‚É
-#			Žg‚í‚ê‚éƒpƒ‰ƒ[ƒ^[‚ðC³‚µA‰ž“š•Ï”‚ÌŒ^‚Ì•ÏŠ·‚ðs‚¢‚Ü‚·B
-#			FALSE‚É‚·‚é‚ÆAƒ‚ƒfƒ‹\’zEpredictŠÖ”‚Ì‘S‚Ä‚Ì‹““®‚Íƒ†[ƒU[‚ÌŽw’è‚µ‚½
-#			ƒpƒ‰ƒ[ƒ^[‚Ì‚Ü‚Ü‚É‚È‚èA®‡«‚Ìƒ`ƒFƒbƒN‚ªs‚í‚ê‚Ü‚¹‚ñB
-#		function.name:
-#			ƒ‚ƒfƒ‹\’z‚ÉŽg‚í‚ê‚éŠÖ”–¼B’Êí‚ÍŽ©“®“I‚ÉÝ’è‚³‚ê‚é‚Ì‚ÅŽw’è‚·‚é•K—v
-#			‚Í‚ ‚è‚Ü‚¹‚ñicv.models‚©‚ç‚±‚ÌŠÖ”‚ðŒÄ‚Ño‚·‚Æ‚«‚Ì‚½‚ß‚ÉŽÀ‘•‚³‚ê‚Ä
-#			‚¢‚Ü‚·jB
-#		package.name:
-#			ƒ‚ƒfƒ‹\’z‚ÉŽg‚í‚ê‚éŠÖ”‚Ì“ü‚Á‚½ƒpƒbƒP[ƒW–¼B’Êí‚ÍŽ©“®“I‚ÉÝ’è
-#			‚³‚ê‚é‚Ì‚ÅAŽw’è‚·‚é•K—v‚Í‚ ‚è‚Ü‚¹‚ñBgamƒpƒbƒP[ƒW‚ÆmgcvƒpƒbƒP[ƒW
-#			‚ÌgamŠÖ”‚Ì‚æ‚¤‚ÉAˆÙ‚È‚éƒpƒbƒP[ƒW‚É“ü‚Á‚Ä‚¢‚é“¯–¼‚ÌŠÖ”‚ð
-#			ŒÄ‚Ño‚µ‚½‚¢‚Æ‚«A–¾Ž¦“I‚ÉƒpƒbƒP[ƒW–¼‚ðŽw’è‚·‚é‚½‚ß‚ÉŽg‚¢‚Ü‚·B
-#
-#	Value:
-#		cv.modelsƒIƒuƒWƒFƒNƒgBˆÈ‰º‚Ì’l‚ðŽ‚ÂB
-#			model.function: ƒ‚ƒfƒ‹‚ðì¬‚·‚é‚Æ‚«‚ÉŽg‚¤ŠÖ”B
-#			function.name: ƒ‚ƒfƒ‹‚ðì¬‚·‚éŠÖ”–¼B
-#			package.name: ƒ‚ƒfƒ‹ì¬ŠÖ”‚ªŠÜ‚Ü‚ê‚Ä‚¢‚éƒpƒbƒP[ƒW‚Ì–¼‘OB
-#			data: ƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚ÉŽg‚í‚ê‚½ƒf[ƒ^B
-#			args.model: ƒ‚ƒfƒ‹\’z‚É“n‚³‚ê‚½ƒpƒ‰ƒ[ƒ^[‚ÌŒó•âB
-#			args.predict: predictŠÖ”‚É“n‚³‚ê‚½ƒpƒ‰ƒ[ƒ^[‚ÌŒó•âB
-#			cv.metrics: ƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚ÅŒvŽZ‚³‚ê‚½«”\•]‰¿Žw•WB
-#			cv.prediction: ƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚ÅŒvŽZ‚³‚ê‚½—\‘ª’lB
-#			cv.response: ƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚ÉŽg‚í‚ê‚½‰ž“š•Ï”‚Ì’lB
-#			seed: ŒvŽZ‚ÉŽg‚Á‚½—”‚ÌŽíŽqB
-#			positive.class: —z«‚Æ‚µ‚Äˆµ‚¤ƒNƒ‰ƒX‚Ìƒ‰ƒxƒ‹B
-#-------------------------------------------------------------------------------
 cv.models <- function(
-	model.function, args.model, data, args.predict = list(), cv.folds = 10,
-	cv.metrics = c("auc"), n.cores = NULL, seed = NULL, positive.class = NULL,
-	dredge = NULL, check.args = TRUE,
-	function.name = as.character(substitute(model.function)),
-	package.name = get.package.name(function.name)
-
-){
-	# ƒpƒ‰ƒ[ƒ^[‚ª®‡«‚ð•Û‚Â‚æ‚¤‚ÉC³‚·‚éB
-	dummy <- make.dummy(function.name, package.name)
-	modified <- modify.args(check.args, dummy, args.model, args.predict, data)
-	# ƒpƒ‰ƒ[ƒ^[Œó•â‚Ì‘g‚Ý‡‚í‚¹‚ðì‚éB
-	expanded.args <- expand.tunable.args(dummy, modified$args.model, "model")
-	# Œó•âƒpƒ‰ƒ[ƒ^[‚Ì”‚É‚æ‚Á‚ÄA•À—ñŒvŽZ‚·‚éêŠ‚ð•Ï‚¦‚éB
-	cores <- assign.cores(expanded.args, n.cores)
-	# ƒ‚ƒfƒ‹‚Ì«”\‚ðƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“B
-	cl <- init.cluster(cores$param.tune)
-	on.exit(cl$close())
-	cl$library(package.name)
-	performance <- cl$lapply(
-		expanded.args, cross.validation, model.function = model.function,
-		data = modified$data, args.predict = modified$args.predict,
-		cv.folds = cv.folds, cv.metrics = cv.metrics, n.cores = cores$cv,
-		seed = seed, positive.class = positive.class, cv.dummy = dummy
+	call, folds = 10, n.cores = NULL, seed = NULL, positive.class = NULL,
+	package.name = NULL, envir = parent.frame(),
+	aggregate.method = c("mean", "join"), grid = NULL, grid.predict = NULL, ...
+) {
+	if (!is.null(seed)) {
+		set.seed(seed)
+	}
+	object <- cv.models.object(
+		substitute(call), folds, n.cores, seed, positive.class,
+		package.name, envir, aggregate.method, grid, grid.predict, ...
 	)
-	# Œó•âƒpƒ‰ƒ[ƒ^[‚ðCV‚ÌŒ‹‰Ê‚ÉŒ‹‡B
-	performance <- merge.tunable.args(dummy, performance, args.model, "model")
-	performance <- merge.cv.performances(performance)
-	# cv.modelsƒIƒuƒWƒFƒNƒg‚ðì¬B
-	result <- cv.models.object(
-		model.function, function.name, package.name, modified$data,
-		modified$args.model, modified$args.predict, performance, seed,
-		positive.class
-	)
-	return(result)
+	objects <- apply.grid.for.object(object)
+	cl.man <- cluster.manager(object, "grid")
+	object$cv.results <- cl.man$lapply(objects, fit.cv.models)
+	object$cv.results <- merge.grid.and.cv.results(grid, object$cv.results)
+	return(object)
 }
 
-#'	@describeIn cv.models print method for \emph{cv.models} class.
-#'	@export
-#-------------------------------------------------------------------------------
-#	cv.modelsƒNƒ‰ƒX—p‚ÌprintB
-#
-#	Args:
-#		x: cv.modelsƒIƒuƒWƒFƒNƒgB
-#		...: Žg‚í‚ê‚Ä‚¢‚Ü‚¹‚ñB
-#-------------------------------------------------------------------------------
-print.cv.models <- function(x, ...){
-	cat("Result of cross validation\n")
-	cat(sprintf("Function name: %s\n", x$function.name))
-	cat("Cross validation metrics:\n")
-	print(x$cv.metrics)
-	cat("\n")
-}
+
