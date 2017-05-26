@@ -1,0 +1,195 @@
+---
+title: "cv.models クイックスタートガイド"
+author: "Michio Oguro"
+date: "`r Sys.Date()`"
+output:
+    html_document:
+        fig_width: 6
+        fig_height: 6
+        fig_retina: 2
+        dpi: 300
+        dev.args: list(dpi = 300)
+vignette: >
+    %\VignetteIndexEntry{Quick start guid for cv.models (Japanese).}
+    %\VignetteEngine{knitr::rmarkdown}
+    \usepackage[utf8]{inputenc}
+---
+
+
+このパッケージはクロスバリデーションを用いて統計・機械学習モデルの予測能力の判定やハイパーパラメーターの調整を行うパッケージです。
+
+```{R, preparation, echo = FALSE, result = "hide"}
+library(cv.models)
+library(gbm)
+```
+
+# 基本的な使い方
+
+## クロスバリデーションによるモデルの予測能力評価
+
+モデルの予測能力を評価するには`cv.models`関数を使います。
+以下の例のように`cv.models`関数の中に統計・機械学習モデルの呼び出しを**直接**入れます。
+
+```{R, basic_usage}
+library(cv.models)
+cv <- cv.models(glm(Petal.Length ~ ., data = iris))
+print(cv)
+```
+
+以下の例は正しく動作しないことに注意してください。
+```{R, wrong_usage, eval = FALSE}
+model <- glm(Petal.Length ~ ., data = iris)
+cv <- cv.models(model)
+```
+
+## predictに引数が必要なモデルを使う
+
+`gbm`のような一部のモデルは`predict`関数によるモデルの予測値の計算時にもパラメーターを指定する必要があります。
+このようなモデルを`cv.models`で扱うには、以下の例のように`predict`に渡される引数を`cv.models`の引数に追加します。
+
+```{R, predict_args}
+library(gbm)
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"), n.trees = 50
+)
+print(cv)
+```
+
+## 乱数を固定する
+
+クロスバリデーションや一部の統計モデルの当てはめには乱数が使われいてるため、計算の度に結果が変わります。これを固定したい場合には`cv.models`の`seed`引数に適当な値を指定します。
+```{R, set_seed}
+# 実行の度に値が変わる。
+cv <- cv.models(gbm(Petal.Length ~ ., data = iris), n.trees = 50)
+print(cv)
+cv <- cv.models(gbm(Petal.Length ~ ., data = iris), n.trees = 50)
+print(cv)
+
+# seedに値を指定すると、結果が固定される。
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris), n.trees = 50, seed = 12345
+)
+print(cv)
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris), n.trees = 50, seed = 12345
+)
+print(cv)
+```
+
+## 並列計算を制御する
+
+`cv.models`はデフォルトで全てのCPUコアを使用して計算を行います。
+計算に使われるコア数を制御したいときには、`n.cores`引数に適当な値を指定します。
+```{R, n_cores}
+# コアを２つ使って計算する。
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris), n.trees = 50, n.cores = 2
+)
+print(cv)
+```
+
+## モデルのパラメーターを選択する
+
+`cv.models`を使うとクロスバリデーションによる予測性能を用いて、モデルのハイパーパラメーターの選択を行うこともできます。
+ハイパーパラメーターの選択を行うには、以下の例のように`grid`オプションに、候補となるパラメーターのベクトルを格納したリストを指定します。
+
+```{R, hyperparameter1}
+# ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris), n.trees = 50,
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10))
+)
+print(cv)
+```
+
+また、`gbm`のように、`predict`関数の引数にも調整可能なパラメーターがあるモデルの場合、`grid.predict`に同様のリストを指定し、パラメーターの違いによる予測性能の違いを評価することができます。
+
+```{R, hyperparmeter2}
+# ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
+)
+print(cv)
+```
+
+## 最良モデルのとりだし
+
+`find.best.models`関数を用いることで、`cv.models`の結果から最良モデルを取り出すことができます。
+以下の例ではQ^2が最高になるモデルを選んでいます。
+
+```{R, bestmodel}
+# ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
+)
+print(cv)
+best <- find.best.models(cv, "q.squared")
+print(best)
+```
+
+`find.best.models`関数の結果は`cv.best.models`オブジェクトになります。
+`cv.best.models`の実体は`cv.result`オブジェクトのリストです。
+
+```{R, bestmodel2}
+class(best)
+class(best[[1]])
+print(best[[1]])
+```
+
+
+## cv.modelsオブジェクトからのデータの取り出し
+
+以下の関数を使って`cv.models`オブジェクトからデータを取り出すことができます。
+
+```{R, extract_data}
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
+)
+
+# 10番目のモデルあてはめ結果を取得。
+extract.fit(cv, 10)
+
+# 10番目のモデルの詳細情報を取得。
+# 結果はcv.resultオブジェクト。
+extract.result(cv, 10)
+
+# 性能評価の表を取得
+extract.metrics(cv)
+```
+
+`extract.fit`関数は`cv.best.models`オブジェクト、`cv.result`オブジェクトにも使えます。
+
+```{R, extract_data2}
+best <- find.best.models(cv, "q.squared")
+extract.fit(best, 1)
+
+result <- extract.result(cv, 10)
+extract.fit(result, 1)
+```
+
+## 簡易作図
+
+`plot`関数を使って、予測値と応答変数の関係を作図することができます。
+
+```{R, plot}
+cv <- cv.models(
+    lm(Petal.Length ~ ., data = iris)
+)
+plot(cv)
+
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, weights = iris$Sepal.Width),
+	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+	grid.predict = list(n.trees = c(10, 50, 80))
+)
+# 10番目の予測結果を作図。
+plot(cv, 10)
+
+```
+
