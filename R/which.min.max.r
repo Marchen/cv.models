@@ -1,13 +1,13 @@
 
 #-------------------------------------------------------------------------------
-#	�����ϐ��Ή��o�[�W������which.max��which.min�B
-#	�������x�N�g���������ꍇ�A�ő�l�E�ŏ��l�̕]���͈����ɓ��ꂽ���Ԃōs����B
-#	������matrix��data.frame�������ꍇ�A�]���͍��̗񂩂�E�̗�̏��Ԃōs����B
-#	which.max�Ewhich.min�Ƃ͈Ⴂ�A�^�C���������ꍇ�A�S�ẴC���f�b�N�X��Ԃ��B
+#	複数変数対応バージョンのwhich.maxとwhich.min。
+#	引数がベクトルだった場合、最大値・最小値の評価は引数に入れた順番で行われる。
+#	引数がmatrixやdata.frameだった場合、評価は左の列から右の列の順番で行われる。
+#	which.max・which.minとは違い、タイがあった場合、全てのインデックスを返す。
 #
 #	Args:
-#		data: matrix�Adata.frame�A���������̃x�N�g�������������X�g�B
-#		...: ���l�x�N�g���B
+#		data: matrix、data.frame、同じ長さのベクトルが入ったリスト。
+#		...: 数値ベクトル。
 #
 #	Multiple arguments version of which.min and which.max.
 #	Evaluations of maximum/minimum are sequentially conducted in an order of 
@@ -23,7 +23,7 @@
 #		...	: numeric vectors.
 #-------------------------------------------------------------------------------
 which.min.or.max.multi <- function(data, min.max.function){
-	# �����̒������`�F�b�N
+	# 引数の長さをチェック
 	# Check length of argument
 	if (length(data) != 1 & !"data.frame" %in% class(data)){
 		for (i in 2:length(data)){
@@ -32,7 +32,7 @@ which.min.or.max.multi <- function(data, min.max.function){
 			}
 		}
 	}
-	# �ő�l/�ŏ��l��T��
+	# 最大値/最小値を探索
 	# search max/min value
 	index <- 1:length(data[[1]])
 	for (i in 1:length(data)){
