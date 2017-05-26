@@ -24,13 +24,13 @@
 #		metrics:
 #			モデルパフォーマンス指標を格納した行列。
 #-------------------------------------------------------------------------------
-get.best.metrics.index <- function(metrics){
+find.best.metrics.index <- function(metrics) {
 	minimize <- c(
 		"mse", "rmse", "fn", "fp",
 		"1-specificity", "1-sensitivity", "1-accuracy", "1-npv", "1-ppv"
 	)
-	for (i in colnames(metrics)){
-		if (i %in% minimize){
+	for (i in colnames(metrics)) {
+		if (i %in% minimize) {
 			metrics[[i]] <- -metrics[[i]]
 		}
 	}
