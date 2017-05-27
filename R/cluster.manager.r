@@ -117,10 +117,25 @@ cluster.manager$methods(
 		"
 		Export Required Functions to the Cluster
 		"
-		clusterCall(.self$cl, assign, "apply.grid", apply.grid)
-		clusterCall(.self$cl, assign, "make.prediction", make.prediction)
+		.self$export(c("apply.grid", "make.prediction"))
 	}
 )
+
+
+#------------------------------------------------------------------------------
+#	オブジェクトをエクスポートする。
+#------------------------------------------------------------------------------
+cluster.manager$methods(
+	export = function(names, envir = parent.frame(1L)) {
+		"
+		Export Required Functions to the Cluster
+		"
+		for (i in names) {
+			clusterCall(.self$cl, assign, i, get(i, envir = envir))
+		}
+	}
+)
+
 
 
 #------------------------------------------------------------------------------
