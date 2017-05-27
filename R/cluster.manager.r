@@ -87,6 +87,7 @@ cluster.manager$methods(
 			)
 			clusterCall(.self$cl, set.seed.if.possible, object$seed)
 		} else {
+			.self$cl <- NULL
 			library(object$adapter$package.name, character.only = TRUE)
 			set.seed.if.possible(object$seed)
 		}
@@ -102,8 +103,9 @@ cluster.manager$methods(
 		"
 		Stops Cluster on Finalize
 		"
-		if (.self$n.cores > 1) {
+		if (!is.null(.self$cl)) {
 			stopCluster(.self$cl)
+			.self$cl <- NULL
 		}
 	}
 )

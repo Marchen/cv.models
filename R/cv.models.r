@@ -107,6 +107,7 @@ fit.cv.models <- function(object) {
 	# クロスバリデーションを実行。
 	object$cv.group <- cv.group(object)
 	cl.man <- cluster.manager(object, "cv")
+	on.exit(cl.man$finalize())
 	fits <- cl.man$lapply(1:object$folds, model.one.fold, object)
 	# クロスバリデーションの結果を整形。
 	if (is.null(object$grid.predict)) {
@@ -168,6 +169,7 @@ cv.models <- function(
 	)
 	objects <- apply.grid.for.object(object)
 	cl.man <- cluster.manager(object, "grid")
+	on.exit(cl.man$finalize())
 	cv.results <- cl.man$lapply(objects, fit.cv.models)
 	cv.results <- merge.grid.and.cv.results(grid, cv.results)
 	object$cv.results <- do.call(c, cv.results)
