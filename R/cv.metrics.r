@@ -424,7 +424,7 @@ cv.metrics.calculator$methods(
 		} else {
 			metrics <- lapply(f, .self$calc.metrics.for.classification)
 		}
-		metrics <- do.call(rbind, metrics)
+		metrics <- as.data.frame(do.call(rbind, metrics))
 		return(metrics)
 	}
 )
