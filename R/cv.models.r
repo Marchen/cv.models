@@ -126,6 +126,7 @@ fit.cv.models <- function(object) {
 		obj <- object[c("call", "cv.group", "fits", "metrics")]
 		obj$fits <- obj$fits[[i]]
 		obj$metrics <- obj$metrics[i,]
+		rownames(obj$metrics) <- NULL
 		result[[i]] <- obj
 	}
 	return(result)
