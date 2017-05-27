@@ -18,7 +18,7 @@ vignette: >
 
 このパッケージはクロスバリデーションを用いて統計・機械学習モデルの予測能力の判定やハイパーパラメーターの調整を行うパッケージです。
 
-```{R, preparation, echo = FALSE, result = "hide"}
+```{R, preparation, echo = FALSE, message = FALSE}
 library(cv.models)
 library(gbm)
 ```
@@ -28,7 +28,7 @@ library(gbm)
 ## クロスバリデーションによるモデルの予測能力評価
 
 モデルの予測能力を評価するには`cv.models`関数を使います。
-以下の例のように`cv.models`関数の中に統計・機械学習モデルの呼び出しを**直接**入れます。
+以下の例のように`cv.models`関数の中に統計・機械学習モデルの呼び出しを__**直接**__入れます。
 
 ```{R, basic_usage}
 library(cv.models)
@@ -36,45 +36,111 @@ cv <- cv.models(glm(Petal.Length ~ ., data = iris))
 print(cv)
 ```
 
-以下の例は正しく動作しないことに注意してください。
+以下の例は（今のところ）正しく動作しないことに注意してください。
+そのうち対応するかもしれません。
 ```{R, wrong_usage, eval = FALSE}
 model <- glm(Petal.Length ~ ., data = iris)
 cv <- cv.models(model)
 ```
 
+`cv.models`はモデルの種類（回帰モデル・識別モデル）を自動的に判定し、指標を計算します。
+現在、`cv.models`が計算する指標は以下の通りです。
+
+### 回帰モデル
+
+指標名									|列名		|定義/説明
+------------------------------------|-----------|---------------------------------------------------------------------------------------
+**Mean squared error (MSE)**		|"mse"		|$MSE = mean((prediction - response) ^ 2)$
+**Root mean squared error (RMSE)**	|"rmse"		|$RMSE ~ sqrt(mean((prediction - response) ^ 2))$
+**R二乗**							|"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$
+**Q二乗**							|"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$
+
+### 識別モデル
+
+指標名											|列名			|定義/説明
+--------------------------------------------|---------------|---------------------------------------------------------------------------
+**最適な閾値**								|"threshold"	|Youden's Jを最小化する、在/不在を分ける最適な閾値。
+**Specificity**								|"specificity"	|https://en.wikipedia.org/wiki/Sensitivity_and_specificity
+**Sensitivity**								|"sensitivity"	|
+**Accuracy**								|"accuracy"		|
+**True negative count (TN)**				|"tn"			|
+**True positive count (TP)**				|"tp"			|
+**False negative count (FN)**				|"fn"			|
+**False positive count (FP)**				|"fp"			|
+**Negative predictive value (NPV)**			|"npv"			|
+**Positive predictive value (PPV)**			|"ppv"			|
+**1 - Specificity**							|"1-specificity"|
+**1 - Sensitivity**							|"1-sensitivity"|
+**1 - Accuracy**							|"1-accuracy"	|
+**1 - Negative predictive value**			|"1-npv"		|
+**1 - Positive predictive value**			|"1-ppv"		|
+**Matthews correlation coefficient (MCC)**	|"mcc"			|
+**Informedness**							|"informedness"	|$Informedness = Sensitivity + Specificity - 1$
+**Markedness**								|"markedness"	|$Markedness = PPV + NPV - 1$
+
+
 ## predictに引数が必要なモデルを使う
 
-`gbm`のような一部のモデルは`predict`関数によるモデルの予測値の計算時にもパラメーターを指定する必要があります。
+`gbm`のような一部のモデルは`predict`関数による予測値の計算時にもパラメーターを指定する必要があります。
 このようなモデルを`cv.models`で扱うには、以下の例のように`predict`に渡される引数を`cv.models`の引数に追加します。
 
 ```{R, predict_args}
 library(gbm)
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"), n.trees = 50
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
+	n.trees = 50
 )
 print(cv)
 ```
+
+
+## 性能評価指標の計算方法を制御する
+
+cv.modelsは性能評価指標を計算するとき、デフォルトでは各foldごとに指標を計算し、それを平均します。
+しかし、この方法はLeave-one-out Cross Validation (LOOCV)を行う時や在・不在データのバランスが偏っている時などにはうまく行かないことがあります。
+このような問題をどう扱うのが正しいのか、現在情報収集中なのですが、とりあえず`aggregate.method = "join"`を指定することで、全体の予測値・応答変数のデータを結合した上で、性能評価指標を計算することができます。
+
+```{R, aggregate_method}
+library(gbm)
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
+	aggregate.method = "join", n.trees = 50
+)
+print(cv)
+```
+
+この場合、各指標のSDは計算されません。
+
 
 ## 乱数を固定する
 
 クロスバリデーションや一部の統計モデルの当てはめには乱数が使われいてるため、計算の度に結果が変わります。これを固定したい場合には`cv.models`の`seed`引数に適当な値を指定します。
 ```{R, set_seed}
 # 実行の度に値が変わる。
-cv <- cv.models(gbm(Petal.Length ~ ., data = iris), n.trees = 50)
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
+	n.trees = 50
+)
 print(cv)
-cv <- cv.models(gbm(Petal.Length ~ ., data = iris), n.trees = 50)
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
+	n.trees = 50
+)
 print(cv)
 
 # seedに値を指定すると、結果が固定される。
 cv <- cv.models(
-    gbm(Petal.Length ~ ., data = iris), n.trees = 50, seed = 12345
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
+	n.trees = 50, seed = 12345
 )
 print(cv)
 cv <- cv.models(
-    gbm(Petal.Length ~ ., data = iris), n.trees = 50, seed = 12345
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
+	n.trees = 50, seed = 12345
 )
 print(cv)
 ```
+
 
 ## 並列計算を制御する
 
@@ -83,10 +149,12 @@ print(cv)
 ```{R, n_cores}
 # コアを２つ使って計算する。
 cv <- cv.models(
-    gbm(Petal.Length ~ ., data = iris), n.trees = 50, n.cores = 2
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
+	n.trees = 50, n.cores = 2
 )
 print(cv)
 ```
+
 
 ## モデルのパラメーターを選択する
 
@@ -96,7 +164,8 @@ print(cv)
 ```{R, hyperparameter1}
 # ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
 cv <- cv.models(
-    gbm(Petal.Length ~ ., data = iris), n.trees = 50,
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
+	n.trees = 50,
     grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10))
 )
 print(cv)
@@ -107,14 +176,15 @@ print(cv)
 ```{R, hyperparmeter2}
 # ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
 cv <- cv.models(
-    gbm(Petal.Length ~ ., data = iris),
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
     grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
     grid.predict = list(n.trees = c(10, 50, 80))
 )
 print(cv)
 ```
 
-## 最良モデルのとりだし
+
+## 最良モデルの取り出し
 
 `find.best.models`関数を用いることで、`cv.models`の結果から最良モデルを取り出すことができます。
 以下の例ではQ^2が最高になるモデルを選んでいます。
@@ -122,11 +192,12 @@ print(cv)
 ```{R, bestmodel}
 # ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
 cv <- cv.models(
-    gbm(Petal.Length ~ ., data = iris),
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
     grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
     grid.predict = list(n.trees = c(10, 50, 80))
 )
 print(cv)
+# 最良モデルの取り出し。
 best <- find.best.models(cv, "q.squared")
 print(best)
 ```
@@ -135,7 +206,9 @@ print(best)
 `cv.best.models`の実体は`cv.result`オブジェクトのリストです。
 
 ```{R, bestmodel2}
+# find.best.models()の結果のクラスを表示。
 class(best)
+# find.best.models()の結果はcv.resultクラスのリスト。
 class(best[[1]])
 print(best[[1]])
 ```
@@ -147,13 +220,16 @@ print(best[[1]])
 
 ```{R, extract_data}
 cv <- cv.models(
-    gbm(Petal.Length ~ ., data = iris),
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian"),
     grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
     grid.predict = list(n.trees = c(10, 50, 80))
 )
 
-# 10番目のモデルあてはめ結果を取得。
-extract.fit(cv, 10)
+# 10番目のモデルの予測結果を取得。
+# 結果はdata.frameで、response列は応答変数の値（生データ）、
+# prediction列はモデルの予測値、index列はモデリングに使われたデータでの列番号。
+fit <- extract.fit(cv, 10)
+head(fit)
 
 # 10番目のモデルの詳細情報を取得。
 # 結果はcv.resultオブジェクト。
@@ -166,25 +242,37 @@ extract.metrics(cv)
 `extract.fit`関数は`cv.best.models`オブジェクト、`cv.result`オブジェクトにも使えます。
 
 ```{R, extract_data2}
+# ベストモデルの１番目のモデルから、予測結果を取得。
 best <- find.best.models(cv, "q.squared")
-extract.fit(best, 1)
+fit <- extract.fit(best, 1)
+head(fit)
 
+# 10番目のモデルをcv.resultオブジェクトとして取り出し。
 result <- extract.result(cv, 10)
-extract.fit(result, 1)
+# 10番目のモデルの予測結果を取得。
+fit <- extract.fit(result)
+head(fit)
 ```
+
 
 ## 簡易作図
 
 `plot`関数を使って、予測値と応答変数の関係を作図することができます。
+１点が生データの１点を表し、線は$Y = X$の線を表します。
 
 ```{R, plot}
+# lmモデルの予測値と応答変数の関係をプロット。
 cv <- cv.models(
     lm(Petal.Length ~ ., data = iris)
 )
 plot(cv)
 
+# gbmモデルのパラメーター組み合わせ候補を作成。
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, weights = iris$Sepal.Width),
+	gbm(
+		Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+		distribution = "gaussian"
+	),
 	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
 	grid.predict = list(n.trees = c(10, 50, 80))
 )
@@ -193,3 +281,27 @@ plot(cv, 10)
 
 ```
 
+
+## 既知の問題
+
+* **テストしてない**
+
+	とりあえずテストコードを作ってないので、うまく動いてないことがある可能性があります。
+
+* **乱数の固定**
+
+	`seed`引数を使って乱数を固定した場合でも並列計算のありなしで結果が変わる可能性があります。
+	そのうち確認します。
+
+* **AUCがいつも0.5以上になる**
+
+	対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
+	多くの文献がAUCは0.5～1の間に収まると仮定しているので、これをどう扱うのが正しいのか、まだ自分の中で結論が出ていません。
+	ということで、とりあえず対応は保留してあります。
+	近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。
+
+* **MSEの定義**
+
+	論文によってはMSEの定義が  
+	MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)  
+	になっていることがあります。どの定義を使ったらいいのか、そのうち調べます。
