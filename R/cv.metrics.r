@@ -356,29 +356,28 @@ cv.metrics.calculator$methods(
 #	全ての回帰モデルの性能評価指標を計算する。
 #------------------------------------------------------------------------------
 cv.metrics.calculator$methods(
-	calc.metrics.for.regression = function(fits) {
+	calc.metrics.for.regression = function(x) {
 		"
 		Calculate all metrics for regression models.
-		"
-		if (.self$aggregate.method == "mean") {
-			mse <- sapply(fits, .self$calc.mse)
-			rmse <- sapply(fits, .self$calc.rmse)
-			r.squared <- sapply(fits, .self$calc.r.squared)
-			q.squared <- sapply(fits, .self$calc.q.squared)
-			result <- c(
-				mse = mean(mse), rmse = mean(rmse),
-				r.squared = mean(r.squared), q.squared = mean(q.squared),
-				sd.mse = sd(mse), sd.rmse = sd(rmse),
-				sd.r.squared = sd(r.squared), sd.q.squared = sd(q.squared)
-			)
-		} else {
-			fit <- do.call(rbind, fits)
-			result <- c(
-				mse = .self$calc.mse(fit), rmse = .self$calc.rmse(fit),
-				r.squared = .self$calc.r.squared(fit),
-				q.squared = .self$calc.q.squared(fit)
-			)
+
+		\\describe{
+			\\item{\\code{x}}{fits field of a object of this class.}
 		}
+		"
+		if (.self$aggregate.method == "join") {
+			x <- lapply(x, as.data.frame)
+			x <- list(do.call(rbind, x))
+		}
+		mse <- sapply(x, .self$calc.mse)
+		rmse <- sapply(x, .self$calc.rmse)
+		r.squared <- sapply(x, .self$calc.r.squared)
+		q.squared <- sapply(x, .self$calc.q.squared)
+		result <- c(
+			mse = mean(mse), rmse = mean(rmse),
+			r.squared = mean(r.squared), q.squared = mean(q.squared),
+			sd.mse = sd(mse), sd.rmse = sd(rmse),
+			sd.r.squared = sd(r.squared), sd.q.squared = sd(q.squared)
+		)
 		return(result)
 	}
 )
@@ -388,26 +387,28 @@ cv.metrics.calculator$methods(
 #	全ての識別モデルの性能評価指標を計算する。
 #------------------------------------------------------------------------------
 cv.metrics.calculator$methods(
-	calc.metrics.for.classification = function(fits) {
+	calc.metrics.for.classification = function(x) {
 		"
 		Calculate all metrics for classification models.
-		"
-		if (.self$aggregate.method == "mean") {
-			result <- lapply(fits, .self$calc.roc.metrics)
-			if (any(sapply(result, nrow) > 1)) {
-				warning("Best threshold was not determined by Youden's J.")
-				result <- lapply(result, colMeans)
-			}
-			result <- do.call(rbind, result)
-			result.mean <- colMeans(result)
-			result.sd <- apply(result, 2, sd)
-			names(result.sd) <- paste0("sd.", colnames(result))
-			return(c(result.mean, result.sd))
-		} else {
-			fit <- do.call(rbind, fits)
-			metrics <- .self$calc.roc.metrics(fit)
-			return(metrics)
+
+		\\describe{
+			\\item{\\code{x}}{fits field of a object of this class.}
 		}
+		"
+		if (.self$aggregate.method == "join") {
+			x <- lapply(x, as.data.frame)
+			x <- list(do.call(rbind, x))
+		}
+		result <- lapply(x, .self$calc.roc.metrics)
+		if (any(sapply(result, nrow) > 1)) {
+			warning("Best threshold was not determined by Youden's J.")
+			result <- lapply(result, colMeans)
+		}
+		result <- do.call(rbind, result)
+		result.mean <- colMeans(result)
+		result.sd <- apply(result, 2, sd)
+		names(result.sd) <- paste0("sd.", colnames(result))
+		return(c(result.mean, result.sd))
 	}
 )
 
