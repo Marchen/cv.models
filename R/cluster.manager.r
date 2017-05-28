@@ -19,6 +19,8 @@
 #'
 #'	@field cl
 #'		a cluster handler produced by \code{\link[parallel]{makeCluster}}.
+#'		If no cluster was initiated or cluster was already stopped,
+#'		this field should have NULL.
 #'
 #'	@field n.cores
 #'		an integer representing number of cores used for calculation.
@@ -101,7 +103,7 @@ cluster.manager$methods(
 cluster.manager$methods(
 	finalize = function(...) {
 		"
-		Stops Cluster on Finalize
+		Stops Cluster
 		"
 		if (!is.null(.self$cl)) {
 			stopCluster(.self$cl)
