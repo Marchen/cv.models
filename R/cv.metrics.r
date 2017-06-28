@@ -356,21 +356,21 @@ cv.metrics.calculator$methods(
 #	全ての回帰モデルの性能評価指標を計算する。
 #------------------------------------------------------------------------------
 cv.metrics.calculator$methods(
-	calc.metrics.for.regression = function(x) {
+	calc.metrics.for.regression = function(fits) {
 		"
 		Calculate all metrics for regression models.
 
 		\\describe{
-			\\item{\\code{x}}{fits field of a object of this class.}
+			\\item{\\code{fits}}{fits field of a object of this class.}
 		}
 		"
 		if (.self$aggregate.method == "join") {
-			x <- .self$join.fits(x)
+			fits <- .self$join.fits(fits)
 		}
-		mse <- sapply(x, .self$calc.mse)
-		rmse <- sapply(x, .self$calc.rmse)
-		r.squared <- sapply(x, .self$calc.r.squared)
-		q.squared <- sapply(x, .self$calc.q.squared)
+		mse <- sapply(fits, .self$calc.mse)
+		rmse <- sapply(fits, .self$calc.rmse)
+		r.squared <- sapply(fits, .self$calc.r.squared)
+		q.squared <- sapply(fits, .self$calc.q.squared)
 		result <- c(
 			mse = mean(mse), rmse = mean(rmse),
 			r.squared = mean(r.squared), q.squared = mean(q.squared),
@@ -443,18 +443,18 @@ cv.metrics.calculator$methods(
 #	全ての識別モデルの性能評価指標を計算する。
 #------------------------------------------------------------------------------
 cv.metrics.calculator$methods(
-	calc.metrics.for.classification = function(x) {
+	calc.metrics.for.classification = function(fits) {
 		"
 		Calculate all metrics for classification models.
 
 		\\describe{
-			\\item{\\code{x}}{fits field of a object of this class.}
+			\\item{\\code{fits}}{fits field of a object of this class.}
 		}
 		"
 		if (.self$aggregate.method == "join") {
-			x <- .self$join.fits(x)
+			fits <- .self$join.fits(fits)
 		}
-		result <- lapply(x, .self$calc.roc.metrics)
+		result <- lapply(fits, .self$calc.roc.metrics)
 		if (any(sapply(result, nrow) > 1)) {
 			warning("Best threshold was not determined by Youden's J.")
 			result <- lapply(result, colMeans)
