@@ -365,8 +365,7 @@ cv.metrics.calculator$methods(
 		}
 		"
 		if (.self$aggregate.method == "join") {
-			x <- lapply(x, as.data.frame)
-			x <- list(do.call(rbind, x))
+			x <- .self$join.fits(x)
 		}
 		mse <- sapply(x, .self$calc.mse)
 		rmse <- sapply(x, .self$calc.rmse)
@@ -384,6 +383,63 @@ cv.metrics.calculator$methods(
 
 
 #------------------------------------------------------------------------------
+#	因子型のデータを結合する。
+#------------------------------------------------------------------------------
+cv.metrics.calculator$methods(
+	join.factor = function(x) {
+		"
+		Join vectors of factor.
+
+		\\describe{
+			\\item{x}{a list of factors.}
+		}
+		"
+		original.levels <- unique(lapply(x, levels))
+		if (length(original.levels) != 1) {
+			stop("By unknown reason, factor levels was changed.")
+		} else {
+			original.levels <- original.levels[[1]]
+		}
+		x <- lapply(x, as.character)
+		x <- do.call(c, x)
+		x <- factor(x, levels = original.levels)
+		return(x)
+	}
+)
+
+
+#------------------------------------------------------------------------------
+#	aggregate.method = "join"だったときにCVの結果を結合する。
+#------------------------------------------------------------------------------
+cv.metrics.calculator$methods(
+	join.fits = function(fits) {
+		"
+		Join result of cross validation.
+
+		\\describe{
+			\\item{\\code{fits}}{fits field of a object of this class.}
+		}
+		"
+		result <- list()
+		for (i in names(fits[[1]])) {
+			current.field <- lapply(fits, "[[", i = i)
+			data.is.factor <- any(sapply(current.field, is.factor))
+			if (all(sapply(current.field, is.matrix))) {
+				result[[i]] <- do.call(rbind, current.field)
+			} else {
+				if (data.is.factor) {
+					result[[i]] <- .self$join.factor(current.field)
+				} else {
+					result[[i]] <- do.call(c, current.field)
+				}
+			}
+		}
+		return(list(result))
+	}
+)
+
+
+#------------------------------------------------------------------------------
 #	全ての識別モデルの性能評価指標を計算する。
 #------------------------------------------------------------------------------
 cv.metrics.calculator$methods(
@@ -396,8 +452,7 @@ cv.metrics.calculator$methods(
 		}
 		"
 		if (.self$aggregate.method == "join") {
-			x <- lapply(x, as.data.frame)
-			x <- list(do.call(rbind, x))
+			x <- .self$join.fits(x)
 		}
 		result <- lapply(x, .self$calc.roc.metrics)
 		if (any(sapply(result, nrow) > 1)) {
