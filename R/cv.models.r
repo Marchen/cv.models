@@ -163,8 +163,9 @@ cv.models <- function(
 	if (!is.null(seed)) {
 		set.seed(seed)
 	}
+	call <- model.adapter:::make.call.or.object(substitute(call), envir)
 	object <- cv.models.object(
-		substitute(call), folds, n.cores, seed, positive.class,
+		call, folds, n.cores, seed, positive.class,
 		package.name, envir, aggregate.method, grid, grid.predict, ...
 	)
 	objects <- apply.grid.for.object(object)
