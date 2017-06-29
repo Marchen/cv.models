@@ -41,11 +41,15 @@ cv <- cv.models(glm(Petal.Length ~ ., data = iris))
 print(cv)
 ```
 
-以下の例は（今のところ）正しく動作しないことに注意してください。
-そのうち対応するかもしれません。
+<s>以下の例は（今のところ）正しく動作しないことに注意してください。
+そのうち対応するかもしれません。</s>
+
+暫定的にサーポートを追加しました。
+ただし、モデルオブジェクトが`call`を保存している関数（e.g., `glm`、`gbm`など）にしか対応していません。
 ```{R, wrong_usage, eval = FALSE}
 model <- glm(Petal.Length ~ ., data = iris)
 cv <- cv.models(model)
+print(cv)
 ```
 
 
@@ -117,6 +121,19 @@ print(cv)
 ```
 
 この場合、各指標のSDは計算されません。
+
+
+## データ分割数の設定
+
+クロスバリデーションのデータ分割数を変えるには`folds`オプションを変更します。
+
+```{R, folds}
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50, folds = 5
+)
+print(cv)
+```
 
 
 ## 乱数を固定する
@@ -289,11 +306,39 @@ plot(cv, 10)
 ```
 
 
+# 技術的詳細
+
+@準備中。
+
+
+# モデルごとの注意事項
+
+## gbm
+
+`gbm`を使う際には`grid.predict`に渡すn.treesの候補で使われる以上の値を`gbm`の呼び出しにも指定して下さい。
+以下の例では`grid.predict`に指定された`n.trees`の候補のなかで、`gbm`呼び出しの`n.trees`の値を超えたものは、どれも`gbm`の呼び出しに指定された`n.trees`の値を使ったときと同じ結果になってしまっています。
+
+```{R, gbm_wrong_ntree}
+# gbm呼び出しのn.treesは10だが、
+# grid.predictではn.treesの候補として5、10、50、80を指定している。
+cv <- cv.models(
+	gbm(
+		Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+		distribution = "gaussian", n.trees = 10
+	),
+	grid.predict = list(n.trees = c(5, 10, 50, 80))
+)
+# そのような場合、gbmの呼び出しに使われたn.treesの値（10）以上の値を
+# grid.predictに指定しても、予測性能はn.trees = 10の時と同じになる。
+print(cv)
+```
+
+
 # 既知の問題
 
 * **テストしてない**
 
-	とりあえずテストコードを作ってないので、うまく動いてないことがある可能性があります。
+	とりあえずテストコードをほとんど作ってないので、うまく動いてないことがある可能性があります。
 
 * **乱数の固定**
 
@@ -312,3 +357,21 @@ plot(cv, 10)
 	論文によってはMSEの定義が  
 	MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)  
 	になっていることがあります。どの定義を使ったらいいのか、そのうち調べます。
+
+* **GBMがうまく動かない場合がある**
+
+	`formula`を関数の呼び出し外で定義し、`weights`を指定した場合、`gbm`がうまく動きません。
+	例えば、以下のコードはうまく動かないことがわかっています。
+	可能であれば、将来原因を特定して修正します。
+
+```{R, gbm_doesnt_work, eval = FALSE}
+	f <- Petal.Length ~ .
+	cv <- cv.models(
+		gbm(
+			f, data = iris, weights = iris$Sepal.Width,
+			distribution = "gaussian", n.trees = 10
+		),
+		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 1
+	)
+```
+
