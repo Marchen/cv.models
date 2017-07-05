@@ -62,14 +62,14 @@ merge.grid.and.cv.results <- function(grid, cv.results) {
 
 
 #------------------------------------------------------------------------------
-make.prediction <- function(predict.args, object, row.index) {
-	fit <- do.call(object$adapter$predict, predict.args)$fit
-	if (object$adapter$model.type == "regression") {
+make.prediction <- function(predict.args, adapter, row.index) {
+	fit <- do.call(adapter$predict, predict.args)$fit
+	if (adapter$model.type == "regression") {
 		fit <- fit[, "fit"]
 		attributes(fit) <- NULL
 	}
 	# 結果の作成
-	response <- object$adapter$y.vars()[row.index,]
+	response <- adapter$y.vars()[row.index,]
 	result <- list(
 		response = response, prediction = fit, index = row.index
 	)
@@ -95,10 +95,11 @@ model.one.fold <- function(cv.index, object) {
 		object$adapter$model.type == "regression", "response", "prob"
 	)
 	predict.args <- c(
-		list(model, newdata = data.test, type = type), object$predict.args
+		list(newdata = data.test, type = type), object$predict.args
 	)
 	predict.args <- apply.grid(predict.args, object$grid.predict)
-	return(lapply(predict.args, make.prediction, object, row.index))
+	adapter <- model.adapter(model)
+	return(lapply(predict.args, make.prediction, adapter, row.index))
 }
 
 
