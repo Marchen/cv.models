@@ -69,7 +69,7 @@ make.prediction <- function(predict.args, adapter, row.index) {
 		attributes(fit) <- NULL
 	}
 	# 結果の作成
-	response <- adapter$y.vars()[row.index,]
+	response <- adapter$y.vars()[row.index, ]
 	result <- list(
 		response = response, prediction = fit, index = row.index
 	)
