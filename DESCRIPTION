@@ -1,11 +1,11 @@
 Package: cv.models
-Version: 0.0-0
+Version: 0.0.1
 Title: Model selection and parameter tuning by cross validation.
-Author: FirstName LastName <emailName@some.domain.net>
-Maintainer: FirstName LastName <emailName@some.domain.net>
+Author: Michio Oguro <emailName@some.domain.net>
+Maintainer: Michio Oguro <emailName@some.domain.net>
 Description: Interface for cross validation and parameter selection for several
     models.
-License: BSD
+License: MIT
 Depends:
     R (>= 3.0.0),
     base,
