@@ -364,9 +364,6 @@ cv.metrics.calculator$methods(
 			\\item{\\code{fits}}{fits field of a object of this class.}
 		}
 		"
-		if (.self$aggregate.method == "join") {
-			fits <- .self$join.fits(fits)
-		}
 		mse <- sapply(fits, .self$calc.mse)
 		rmse <- sapply(fits, .self$calc.rmse)
 		r.squared <- sapply(fits, .self$calc.r.squared)
@@ -451,9 +448,6 @@ cv.metrics.calculator$methods(
 			\\item{\\code{fits}}{fits field of a object of this class.}
 		}
 		"
-		if (.self$aggregate.method == "join") {
-			fits <- .self$join.fits(fits)
-		}
 		result <- lapply(fits, .self$calc.roc.metrics)
 		if (any(sapply(result, nrow) > 1)) {
 			warning("Best threshold was not determined by Youden's J.")
@@ -474,6 +468,9 @@ cv.metrics.calculator$methods(
 cv.metrics.calculator$methods(
 	metrics = function() {
 		f <- .self$fits
+		if (.self$aggregate.method == "join") {
+			f <- lapply(f, .self$join.fits)
+		}
 		if (.self$model.type == "regression") {
 			metrics <- lapply(f, .self$calc.metrics.for.regression)
 		} else {
