@@ -141,7 +141,7 @@ cv.metrics.calculator$methods(
 		}
 		# Set parameters.
 		.self$fits <- object$fits
-		.self$aggregate.method = object$aggregate.method
+		.self$aggregate.method <- object$aggregate.method
 		.self$positive.class <- determine.positive.class(object)
 		.self$model.type <- object$adapter$model.type
 	}
