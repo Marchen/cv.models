@@ -1,5 +1,5 @@
 Package: cv.models
-Version: 0.0.1
+Version: 0.0.2
 Title: Model selection and parameter tuning by cross validation.
 Author: Michio Oguro <emailName@some.domain.net>
 Maintainer: Michio Oguro <emailName@some.domain.net>
