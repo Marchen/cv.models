@@ -63,7 +63,7 @@ merge.grid.and.cv.results <- function(grid, cv.results) {
 
 #------------------------------------------------------------------------------
 make.prediction <- function(predict.args, model, object, row.index) {
-	adapter <- model.adapter(model)
+	adapter <- model.adapter(model, envir = object$envir)
 	fit <- do.call(adapter$predict, predict.args)$fit
 	if (adapter$model.type == "regression") {
 		fit <- fit[, "fit"]
