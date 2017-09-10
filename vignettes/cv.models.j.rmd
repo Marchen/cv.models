@@ -102,7 +102,8 @@ print(cv)
 **Matthews correlation coefficient (MCC)**	|"mcc"			|
 **Informedness**							|"informedness"	|$Informedness = Sensitivity + Specificity - 1$
 **Markedness**								|"markedness"	|$Markedness = PPV + NPV - 1$
-
+**Log-likelihood**							|"loglik"		|$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, Lawson et al. (2014)を参照。
+**尤度に基づいたR二乗**					|"rsq.loglik"	|Lawson et al. (2014)を参照。
 
 ## predictに引数が必要なモデルを使う
 
@@ -387,4 +388,9 @@ print(cv)
 		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 1
 	)
 ```
+
+
+# 引用文献
+
+* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
 

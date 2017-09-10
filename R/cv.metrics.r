@@ -244,6 +244,48 @@ cv.metrics.calculator$methods(
 
 
 #------------------------------------------------------------------------------
+#	予測値から確率を取り出す。
+#------------------------------------------------------------------------------
+cv.metrics.calculator$methods(
+	get.probability = function(fit) {
+		"
+		Get probability of target class from the fit object.
+
+		\\itemize{
+			\\item{\\code{fit}}{
+				a list having \\code{response} and \\code{fit} fields
+				representing actual and predicted values of the response
+				variable.
+			}
+		}
+		"
+		return(fit$prediction[, .self$positive.class])
+	}
+)
+
+
+#------------------------------------------------------------------------------
+#	予測値から応答変数の値を0/1で取り出す。
+#------------------------------------------------------------------------------
+cv.metrics.calculator$methods(
+	get.binary.response = function(fit) {
+		"
+		Get response variable as binary (0/1) data from the fit object.
+
+		\\itemize{
+			\\item{\\code{fit}}{
+				a list having \\code{response} and \\code{fit} fields
+				representing actual and predicted values of the response
+				variable.
+			}
+		}
+		"
+		return(as.numeric(fit$response == .self$positive.class))
+	}
+)
+
+
+#------------------------------------------------------------------------------
 #	pROC::coordsで計算する指標を全て計算。
 #------------------------------------------------------------------------------
 cv.metrics.calculator$methods(
@@ -265,8 +307,8 @@ cv.metrics.calculator$methods(
 			"tn", "tp", "fn", "fp", "npv", "ppv",
 			"1-specificity", "1-sensitivity", "1-accuracy", "1-npv", "1-ppv"
 		)
-		prob <- fit$prediction[, .self$positive.class]
-		response <- as.numeric(fit$response == .self$positive.class)
+		prob <- .self$get.probability(fit)
+		response <- .self$get.binary.response(fit)
 		roc.object <- roc(response, prob)
 		metrics <- coords(
 			roc.object, x = "best", best.method = "youden", ret = all.metrics
@@ -348,6 +390,64 @@ cv.metrics.calculator$methods(
 		denom <- sqrt((tp + fn) * (tp + fp) * (tn + fp) * (tn + fn))
 		mcc <- (tp * tn - fp * fn) / denom
 		return(mcc)
+	}
+)
+
+
+#------------------------------------------------------------------------------
+#	Log Likelihood
+#------------------------------------------------------------------------------
+cv.metrics.calculator$methods(
+	calc.loglik = function(fit) {
+		"
+		Calculate log-likelihood.
+
+		Original program was obtained from Lawson et al. 2014.
+		Prevalence, thresholds and the performance of presence-absence models.
+		Methods in Ecology and Evolution 5: 54-64.
+
+		\\itemize{
+			\\item{\\code{fit}}{
+				a list having \\code{response} and \\code{fit} fields
+				representing actual and predicted values of the response
+				variable.
+			}
+		}
+		"
+		p <- .self$get.probability(fit)
+		y <- .self$get.binary.response(fit)
+		loglik <- sum(log(p * y + (1 - p) * (1 - y)))
+		return(loglik)
+	}
+)
+
+
+#------------------------------------------------------------------------------
+#	Likelihood based R squared.
+#------------------------------------------------------------------------------
+cv.metrics.calculator$methods(
+	calc.r.squared.loglik = function(fit) {
+		"
+		Calculate likelihood based R squared.
+
+		Original program was obtained from Lawson et al. 2014.
+		Prevalence, thresholds and the performance of presence-absence models.
+		Methods in Ecology and Evolution 5: 54-64.
+
+		\\itemize{
+			\\item{\\code{fit}}{
+				a list having \\code{response} and \\code{fit} fields
+				representing actual and predicted values of the response
+				variable.
+			}
+		}
+		"
+		p <- .self$get.probability(fit)
+		y <- .self$get.binary.response(fit)
+		loglik.p <- sum(log(p * y + (1 - p) * (1 - y)))
+		loglik.n <- sum(log(mean(p) * y + (1 - mean(p)) * (1 - y)))
+		rsq <- (loglik.p - loglik.n) / (1 - loglik.n)
+		return(rsq)
 	}
 )
 
@@ -448,12 +548,19 @@ cv.metrics.calculator$methods(
 			\\item{\\code{fits}}{fits field of a object of this class.}
 		}
 		"
-		result <- lapply(fits, .self$calc.roc.metrics)
-		if (any(sapply(result, nrow) > 1)) {
+		# Calculate ROC based metrics.
+		result.roc <- lapply(fits, .self$calc.roc.metrics)
+		if (any(sapply(result.roc, nrow) > 1)) {
+			# TODO: ここをなんとかする。
 			warning("Best threshold was not determined by Youden's J.")
-			result <- lapply(result, colMeans)
+			result <- lapply(result.roc, colMeans)
 		}
-		result <- do.call(rbind, result)
+		result <- do.call(rbind, result.roc)
+		# Calcualte likelihood based metrics.
+		loglik <- sapply(fits, .self$calc.loglik)
+		rsq.loglik <- sapply(fits, .self$calc.r.squared.loglik)
+		result <- cbind(result, loglik = loglik, rsq.loglik = rsq.loglik)
+		# Calculate mean and SD.
 		result.mean <- colMeans(result)
 		result.sd <- apply(result, 2, sd)
 		names(result.sd) <- paste0("sd.", colnames(result))
