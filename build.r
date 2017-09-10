@@ -1,5 +1,5 @@
-require(roxygen2)
 require(devtools)
+require(roxygen2)
 require(rmarkdown)
 
 
@@ -37,15 +37,23 @@ rtools <- c(
 	"3.0" = ";C:/Rtools31/bin;C:/Rtools31/gcc-4.6.3/bin",
 	"3.1" = ";C:/Rtools32/bin;C:/Rtools32/gcc-4.6.3/bin",
 	"3.2" = ";C:/Rtools33/bin;C:/Rtools33/gcc-4.6.3/bin",
-	"3.3" = ";C:/Rtools34/bin;C:/Rtools34/mingw_32/bin"
+	"3.3" = ";C:/Rtools34/bin;C:/Rtools34/mingw_32/bin",
+	"3.4" = ";C:/Rtools34/bin;C:/Rtools34/mingw_32/bin"
 )
 Sys.setenv(PATH = paste0(Sys.getenv("PATH"), rtools[r.ver]))
 
 
 #------------------------------------------------------------------------------
+#	Install the package before compiling.
+#------------------------------------------------------------------------------
+system("Rscript -e library(devtools);install()")
+
+
+#------------------------------------------------------------------------------
 #	Convert documents.
 #------------------------------------------------------------------------------
-roxygenize(clean = TRUE)
+document()
+#roxygenize(clean = TRUE)
 build_vignettes()
 
 
@@ -87,15 +95,8 @@ tools::write_PACKAGES(
 
 
 #------------------------------------------------------------------------------
-#	Install.
-#------------------------------------------------------------------------------
-system("Rscript -e library(devtools);install()")
-
-
-#------------------------------------------------------------------------------
 #	Cleanup.
 #------------------------------------------------------------------------------
-install()
 setwd(old.wd)
 rm(old.wd)
 
