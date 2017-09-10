@@ -119,27 +119,12 @@ cluster.manager$methods(
 cluster.manager$methods(
 	export.functions = function() {
 		"
-		Export Required Functions to the Cluster
+		Export required functions to the cluster.
 		"
-		.self$export(c("apply.grid", "make.prediction"))
+		object.names <- c("apply.grid", "make.prediction")
+		clusterExport(.self$cl, object.names, loadNamespace("cv.models"))
 	}
 )
-
-
-#------------------------------------------------------------------------------
-#	オブジェクトをエクスポートする。
-#------------------------------------------------------------------------------
-cluster.manager$methods(
-	export = function(names, envir = parent.frame(1L)) {
-		"
-		Export Required Functions to the Cluster
-		"
-		for (i in names) {
-			clusterCall(.self$cl, assign, i, get(i, envir = envir))
-		}
-	}
-)
-
 
 
 #------------------------------------------------------------------------------
