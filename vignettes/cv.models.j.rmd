@@ -31,13 +31,13 @@ library(gbm)
 
 パッケージをインストールするには、以下のコマンドをRのコンソールにコピー&ペースとしてください。
 
-```{R, install, echo = FALSE, eval = FALSE}
+```{R, install, eval = FALSE}
 install.packages(
 	c("model.adapter", "cv.models"),
 	repos = c(
-		"http://hostgk3.biology.tohoku.ac.jp/marchen/R/repos",
-		options()$repos
-	)
+		"http://hostgk3.biology.tohoku.ac.jp/marchen/R/repos", options()$repos
+	),
+	type = "source"
 )
 ```
 
