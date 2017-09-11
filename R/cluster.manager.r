@@ -152,7 +152,7 @@ cluster.manager$methods(
 		}
 		if (cores == 1L) {
 			return(1L)
-		} else if (!is.null(object$grid)) {
+		} else if (is.null(object$grid)) {
 			return(switch(type, cv = cores, grid = 1L))
 		} else {
 			grid <- expand.grid(object$grid)
