@@ -67,7 +67,7 @@ print.cv.best.models <- function(x, ...) {
 }
 
 #'	print method for \emph{cv.models} class.
-#'	@describeIn cv.models
+#'	@describeIn cv.models print method for cv.models.
 #'	@export
 #------------------------------------------------------------------------------
 #	cv.modelsクラス用のprint。
