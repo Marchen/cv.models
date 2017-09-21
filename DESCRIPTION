@@ -1,5 +1,5 @@
 Package: cv.models
-Version: 0.0.3
+Version: 0.0.4
 Title: Model selection and parameter tuning by cross validation.
 Author: Michio Oguro <emailName@some.domain.net>
 Maintainer: Michio Oguro <emailName@some.domain.net>
@@ -18,7 +18,7 @@ Imports:
     stats,
     parallel,
     pROC,
-	model.adapter
+    model.adapter
 Suggests:
     randomForest,
     party,
@@ -31,4 +31,4 @@ Suggests:
     mgcv,
     gam
 VignetteBuilder: knitr
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
