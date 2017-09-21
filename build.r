@@ -53,7 +53,6 @@ system("Rscript -e library(devtools);install()")
 #	Convert documents.
 #------------------------------------------------------------------------------
 document()
-#roxygenize(clean = TRUE)
 build_vignettes()
 
 
