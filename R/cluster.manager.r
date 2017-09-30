@@ -175,7 +175,7 @@ cluster.manager$methods(
 		Parallel/One-by-one Version of \\code{lapply}
 		"
 		if (.self$n.cores > 1) {
-			return(clusterApply(.self$cl, X, FUN, ...))
+			return(parLapply(.self$cl, X, FUN, ...))
 		} else {
 			return(base::lapply(X, FUN, ...))
 		}
