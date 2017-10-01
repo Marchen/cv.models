@@ -1,13 +1,34 @@
 Package: cv.models
-Version: 0.0-0
+Version: 0.0.4
 Title: Model selection and parameter tuning by cross validation.
-Author: FirstName LastName <emailName@some.domain.net>
-Maintainer: FirstName LastName <emailName@some.domain.net>
-Description:
-	Interface for cross validation and parameter selection for several models.
-License: BSD
-Depends: R (>= 3.0.0), base, stats, parallel, pROC
+Author: Michio Oguro <emailName@some.domain.net>
+Maintainer: Michio Oguro <emailName@some.domain.net>
+Description: Interface for cross validation and parameter selection for several
+    models.
+License: MIT
+Depends:
+    R (>= 3.0.0),
+    base,
+    stats,
+    parallel,
+    pROC,
+    model.adapter (>= 0.0.7)
 Imports:
-	base, stats, parallel, pROC
+    base,
+    stats,
+    parallel,
+    pROC,
+    model.adapter
 Suggests:
-	randomForest, party, gbm, e1071, lme4, nlme, tree, rpart, mgcv, gam
+    randomForest,
+    party,
+    gbm,
+    e1071,
+    lme4,
+    nlme,
+    tree,
+    rpart,
+    mgcv,
+    gam
+VignetteBuilder: knitr
+RoxygenNote: 6.0.1

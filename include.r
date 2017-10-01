@@ -2,7 +2,7 @@
 #	いろいろなモデルに対してクロスバリデーションで性能指標を計算する。
 #
 #	今のところのクロスバリデーション対応関数
-#		lm, glm, lme, glmmML, lmer, glmer, ctree, cforest, randomForest, 
+#		lm, glm, lme, glmmML, lmer, glmer, ctree, cforest, randomForest,
 #		gbm, svm, tree, rpart, mgcv::gam, mgcv::gamm, gam::gam, ranger
 #
 #	今のところのパラメーターチューニング対応関数
@@ -178,74 +178,77 @@
 #	http://stackoverflow.com/questions/1815606/rscript-determine-path-of-the-executing-script
 #-------------------------------------------------------------------------------
 get.this.file.dir <- function(){
-    cmdArgs <- commandArgs(trailingOnly = FALSE)
-    needle <- "--file="
-    match <- grep(needle, cmdArgs)
-    if (length(match) > 0) {
-        # Rscript
-        return(dirname(sub(needle, "", cmdArgs[match])))
-    } else {
-        # 'source'd via R console
-        return(dirname(normalizePath(sys.frames()[[1]]$ofile)))
-    }
+	cmdArgs <- commandArgs(trailingOnly = FALSE)
+	needle <- "--file="
+	match <- grep(needle, cmdArgs)
+	if (length(match) > 0) {
+		# Rscript
+		return(dirname(sub(needle, "", cmdArgs[match])))
+	} else {
+		# 'source'd via R console
+		return(dirname(normalizePath(sys.frames()[[1]]$ofile)))
+	}
 }
+
+library(model.adapter)
+library(ranger)
+library(gbm)
+library(e1071)
 
 #-------------------------------------------------------------------------------
 #	ソース読み込み
 #-------------------------------------------------------------------------------
 
 # predictをgammとglmmMLに対応させる
-source(file.path(get.this.file.dir(), "R", "predict.method.r"), encoding = "CP932")
-
-# 関数の違いを吸収する関数群
-source(file.path(get.this.file.dir(), "R", "get.response.name.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.response.class.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.response.var.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.formula.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.args.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.tunable.args.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "expand.tunable.args.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "merge.tunable.args.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "format.prediction.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "detect.model.type.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "make.dummy.r"), encoding = "CP932")
-
-# パラメーターの整合性を調整する関数群
-source(file.path(get.this.file.dir(), "R", "modify.args.predict.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "modify.args.model.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "modify.response.var.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "modify.args.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "expand.dot.r"), encoding = "CP932")
+source(file.path(get.this.file.dir(), "R", "cluster.manager.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "cv.group.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "cv.metrics.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "cv.models.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "utils.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "interface.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "which.min.max.r"), encoding = "UTF-8")
 
 
-# クラス名・パッケージ名を取得する関数群
-source(file.path(get.this.file.dir(), "R", "get.class.name.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.package.name.r"), encoding = "CP932")
 
-# クラスター関連関数群
-source(file.path(get.this.file.dir(), "R", "cluster.r"), encoding = "CP932")
 
-# モデル性能評価指標の計算関数群
-source(file.path(get.this.file.dir(), "R", "cv.performance.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "confusion.matrix.r"), encoding = "CP932")
+#r <- cv.models(lm(Petal.Length ~ ., data = iris), seed = 1)
+#r <- cv.models(gbm(Petal.Length ~ ., data = iris), seed = 1, n.trees=10, positive.class = "versicolor")
+#f <- Species ~ .
+#r <- cv.models(
+	#gbm(f, data = iris, weights = iris$Petal.Length), seed = 1, n.trees = 10,
+	#positive.class = "versicolor", n.cores = 1
+#)
 
-# クロスバリデーション関連関数群
-source(file.path(get.this.file.dir(), "R", "make.cv.group.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.positive.prob.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "cv.one.fold.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "cross.validation.r"), encoding = "CP932")
 
-# パラメーター選択関連関数群
-source(file.path(get.this.file.dir(), "R", "run.dredge.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "cv.models.r"), encoding = "CP932")
+#iris2 <- droplevels(subset(iris, Species != "setosa"))
+#iris2$Species <- as.numeric(iris2$Species) - 1
+#r <- cv.models(glm(Species ~ ., data = iris2, family = "binomial"))
 
-# ベストモデル選択関数群
-source(file.path(get.this.file.dir(), "R", "which.min.max.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.best.metrics.index.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "construct.model.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "get.best.models.r"), encoding = "CP932")
-source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "CP932")
+#r <- cv.models(svm(Species ~ ., data = iris2, probability = TRUE), seed = 2)
+#r <- cv.models(ranger(Species ~ ., data = iris2, write.forest = TRUE), seed = 2)
 
-# その他ユーティリティ関数群
-source(file.path(get.this.file.dir(), "R", "format.family.r"), encoding = "CP932")
+
+#m <- gbm(Petal.Length ~ ., data = iris)
+#r <- predict(m, n.trees = 1:100)
+#result <- list()
+#for (i in 1:100) {
+	#result[[i]] <- predict(m, n.trees = i)
+#}
+#r <- lapply(X = 1:100, FUN = predict, object = m)
+
+#library(cv.models)
+#library(gbm)
+#grid = list(interaction.depth = c(1, 2), n.minobsinnode = c(5, 10))
+#grid.predict = list(n.trees = 1:10)
+#r <- cv.models(
+	#gbm(Petal.Length ~ ., data = iris), seed = 1, grid = grid,
+	#grid.predict = grid.predict
+#)
+
+#r <- cv.models(
+	#gbm(Species ~ ., data = iris), seed = 1, grid = grid,
+	#grid.predict = grid.predict
+#)
+
 

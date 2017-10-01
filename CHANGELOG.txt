@@ -1,0 +1,9 @@
+﻿2017-09-10: 0.0.4
+	- Experimental: implimented log-likelihood and likelihood based R squared values for classification models.
+	- Bug fix: wrong assignment of CPU cores.
+2017-07-07: 0.0.3
+	- Bug fix: occasionally evaluation of model fails.
+2017-07-07: 0.0.2
+	- Bug fix: correspondence between the response variable and the predicted values was broken.
+2017-07-05: 0.0.1
+	- Started versioning.

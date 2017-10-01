@@ -1,0 +1,396 @@
+---
+title: "cv.models クイックスタートガイド"
+author: "Michio Oguro"
+date: "`r Sys.Date()`"
+output:
+    html_document:
+        fig_width: 6
+        fig_height: 6
+        fig_retina: 2
+        dpi: 300
+        dev.args: list(dpi = 300)
+        toc: true
+        toc_depth: 2
+        md_extensions: -ascii_identifiers
+vignette: >
+    %\VignetteIndexEntry{Quick start guid for cv.models (Japanese).}
+    %\VignetteEngine{knitr::rmarkdown}
+    \usepackage[utf8]{inputenc}
+---
+
+# はじめに
+
+このパッケージはクロスバリデーションを用いて統計・機械学習モデルの予測能力の判定やハイパーパラメーターの調整を行うパッケージです。
+
+```{R, preparation, echo = FALSE, message = FALSE, include = FALSE}
+library(cv.models)
+library(gbm)
+```
+
+# インストール
+
+パッケージをインストールするには、以下のコマンドをRのコンソールにコピー&ペースとしてください。
+
+```{R, install, eval = FALSE}
+install.packages(
+	c("model.adapter", "cv.models"),
+	repos = c(
+		"http://hostgk3.biology.tohoku.ac.jp/marchen/R/repos", options()$repos
+	),
+	type = "source"
+)
+```
+
+# 基本的な使い方
+
+## クロスバリデーションによるモデルの予測能力評価
+
+モデルの予測能力を評価するには`cv.models`関数を使います。
+以下の例のように`cv.models`関数の中に統計・機械学習モデルの呼び出しを**直接**入れます。
+
+```{R, basic_usage}
+library(cv.models)
+cv <- cv.models(glm(Petal.Length ~ ., data = iris))
+print(cv)
+```
+
+<s>以下の例は（今のところ）正しく動作しないことに注意してください。
+そのうち対応するかもしれません。</s>
+
+暫定的にサーポートを追加しました。
+ただし、モデルオブジェクトが`call`を保存している関数（e.g., `glm`、`gbm`など）にしか対応していません。
+```{R, wrong_usage, eval = FALSE}
+model <- glm(Petal.Length ~ ., data = iris)
+cv <- cv.models(model)
+print(cv)
+```
+
+
+## 計算される指標の一覧
+
+`cv.models`はモデルの種類（回帰モデル・識別モデル）を自動的に判定し、指標を計算します。
+現在、`cv.models`が計算する指標は以下の通りです。
+
+### 回帰モデル
+
+指標名								|列名		|定義/説明
+------------------------------------|-----------|---------------------------------------------------------------------------------------
+**Mean squared error (MSE)**		|"mse"		|$MSE = mean((prediction - response) ^ 2)$
+**Root mean squared error (RMSE)**	|"rmse"		|$RMSE = sqrt(mean((prediction - response) ^ 2))$
+**R二乗**							|"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$
+**Q二乗**							|"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$
+
+### 識別モデル
+
+指標名										|列名			|定義/説明
+--------------------------------------------|---------------|---------------------------------------------------------------------------
+**最適な閾値**								|"threshold"	|Youden's Jを最小化する、在/不在を分ける最適な閾値。
+**Specificity**								|"specificity"	|https://en.wikipedia.org/wiki/Sensitivity_and_specificity
+**Sensitivity**								|"sensitivity"	|
+**Accuracy**								|"accuracy"		|
+**True negative count (TN)**				|"tn"			|
+**True positive count (TP)**				|"tp"			|
+**False negative count (FN)**				|"fn"			|
+**False positive count (FP)**				|"fp"			|
+**Negative predictive value (NPV)**			|"npv"			|
+**Positive predictive value (PPV)**			|"ppv"			|
+**1 - Specificity**							|"1-specificity"|
+**1 - Sensitivity**							|"1-sensitivity"|
+**1 - Accuracy**							|"1-accuracy"	|
+**1 - Negative predictive value**			|"1-npv"		|
+**1 - Positive predictive value**			|"1-ppv"		|
+**Matthews correlation coefficient (MCC)**	|"mcc"			|
+**Informedness**							|"informedness"	|$Informedness = Sensitivity + Specificity - 1$
+**Markedness**								|"markedness"	|$Markedness = PPV + NPV - 1$
+**Log-likelihood**							|"loglik"		|$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, Lawson et al. (2014)を参照。
+**尤度に基づいたR二乗**					|"rsq.loglik"	|Lawson et al. (2014)を参照。
+
+## predictに引数が必要なモデルを使う
+
+`gbm`のような一部のモデルは`predict`関数による予測値の計算時にもパラメーターを指定する必要があります。
+このようなモデルを`cv.models`で扱うには、以下の例のように`predict`に渡される引数を`cv.models`の引数に追加します。
+
+```{R, predict_args}
+library(gbm)
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50
+)
+print(cv)
+```
+
+
+## 性能評価指標の計算方法を制御する
+
+cv.modelsは性能評価指標を計算するとき、デフォルトでは各foldごとに指標を計算し、それを平均します。
+しかし、この方法はLeave-one-out Cross Validation (LOOCV)を行う時や在・不在データのバランスが偏っている時などにはうまく行かないことがあります。
+このような問題をどう扱うのが正しいのか、現在情報収集中なのですが、とりあえず`aggregate.method = "join"`を指定することで、全体の予測値・応答変数のデータを結合した上で、性能評価指標を計算することができます。
+
+```{R, aggregate_method}
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	aggregate.method = "join", n.trees = 50
+)
+print(cv)
+```
+
+この場合、各指標のSDは計算されません。
+
+
+## データ分割数の設定
+
+クロスバリデーションのデータ分割数を変えるには`folds`オプションを変更します。
+
+```{R, folds}
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50, folds = 5
+)
+print(cv)
+```
+
+
+## 乱数を固定する
+
+クロスバリデーションや一部の統計モデルの当てはめには乱数が使われいてるため、計算の度に結果が変わります。これを固定したい場合には`cv.models`の`seed`引数に適当な値を指定します。
+```{R, set_seed}
+# 実行の度に値が変わる。
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50
+)
+print(cv)
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50
+)
+print(cv)
+
+# seedに値を指定すると、結果が固定される。
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50, seed = 12345
+)
+print(cv)
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50, seed = 12345
+)
+print(cv)
+```
+
+
+## 並列計算を制御する
+
+`cv.models`はデフォルトで全てのCPUコアを使用して計算を行います。
+計算に使われるコア数を制御したいときには、`n.cores`引数に適当な値を指定します。
+```{R, n_cores}
+# コアを２つ使って計算する。
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50, n.cores = 2
+)
+print(cv)
+```
+
+
+## モデルのパラメーターを選択する
+
+`cv.models`を使うとクロスバリデーションによる予測性能を用いて、モデルのハイパーパラメーターの選択を行うこともできます。
+ハイパーパラメーターの選択を行うには、以下の例のように`grid`オプションに、候補となるパラメーターのベクトルを格納したリストを指定します。
+
+```{R, hyperparameter1}
+# ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	n.trees = 50,
+	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10))
+)
+print(cv)
+```
+
+また、`gbm`のように、`predict`関数の引数にも調整可能なパラメーターがあるモデルの場合、`grid.predict`に同様のリストを指定し、パラメーターの違いによる予測性能の違いを評価することができます。
+
+```{R, hyperparmeter2}
+# ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+	grid.predict = list(n.trees = c(10, 50, 80))
+)
+print(cv)
+```
+
+
+## 最良モデルの取り出し
+
+`find.best.models`関数を用いることで、`cv.models`の結果から最良モデルを取り出すことができます。
+以下の例ではQ^2が最高になるモデルを選んでいます。
+
+```{R, bestmodel}
+# ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+	grid.predict = list(n.trees = c(10, 50, 80))
+)
+print(cv)
+# 最良モデルの取り出し。
+best <- find.best.models(cv, "q.squared")
+print(best)
+```
+
+`find.best.models`関数の結果は`cv.best.models`オブジェクトになります。
+`cv.best.models`の実体は`cv.result`オブジェクトのリストです。
+
+```{R, bestmodel2}
+# find.best.models()の結果のクラスを表示。
+class(best)
+# find.best.models()の結果はcv.resultクラスのリスト。
+class(best[[1]])
+print(best[[1]])
+```
+
+
+## cv.modelsオブジェクトからのデータの取り出し
+
+以下の関数を使って`cv.models`オブジェクトからデータを取り出すことができます。
+
+```{R, extract_data}
+cv <- cv.models(
+	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+	grid.predict = list(n.trees = c(10, 50, 80))
+)
+
+# 10番目のモデルの予測結果を取得。
+# 結果はdata.frameで、response列は応答変数の値（生データ）、
+# prediction列はモデルの予測値、index列はモデリングに使われたデータでの列番号。
+fit <- extract.fit(cv, 10)
+head(fit)
+
+# 10番目のモデルの詳細情報を取得。
+# 結果はcv.resultオブジェクト。
+extract.result(cv, 10)
+
+# 性能評価の表を取得
+extract.metrics(cv)
+```
+
+`extract.fit`関数は`cv.best.models`オブジェクト、`cv.result`オブジェクトにも使えます。
+
+```{R, extract_data2}
+# ベストモデルの１番目のモデルから、予測結果を取得。
+best <- find.best.models(cv, "q.squared")
+fit <- extract.fit(best, 1)
+head(fit)
+
+# 10番目のモデルをcv.resultオブジェクトとして取り出し。
+result <- extract.result(cv, 10)
+# 10番目のモデルの予測結果を取得。
+fit <- extract.fit(result)
+head(fit)
+```
+
+
+## 簡易作図
+
+`plot`関数を使って、予測値と応答変数の関係を作図することができます。
+１点が生データの１点を表し、線は$Y = X$の線を表します。
+
+```{R, plot}
+# lmモデルの予測値と応答変数の関係をプロット。
+cv <- cv.models(
+    lm(Petal.Length ~ ., data = iris)
+)
+plot(cv)
+
+# gbmモデルのパラメーター組み合わせ候補を作成。
+cv <- cv.models(
+	gbm(
+		Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+		distribution = "gaussian", n.cores = 1
+	),
+	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+	grid.predict = list(n.trees = c(10, 50, 80))
+)
+# 10番目の予測結果を作図。
+plot(cv, 10)
+
+```
+
+
+# 技術的詳細
+
+@準備中。
+
+
+# モデルごとの注意事項
+
+## gbm
+
+`gbm`を使う際には`grid.predict`に渡すn.treesの候補で使われる以上の値を`gbm`の呼び出しにも指定して下さい。
+以下の例では`grid.predict`に指定された`n.trees`の候補のなかで、`gbm`呼び出しの`n.trees`の値を超えたものは、どれも`gbm`の呼び出しに指定された`n.trees`の値を使ったときと同じ結果になってしまっています。
+
+```{R, gbm_wrong_ntree}
+# gbm呼び出しのn.treesは10だが、
+# grid.predictではn.treesの候補として5、10、50、80を指定している。
+cv <- cv.models(
+	gbm(
+		Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+		distribution = "gaussian", n.trees = 10
+	),
+	grid.predict = list(n.trees = c(5, 10, 50, 80))
+)
+# そのような場合、gbmの呼び出しに使われたn.treesの値（10）以上の値を
+# grid.predictに指定しても、予測性能はn.trees = 10の時と同じになる。
+print(cv)
+```
+
+
+# 既知の問題
+
+* **テストしてない**
+
+	とりあえずテストコードをほとんど作ってないので、うまく動いてないことがある可能性があります。
+
+* **乱数の固定**
+
+	`seed`引数を使って乱数を固定した場合でも並列計算のありなしで結果が変わる可能性があります。
+	そのうち確認します。
+
+* **AUCがいつも0.5以上になる**
+
+	対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
+	多くの文献がAUCは0.5～1の間に収まると仮定しているので、これをどう扱うのが正しいのか、まだ自分の中で結論が出ていません。
+	ということで、とりあえず対応は保留してあります。
+	近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。
+
+* **MSEの定義**
+
+	論文によってはMSEの定義が  
+	MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)  
+	になっていることがあります。どの定義を使ったらいいのか、そのうち調べます。
+
+* **GBMがうまく動かない場合がある**
+
+	`formula`を関数の呼び出し外で定義し、`weights`を指定した場合、`gbm`がうまく動きません。
+	例えば、以下のコードはうまく動かないことがわかっています。
+	可能であれば、将来原因を特定して修正します。
+
+```{R, gbm_doesnt_work, eval = FALSE}
+	f <- Petal.Length ~ .
+	cv <- cv.models(
+		gbm(
+			f, data = iris, weights = iris$Sepal.Width,
+			distribution = "gaussian", n.trees = 10
+		),
+		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 1
+	)
+```
+
+
+# 引用文献
+
+* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
+
