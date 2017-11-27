@@ -39,7 +39,7 @@ find.best.metrics.index <- function(metrics) {
 
 
 #-------------------------------------------------------------------------------
-#'	(Internal) Extract a Model from cv.models Object
+#'	Extract a Model from cv.models Object
 #'
 #'	This function extract a model from \code{\link{cv.models}} object and make
 #'	a \code{\link{cv.best.model}} object.
