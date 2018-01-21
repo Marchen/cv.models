@@ -1,4 +1,5 @@
-﻿2017-09-10: 0.0.4
+	- Now find.best.models() uses the seed of random numbers in cv.models object if seed in the object is not NULL.
+2017-09-10: 0.0.4
 	- Experimental: implimented log-likelihood and likelihood based R squared values for classification models.
 	- Bug fix: wrong assignment of CPU cores.
 2017-07-07: 0.0.3
