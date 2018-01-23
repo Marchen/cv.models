@@ -59,7 +59,7 @@ merge.grid.and.cv.results <- function(grid, cv.results) {
 		return(cv.results)
 	}
 	grid <- expand.grid(grid)
-	grids <- lapply(1:nrow(grid), "[.data.frame", x = grid,)
+	grids <- lapply(1:nrow(grid), "[.data.frame", x = grid, )
 	fun <- function(grid, cv.results) {
 		result <- vector("list", length(cv.results))
 		for (i in 1:length(cv.results)) {
