@@ -7,18 +7,14 @@ Description: Interface for cross validation and parameter selection for several
     models.
 License: MIT
 Depends:
-    R (>= 3.0.0),
-    base,
-    stats,
-    parallel,
-    pROC,
-    model.adapter (>= 0.0.7)
+    R (>= 3.0.0)
 Imports:
     base,
     stats,
     parallel,
-    pROC,
-    model.adapter
+    model.adapter (>= 0.0.7),
+	R6,
+	OptimalCutpoints
 Suggests:
     randomForest,
     party,

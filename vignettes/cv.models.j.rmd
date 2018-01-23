@@ -20,7 +20,10 @@ vignette: >
 
 # はじめに
 
-このパッケージはクロスバリデーションを用いて統計・機械学習モデルの予測能力の判定やハイパーパラメーターの調整を行うパッケージです。
+このパッケージはクロスバリデーションを用いて統計・機械学習モデルの予測能力の推定や、ハイパーパラメーターの調整を行うパッケージです。
+現在のバージョンはまだAPIや仕様の設計段階なので、将来仕様が変わるかもしれません。
+もし、なにかわからないことやご要望があったら教えてください。
+
 
 ```{R, preparation, echo = FALSE, message = FALSE, include = FALSE}
 library(cv.models)
@@ -33,7 +36,7 @@ library(gbm)
 
 ```{R, install, eval = FALSE}
 install.packages(
-	c("model.adapter", "cv.models"),
+	c("R6", "model.adapter", "cv.models"),
 	repos = c(
 		"http://hostgk3.biology.tohoku.ac.jp/marchen/R/repos", options()$repos
 	),
@@ -59,7 +62,7 @@ print(cv)
 
 暫定的にサーポートを追加しました。
 ただし、モデルオブジェクトが`call`を保存している関数（e.g., `glm`、`gbm`など）にしか対応していません。
-```{R, wrong_usage, eval = FALSE}
+```{R, wrong_usage}
 model <- glm(Petal.Length ~ ., data = iris)
 cv <- cv.models(model)
 print(cv)
@@ -84,7 +87,7 @@ print(cv)
 
 指標名										|列名			|定義/説明
 --------------------------------------------|---------------|---------------------------------------------------------------------------
-**最適な閾値**								|"threshold"	|Youden's Jを最小化する、在/不在を分ける最適な閾値。
+**最適な閾値**								|"threshold"	|在/不在を分ける最適な閾値。デフォルトではYouden'Jで決定される。
 **Specificity**								|"specificity"	|https://en.wikipedia.org/wiki/Sensitivity_and_specificity
 **Sensitivity**								|"sensitivity"	|
 **Accuracy**								|"accuracy"		|
@@ -94,16 +97,14 @@ print(cv)
 **False positive count (FP)**				|"fp"			|
 **Negative predictive value (NPV)**			|"npv"			|
 **Positive predictive value (PPV)**			|"ppv"			|
-**1 - Specificity**							|"1-specificity"|
-**1 - Sensitivity**							|"1-sensitivity"|
-**1 - Accuracy**							|"1-accuracy"	|
-**1 - Negative predictive value**			|"1-npv"		|
-**1 - Positive predictive value**			|"1-ppv"		|
+**Diagnostic likelihood ratio (DRL)+**      |"dlr.positive" |$DRL.positive = Sensitivity / (1 - Specificity)$, </br>López-Ratón et al. (2014)を参照。
+**Diagnostic likelihood ratio (DRL)-**      |"dlr.negative" |$DRL.negative = (1 - Sensitivity) / Specificity$, </br>López-Ratón et al. (2014)を参照。
 **Matthews correlation coefficient (MCC)**	|"mcc"			|
 **Informedness**							|"informedness"	|$Informedness = Sensitivity + Specificity - 1$
 **Markedness**								|"markedness"	|$Markedness = PPV + NPV - 1$
-**Log-likelihood**							|"loglik"		|$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, Lawson et al. (2014)を参照。
-**尤度に基づいたR二乗**					|"rsq.loglik"	|Lawson et al. (2014)を参照。
+**Log-likelihood**							|"loglik"		|$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, </br>Lawson et al. (2014)を参照。
+**尤度に基づいたR二乗**					    |"rsq.loglik"	|Lawson et al. (2014)を参照。
+**Cohen's Kappa**							|"kappa"		|Cohen (1960)を参照。
 
 ## predictに引数が必要なモデルを使う
 
@@ -115,6 +116,28 @@ library(gbm)
 cv <- cv.models(
 	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
 	n.trees = 50
+)
+print(cv)
+```
+
+
+## 陽性として扱うクラスを制御する
+
+`cv.models`はデフォルトでは以下のルールで陽性として扱うレベルを決定しています。
+
+1. 応答変数が数値型の時には`1`を使う（整数型の二項データを仮定）。
+2. 応答変数が論理型の時には`TRUE`を使う。
+3. 応答変数が因子型の時には一番目のレベルを使う。
+4. 応答変数が文字列型の時には一意な値の１番目を使う。
+
+因子型や文字列型の変数を応答変数として扱うモデルの場合、`positive.class`引数を使うことで、どのレベルを陽性として扱うかを指定することができます。
+`positive.class`で指定されなかったクラスは全て陰性として扱われます。
+以下の例では`iris`データを使い、versicolorを陽性、setosaとvirginicaを陰性として扱い、計算を行います。
+
+```{R, positive_class}
+cv <- cv.models(
+	gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+	n.cores = 1, n.trees = 50, positive.class = "versicolor"
 )
 print(cv)
 ```
@@ -134,7 +157,38 @@ cv <- cv.models(
 print(cv)
 ```
 
-この場合、各指標のSDは計算されません。
+この場合、各指標のSDは計算されません（NAになります）。
+
+
+## 閾値の計算方法を制御する
+
+旧バージョンの`cv.models`は識別モデルの閾値の決定に`pROC`パッケージの`coords`関数を使い、閾値を決定する指標にはYouden's Jを使っていました。
+Ver. 0.1.0からこれを`OptimalCutpoints`パッケージの`optimal.cutpoints`関数に置き換えたため、Youden's J以外の指標も閾値決定に使えるようになりました。
+デフォルトでは旧バージョンと同じくYouden's Jで閾値を決定しますが、`cutpoint.options`引数を設定することで他の指標も使うことができます。
+`cutpoint.options`には`optimal.cutpoints`に渡す引数をリストに入れて指定します。
+たとえば、Youden's Jの代わりにSensitivityを最大化するように閾値を決定するには、以下の例のように`cutpoint.options`に`list(methods = "MaxSe")`を指定します。
+
+```{R, cutoff_example1}
+cv <- cv.models(
+	gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+	n.cores = 1, n.trees = 50, positive.class = "setosa",
+	cutpoint.options = list(methods = "MaxSe")
+)
+```
+
+`optimal.cutpoints`は同時に複数の閾値決定方法で閾値を計算することができます。
+以下の例では`cutpoint.options`に`list(methods = c("MaxSe", "MaxSp"))`を指定し、Sensitivityを最大化するときの閾値、Specificityを最大化するときの閾値両方を計算しています（とはいえ、このモデルだと同じ閾値になるのですが･･･）。
+
+```{R, cutoff_example2}
+cv <- cv.models(
+	gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+	n.cores = 1, n.trees = 50, positive.class = "setosa",
+	cutpoint.options = list(methods = c("MaxSe", "MaxSp"))
+)
+```
+
+`cutpoint.options`には`optimal.cutpoints`関数の引数のうち、`methods`、`op.prev`、 `control`を指定することができ、そのほかの値は無視されます。これで問題がないだろうと思っているのですが、もし他の引数を使う必要がある場合には教えてください。
+`optimal.cutpoints`の詳しい使い方はマニュアルや文献（López-Ratón et al. 2014）を見てください。
 
 
 ## データ分割数の設定
@@ -197,7 +251,9 @@ print(cv)
 ## モデルのパラメーターを選択する
 
 `cv.models`を使うとクロスバリデーションによる予測性能を用いて、モデルのハイパーパラメーターの選択を行うこともできます。
-ハイパーパラメーターの選択を行うには、以下の例のように`grid`オプションに、候補となるパラメーターのベクトルを格納したリストを指定します。
+ハイパーパラメーターの選択を行うには`grid`引数に、候補となるパラメーターのベクトルを格納したリストを指定します。
+以下の例では`gbm`のハイパーパラメーターの`interaction.depth`の候補に`1`と`5`、`n.minobsinnode`の候補に`1`と`10`を指定しています。
+`cv.models`は`grid`に指定された
 
 ```{R, hyperparameter1}
 # ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
@@ -297,6 +353,7 @@ head(fit)
 
 `plot`関数を使って、予測値と応答変数の関係を作図することができます。
 １点が生データの１点を表し、線は$Y = X$の線を表します。
+ただし、識別モデルに対してはうまく動きません。
 
 ```{R, plot}
 # lmモデルの予測値と応答変数の関係をプロット。
@@ -350,6 +407,11 @@ print(cv)
 
 # 既知の問題
 
+* **オブジェクトの構造がよくわからない**
+
+	`cv.models`オブジェクトはまぁいいとして、`cv.best.models`オブジェクトとか、`cv.result`オブジェクトとか、なんか混乱している気がします。
+	なので将来的に再設計・リファクタリングしてもうちょっと整理したいと思っています。
+
 * **テストしてない**
 
 	とりあえずテストコードをほとんど作ってないので、うまく動いてないことがある可能性があります。
@@ -361,15 +423,17 @@ print(cv)
 
 * **AUCがいつも0.5以上になる**
 
-	対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
+	<s>対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
 	多くの文献がAUCは0.5～1の間に収まると仮定しているので、これをどう扱うのが正しいのか、まだ自分の中で結論が出ていません。
 	ということで、とりあえず対応は保留してあります。
-	近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。
+	近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。</s>
+	OptimalCutpointsパッケージで同様の問題が起こるのかはわかりません。
+	何かわかった方は教えてください。
 
 * **MSEの定義**
 
-	論文によってはMSEの定義が  
-	MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)  
+	論文によってはMSEの定義が
+	MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)
 	になっていることがあります。どの定義を使ったらいいのか、そのうち調べます。
 
 * **GBMがうまく動かない場合がある**
@@ -389,8 +453,35 @@ print(cv)
 	)
 ```
 
+* **Diagnostic likelihood ratioを使ったベストモデルの選択**
+
+	これらが高いことがよいモデルだと扱ってベストモデルを選んでいますが、本当にそれでよいのかは自信がありません。もし、間違いに気付いた人は教えてください。
+
+* **新しいモデルへの対応が大変**
+
+	`cv.models`ではなく、中で呼び出している`model.adapter`クラスの問題なのですが、新規モデルへの対応がちょっと大変な感じになっています。
+	R6パッケージを使って`model.adapter`を書き換えれば、もうちょっとましになるのですが。。。
+
 
 # 引用文献
 
 * Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
+* Cohen, J. 1960. A Coefficient of Agreement for Nominal Scales. Educational and Psychological Measurement 20: 37-46.
+* López-Ratón, M., M. X. Rodríguez-Álvarez, C. Cadarso-Suárez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61: 36.
 
+
+# 更新履歴
+
+* 2018-01-23: 0.1.0
+	- `find.best.models`が`cv.models`に指定した乱数の種子を用いて結果を固定するようにした。
+	- pROCパッケージへの依存をOptimalCutpointsパッケージに置き換え、Youden's J以外の指標でも閾値を選択できるようにした。この変更により`1-npv`などの指標が計算されなくなり、Diagnostic Likelihood Ratioが計算されるようになった。
+	- Cohen's Kappaを識別モデルの性能評価指標に追加した。
+* 2017-09-10: 0.0.4
+	- 試験的に対数尤度と尤度に基づいたR^2を識別モデルの性能評価指標に追加。
+	- バグ修正：CPUコアの割り当てがおかしかったバグを修正。
+* 2017-07-07: 0.0.3
+	- バグ修正：まれに計算に失敗する問題を修正。
+* 2017-07-07: 0.0.2
+	- バグ修正：説明変数と応答変数の対応がおかしくなっていたバグを修正。
+* 2017-07-05: 0.0.1
+	- バージョン付け開始。

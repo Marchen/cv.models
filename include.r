@@ -191,6 +191,7 @@ get.this.file.dir <- function(){
 }
 
 library(model.adapter)
+library(R6)
 library(ranger)
 library(gbm)
 library(e1071)
@@ -203,6 +204,8 @@ library(e1071)
 source(file.path(get.this.file.dir(), "R", "cluster.manager.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "cv.group.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "classification.metrics.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "regression.metrics.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "cv.metrics.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "cv.models.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "utils.r"), encoding = "UTF-8")
