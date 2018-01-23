@@ -242,32 +242,9 @@ cv.group <- function(object) {
 #'		name of positive class in the response variable of the model.
 #'		Only used for classification model and ignored when the model is
 #'		a regression model. Also even if the model is classification model,
-#'		this is ignored if response variable is numeric or logical.\cr
-#'		The positive class is determined in the order of following rule .
-#'		\numerate{
-#'			\item{
-#'				If the response variable is numeric, 1 is used for the
-#'				positive class (assuming it is a classification model with
-#'				binary response variable).
-#'			}
-#'			\item{
-#'				If the response variable is logical, TRUE is used for the
-#'				positive class.
-#'			}
-#'			\item{
-#'				If \cod{positive.class} is specified, the value is used.
-#'			}
-#'			\item{
-#'				If the response variable is factor, the first level of the
-#'				factor is used.
-#'			}
-#'			\item{
-#'				If the response variable is character, the first item of
-#'				unique values of it is used.
-#'			}
-#'		}
-#'		If the rule above can't determine the positive class, the function
-#'		produces error.
+#'		this is ignored if response variable is numeric or logical.
+#'		For the detail about the way how cv.models determines the positive
+#'		class, see Details section.
 #'	@param package.name
 #'		name of package which contains the model function.
 #'		Usually users don't need to specify this argument, but if there are
@@ -293,7 +270,7 @@ cv.group <- function(object) {
 #'		which are specified in \code{predict} method of the model.
 #'	@param cutpoint.options
 #'		a list having options for
-#'		\code{\link[OptimalCutpoints]{optimal.cutpoins}} by which threshold
+#'		\code{\link[OptimalCutpoints]{optimal.cutpoints}} by which threshold
 #'		deviding positive and negative cases is calculated. Users can specify
 #'		\code{methods}, \code{pop.prev} and \code{control}, and ther options
 #'		are ignored. If more than one method are provided, metrics for all
@@ -302,6 +279,31 @@ cv.group <- function(object) {
 #'		parameters passed to the predict method of the model.
 #'
 #'	@details
+#'		The positive class is determined in the order of following rule.\cr
+#'		\enumerate{
+#'			\item{
+#'				If the response variable is numeric, 1 is used for the
+#'				positive class (assuming it is a classification model with
+#'				binary response variable).
+#'			}
+#'			\item{
+#'				If the response variable is logical, TRUE is used for the
+#'				positive class.
+#'			}
+#'			\item{
+#'				If \code{positive.class} is supplied, the value of it is used.
+#'			}
+#'			\item{
+#'				If the response variable is factor, the first level of the
+#'				factor is used.
+#'			}
+#'			\item{
+#'				If the response variable is character, the first item of
+#'				unique values of it is used.
+#'			}
+#'		}
+#'		If the rule above can't determine the positive class, the function
+#'		produces error.\cr\cr
 #'		to be continued...
 #'
 #'	@seealso
