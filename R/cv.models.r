@@ -74,6 +74,9 @@ merge.grid.and.cv.results <- function(grid, cv.results) {
 
 
 #------------------------------------------------------------------------------
+#	Returns:
+#		list(response, prediction, original.row.index)
+#------------------------------------------------------------------------------
 make.prediction <- function(predict.args, model, object, row.index) {
 	adapter <- model.adapter(model, envir = object$envir)
 	fit <- do.call(adapter$predict, predict.args)$fit
@@ -90,6 +93,14 @@ make.prediction <- function(predict.args, model, object, row.index) {
 }
 
 
+#------------------------------------------------------------------------------
+#	Returns:
+#		list(
+#			list(response, prediction, original.row.index),
+#			list(response, prediction, original.row.index),
+#			...
+#		)
+#		Each element of the list represents result for element in grid.predict.
 #------------------------------------------------------------------------------
 model.one.fold <- function(cv.index, object) {
 	# モデル構築用データを作成
