@@ -191,8 +191,8 @@ classification.metrics.calculator$set(
 classification.metrics.calculator$set(
 	"private", "calc.tp",
 	function(fit, metrics) {
-		n.positive <- sum(fit$response == private$positive.class)
-		tp <- n.positive - metrics[, "fp"]
+		n.positive <- sum(private$get.binary.response(fit))
+		tp <- n.positive - metrics[, "fn"]
 		return(tp)
 	}
 )
@@ -211,8 +211,9 @@ classification.metrics.calculator$set(
 classification.metrics.calculator$set(
 	"private", "calc.tn",
 	function(fit, metrics) {
-		n.negative <- sum(fit$response != private$positive.class)
-		tn <- n.negative - metrics[, "fn"]
+		bin <- private$get.binary.response(fit)
+		n.negative <- length(bin) - sum(bin)
+		tn <- n.negative - metrics[, "fp"]
 		return(tn)
 	}
 )
