@@ -54,12 +54,13 @@ print.cv.result <- function(x, ...) {
 #'	@export
 print.cv.best.models <- function(x, ...) {
 	hr <- "------------------------------------------------"
-	if (length(x) > 1) {
-		msg <- "-> 1 best model was found:"
-	} else {
-		msg <- sprintf("-> %s best models were found:", length(x))
-	}
-	cat(paste(hr, "Result of model selection by cross validation", msg, hr, sep = "\n"))
+	n <- length(x)
+	msg <- sprintf("-> %s best model%s were found:", n, ifelse(n > 1, "s", ""))
+	msg <- paste(
+		hr, "Result of model selection by cross validation", msg, hr,
+		sep = "\n"
+	)
+	cat(msg)
 	for (i in 1:length(x)) {
 		cat(paste(sprintf("\nModel index %s", i), hr, sep = "\n"), "\n")
 		print(x[[i]])
