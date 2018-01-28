@@ -1,4 +1,9 @@
+﻿2018-01-28: 0.1.0
 	- Now find.best.models() uses the seed of random numbers in cv.models object if seed in the object is not NULL.
+	- Replaced dependency on pROC with OptimalCutpoints.
+	- Add calculation of Cohen's Kappa for metrics of classification models.
+	- Bug fix: specifying 'seed' returns same result even with cluster.
+	- Minor bug fix of print.cv.best.models().
 2017-09-10: 0.0.4
 	- Experimental: implimented log-likelihood and likelihood based R squared values for classification models.
 	- Bug fix: wrong assignment of CPU cores.

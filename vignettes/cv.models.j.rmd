@@ -53,6 +53,7 @@ install.packages(
 
 ```{R, basic_usage}
 library(cv.models)
+data(iris)
 cv <- cv.models(glm(Petal.Length ~ ., data = iris))
 print(cv)
 ```
@@ -174,6 +175,7 @@ cv <- cv.models(
 	n.cores = 1, n.trees = 50, positive.class = "setosa",
 	cutpoint.options = list(methods = "MaxSe")
 )
+print(cv)
 ```
 
 `optimal.cutpoints`は同時に複数の閾値決定方法で閾値を計算することができます。
@@ -185,6 +187,7 @@ cv <- cv.models(
 	n.cores = 1, n.trees = 50, positive.class = "setosa",
 	cutpoint.options = list(methods = c("MaxSe", "MaxSp"))
 )
+print(cv)
 ```
 
 `cutpoint.options`には`optimal.cutpoints`関数の引数のうち、`methods`、`op.prev`、 `control`を指定することができ、そのほかの値は無視されます。これで問題がないだろうと思っているのですが、もし他の引数を使う必要がある場合には教えてください。
@@ -450,14 +453,9 @@ print(cv)
 	)
 ```
 
-* **Diagnostic likelihood ratioを使ったベストモデルの選択**
+* **Diagnostic Likelihood Ratioを使ったベストモデルの選択**
 
-	これらが高いことがよいモデルだと扱ってベストモデルを選んでいますが、本当にそれでよいのかは自信がありません。もし、間違いに気付いた人は教えてください。
-
-* **新しいモデルへの対応が大変**
-
-	`cv.models`ではなく、中で呼び出している`model.adapter`クラスの問題なのですが、新規モデルへの対応がちょっと大変な感じになっています。
-	R6パッケージを使って`model.adapter`を書き換えれば、もうちょっとましになるのですが。。。
+	ベストモデル選択の時、Diagnostic Likelihood Ratioが高いモデルがよいモデルだと考えてモデルを選んでいますが、本当にそれでよいのか自信がありません。もし、間違いに気付いた人は教えてください。
 
 
 # 引用文献
@@ -469,10 +467,12 @@ print(cv)
 
 # 更新履歴
 
-* 2018-01-23: 0.1.0
+* 2018-01-28: 0.1.0
 	- `find.best.models`が`cv.models`に指定した乱数の種子を用いて結果を固定するようにした。
 	- pROCパッケージへの依存をOptimalCutpointsパッケージに置き換え、Youden's J以外の指標でも閾値を選択できるようにした。この変更により`1-npv`などの指標が計算されなくなり、Diagnostic Likelihood Ratioが計算されるようになった。
 	- Cohen's Kappaを識別モデルの性能評価指標に追加した。
+	- バグ修正：seedを指定したとき、並列計算ありなしで結果が変わるバグを修正。
+	- バグ修正：print.cv.best.models()のメッセージの修正。
 * 2017-09-10: 0.0.4
 	- 試験的に対数尤度と尤度に基づいたR^2を識別モデルの性能評価指標に追加。
 	- バグ修正：CPUコアの割り当てがおかしかったバグを修正。

@@ -203,19 +203,18 @@ library(e1071)
 # predict‚ðgamm‚ÆglmmML‚É‘Î‰ž‚³‚¹‚é
 source(file.path(get.this.file.dir(), "R", "cluster.manager.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "cv.group.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "classification.metrics.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "regression.metrics.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "cv.metrics.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "cv.models.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "utils.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "interface.r"), encoding = "UTF-8")
+source(file.path(get.this.file.dir(), "R", "methods.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "which.min.max.r"), encoding = "UTF-8")
 
 
 
 
-#r <- cv.models(lm(Petal.Length ~ ., data = iris), seed = 1)
+r <- cv.models(lm(Petal.Length ~ ., data = iris), seed = 1)
 #r <- cv.models(gbm(Petal.Length ~ ., data = iris), seed = 1, n.trees=10, positive.class = "versicolor")
 #f <- Species ~ .
 #r <- cv.models(
@@ -226,7 +225,14 @@ source(file.path(get.this.file.dir(), "R", "which.min.max.r"), encoding = "UTF-8
 
 #iris2 <- droplevels(subset(iris, Species != "setosa"))
 #iris2$Species <- as.numeric(iris2$Species) - 1
-#r <- cv.models(glm(Species ~ ., data = iris2, family = "binomial"))
+#r1 <- cv.models(
+	#glm(Species ~ ., data = iris2, family = "binomial"), seed = 1
+#)
+#r2 <- cv.models(
+	#glm(Species ~ ., data = iris2, family = "binomial"), seed = 1,
+	#n.cores = 1,
+	#cutpoint.options = list(methods = c("ROC01", "Youden","MaxSumNPVPPV"))
+#)
 
 #r <- cv.models(svm(Species ~ ., data = iris2, probability = TRUE), seed = 2)
 #r <- cv.models(ranger(Species ~ ., data = iris2, write.forest = TRUE), seed = 2)
@@ -242,16 +248,29 @@ source(file.path(get.this.file.dir(), "R", "which.min.max.r"), encoding = "UTF-8
 
 #library(cv.models)
 #library(gbm)
-#grid = list(interaction.depth = c(1, 2), n.minobsinnode = c(5, 10))
-#grid.predict = list(n.trees = 1:10)
+grid = list(interaction.depth = c(1, 2), n.minobsinnode = c(5, 10))
+grid.predict = list(n.trees = 1:10)
 #r <- cv.models(
 	#gbm(Petal.Length ~ ., data = iris), seed = 1, grid = grid,
 	#grid.predict = grid.predict
 #)
 
+#grid = list(interaction.depth = c(1, 2), n.minobsinnode = c(5, 10))
+#grid.predict = list(n.trees = 1:10)
 #r <- cv.models(
-	#gbm(Species ~ ., data = iris), seed = 1, grid = grid,
-	#grid.predict = grid.predict
+	#gbm(Species ~ ., data = iris, n.trees = 100), seed = 1, grid = grid,
+	#grid.predict = grid.predict, n.cores = 1, positive.class = "versicolor",
+	#cutpoint.options = list(methods = c("MinPvalue", "ROC01", "Youden", "MaxSumNPVPPV"))
 #)
+r <- cv.models(
+	gbm(Species ~ ., data = iris, n.trees = 100), seed = 1, grid = grid,
+	grid.predict = grid.predict, n.cores = 1, positive.class = "versicolor"
+)
 
+
+r <- cv.models(
+	gbm(status ~ ., data = elas, distribution = "bernoulli"), seed = 1, grid = grid,
+	grid.predict = grid.predict, n.cores = 1,
+	cutpoint.options = list(methods = c("MinPvalue", "ROC01", "Youden", "MaxSumNPVPPV"))
+)
 
