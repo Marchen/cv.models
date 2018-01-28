@@ -103,10 +103,9 @@ make.prediction <- function(predict.args, model, object, row.index) {
 #		Each element of the list represents result for element in grid.predict.
 #------------------------------------------------------------------------------
 model.one.fold <- function(cv.index, object) {
+	# Fix random number before using random process.
+	set.seed.if.possible(object)
 	# モデル構築用データを作成
-	if (!is.null(object$seed)) {
-		set.seed(object$seed)
-	}
 	data.test <- object$adapter$data[object$cv.group == cv.index, ]
 	data.train <- object$adapter$data[object$cv.group != cv.index, ]
 	row.index <- (1:nrow(object$adapter$data))[object$cv.group == cv.index]
@@ -217,6 +216,8 @@ cv.models.object <- function(
 #		どの列がどのグループに入るかを示す、dataの列数と長さが同じ整数ベクトル。
 #-------------------------------------------------------------------------------
 cv.group <- function(object) {
+	# Fix random number before using random process.
+	set.seed.if.possible(object)
 	# 列の数を基にしてグループを作成してから、ランダムに並べ替える。
 	cv.group <- ((1:nrow(object$adapter$data)) %% object$folds) + 1
 	cv.group <- sample(cv.group, length(cv.group))
@@ -320,9 +321,6 @@ cv.models <- function(
 	aggregate.method = c("mean", "join"), grid = NULL, grid.predict = NULL,
 	cutpoint.options = list(methods = "Youden"), ...
 ) {
-	if (!is.null(seed)) {
-		set.seed(seed)
-	}
 	call <- model.adapter:::make.call.or.object(substitute(call), envir)
 	object <- cv.models.object(
 		call, folds, n.cores, seed, positive.class,

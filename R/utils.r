@@ -4,9 +4,9 @@ rbind.cv.result <- function(...) {
 	return(result)
 }
 
-set.seed.if.possible <- function(seed) {
-	if (!is.null(seed)) {
-		set.seed(seed)
+set.seed.if.possible <- function(object) {
+	if (!is.null(object$seed)) {
+		set.seed(object$seed)
 	}
 }
 

@@ -87,11 +87,9 @@ cluster.manager$methods(
 				.self$cl, library, object$adapter$package.name,
 				character.only = TRUE
 			)
-			clusterCall(.self$cl, set.seed.if.possible, object$seed)
 		} else {
 			.self$cl <- NULL
 			library(object$adapter$package.name, character.only = TRUE)
-			set.seed.if.possible(object$seed)
 		}
 	}
 )

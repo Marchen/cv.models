@@ -44,9 +44,8 @@ find.best.metrics.index <- function(metrics) {
 #'	@export
 #-------------------------------------------------------------------------------
 extract.result <- function(object, index, criteria = NULL) {
-	if (!is.null(object$seed)) {
-		set.seed(object$seed)
-	}
+	# Fix random number before using random process.
+	set.seed.if.possible(object)
 	best <- object
 	best$grid <- NULL
 	best$grid.predict <- NULL
