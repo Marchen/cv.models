@@ -1,14 +1,12 @@
 #===============================================================================
 #	Test setting same 'seed' produces same result.
 #===============================================================================
-library(testthat)
-library(cv.models)
 library(randomForest)
 library(gbm)
 
 
 #------------------------------------------------------------------------------
-context("Preparing tests.")
+context("Preparing tests")
 
 run.tests <- function(fun) {
 	# Make calls of functions.
@@ -26,7 +24,7 @@ run.tests <- function(fun) {
 
 
 #------------------------------------------------------------------------------
-context("Test same seeds produce same results.")
+context("Test same seeds produce same results")
 
 test__same_seeds_produce_same_results <- function(call, msg) {
 	test_that(
@@ -48,7 +46,7 @@ rm(test__same_seeds_produce_same_results)
 
 
 #------------------------------------------------------------------------------
-context("Test different seeds produce different results.")
+context("Test different seeds produce different results")
 
 test__different_seeds_produce_different_results <- function(call, msg) {
 	test_that(
@@ -66,7 +64,7 @@ rm(test__different_seeds_produce_different_results)
 
 
 #------------------------------------------------------------------------------
-context("Test same seed produce same result with parameter grid.")
+context("Test same seed produce same result with parameter grid")
 
 test_that(
 	"Test same seed produce same result with parameter grid.", {
@@ -90,7 +88,7 @@ test_that(
 
 
 #------------------------------------------------------------------------------
-context("Test same seeds produce same results using cluster.")
+context("Test same seeds produce same results using cluster")
 
 test__same_seeds_produce_same_results_with_custer <- function(call, msg) {
 	test_that(
@@ -116,7 +114,7 @@ rm(test__same_seeds_produce_same_results_with_custer)
 
 
 #------------------------------------------------------------------------------
-context("Test same seed produce same result with parameter grid with cluster.")
+context("Test same seed produce same result with parameter grid with cluster")
 
 test_that(
 	"Test same seed produce same result with parameter grid.", {
@@ -141,3 +139,5 @@ test_that(
 		expect_equal(cv.1$cv.results, cv.20$cv.results, info = "1 vs 20")
 	}
 )
+
+rm(run.tests)
