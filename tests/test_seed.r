@@ -10,11 +10,15 @@ context("Preparing tests")
 
 run.tests <- function(fun) {
 	# Make calls of functions.
-	call.glm <- call("glm", Petal.Length ~ ., data = iris)
-	call.randomForest <- call("randomForest", Petal.Length ~ ., data = iris)
-	call.gbm <- call(
-		"gbm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
-		distribution = "gaussian", n.trees = 10, n.cores = 1
+	call.glm <- substitute(glm(Petal.Length ~ ., data = iris))
+	call.randomForest <- substitute(
+		randomForest(Petal.Length ~ ., data = iris)
+	)
+	call.gbm <- substitute(
+		gbm(
+			Petal.Length ~ ., data = iris, weights = Sepal.Width,
+			distribution = "gaussian", n.trees = 10, n.cores = 1
+		)
 	)
 	# Run tests.
 	fun(call.glm, "Testing glm.")
