@@ -1,4 +1,5 @@
-﻿2018-01-28: 0.1.0
+	- Bug fix: cross validation is not conducted when model object or call produced by call() function is specified.
+2018-01-28: 0.1.0
 	- Now find.best.models() uses the seed of random numbers in cv.models object if seed in the object is not NULL.
 	- Replaced dependency on pROC with OptimalCutpoints.
 	- Add calculation of Cohen's Kappa for metrics of classification models.

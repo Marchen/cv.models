@@ -111,7 +111,11 @@ model.one.fold <- function(cv.index, object) {
 	row.index <- (1:nrow(object$adapter$data))[object$cv.group == cv.index]
 	# モデル構築
 	child.env <- new.env(parent = object$envir)
-	assign(as.character(object$call$data), data.train, envir = child.env)
+	if (is.language(object$call$data)) {
+		assign(as.character(object$call$data), data.train, envir = child.env)
+	} else {
+		object$call$data <- data.train
+	}
 	model <- eval(object$call, child.env)
 	# 予測値を計算
 	type <- ifelse(
@@ -321,7 +325,8 @@ cv.models <- function(
 	aggregate.method = c("mean", "join"), grid = NULL, grid.predict = NULL,
 	cutpoint.options = list(methods = "Youden"), ...
 ) {
-	call <- model.adapter:::make.call.or.object(substitute(call), envir)
+	# Find call.
+	call <- model.adapter(call, envir, package.name)$call
 	object <- cv.models.object(
 		call, folds, n.cores, seed, positive.class,
 		package.name, envir, aggregate.method, grid, grid.predict,
