@@ -32,7 +32,7 @@ library(gbm)
 
 # インストール
 
-パッケージをインストールするには、以下のコマンドをRのコンソールにコピー&ペースとしてください。
+パッケージをインストールするには、以下のコマンドをRのコンソールにコピー&ペーストしてください。
 
 ```{R, install, eval = FALSE}
 install.packages(
@@ -49,7 +49,7 @@ install.packages(
 ## クロスバリデーションによるモデルの予測能力評価
 
 モデルの予測能力を評価するには`cv.models`関数を使います。
-以下の例のように`cv.models`関数の中に統計・機械学習モデルの呼び出しを**直接**入れます。
+一番基本的な使い方は以下の例のように`cv.models`関数の中に統計・機械学習モデルの呼び出しを**直接**入れます。
 
 ```{R, basic_usage}
 library(cv.models)
@@ -58,11 +58,23 @@ cv <- cv.models(glm(Petal.Length ~ ., data = iris))
 print(cv)
 ```
 
-<s>以下の例は（今のところ）正しく動作しないことに注意してください。
-そのうち対応するかもしれません。</s>
+また、モデル作成関数の呼び出しを含む`call`オブジェクトを作成して、`cv.models`関数に渡すこともできます。
 
-暫定的にサーポートを追加しました。
-ただし、モデルオブジェクトが`call`を保存している関数（e.g., `glm`、`gbm`など）にしか対応していません。
+```{R, basic_usage2}
+# substitute()関数を使う場合。
+call.glm <- substitute(glm(Petal.Length ~ ., data = iris))
+cv <- cv.models(call.glm)
+print(cv)
+
+# call()関数を使う場合。
+call.glm <- call("glm", Petal.Length ~ ., data = iris)
+cv <- cv.models(call.glm)
+print(cv)
+```
+
+一部のモデルはモデルオブジェクトを使ってクロスバリデーションを行うこともできます。
+ただし、オブジェクトが`call`を保存している関数（e.g., `glm`、`gbm`など）にしか対応していません。
+
 ```{R, wrong_usage}
 model <- glm(Petal.Length ~ ., data = iris)
 cv <- cv.models(model)
@@ -82,7 +94,7 @@ print(cv)
 **Mean squared error (MSE)**		|"mse"		|$MSE = mean((prediction - response) ^ 2)$
 **Root mean squared error (RMSE)**	|"rmse"		|$RMSE = sqrt(mean((prediction - response) ^ 2))$
 **R二乗**							|"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$
-**Q二乗**							|"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$
+**Q二乗**							|"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, </br>Consonni et al. (2009)を参照。
 
 ### 識別モデル
 
@@ -391,6 +403,7 @@ plot(cv, 10)
 
 ## gbm
 
+### n.treesの指定
 `gbm`を使う際には`grid.predict`に渡すn.treesの候補で使われる以上の値を`gbm`の呼び出しにも指定して下さい。
 以下の例では`grid.predict`に指定された`n.trees`の候補のなかで、`gbm`呼び出しの`n.trees`の値を超えたものは、どれも`gbm`の呼び出しに指定された`n.trees`の値を使ったときと同じ結果になってしまっています。
 
@@ -407,6 +420,86 @@ cv <- cv.models(
 # そのような場合、gbmの呼び出しに使われたn.treesの値（10）以上の値を
 # grid.predictに指定しても、予測性能はn.trees = 10の時と同じになる。
 print(cv)
+```
+
+### weightsの指定
+`formula`を関数の呼び出し外で定義し、以下のような方法で`weights`を指定した場合、`gbm`に対する性能評価がうまく動きません。
+
+```{R, gbm_weights_1, eval = FALSE}
+# これは動く。
+cv <- cv.models(
+	gbm(
+		Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+		distribution = "gaussian", n.trees = 10
+	),
+	n.trees = 10, n.cores = 1
+)
+
+# 原因はわからないが、これは動かない。
+f <- Petal.Length ~ .
+cv <- cv.models(
+	gbm(
+		f, data = iris, weights = iris$Sepal.Width,
+		distribution = "gaussian", n.trees = 10
+	),
+	n.trees = 10, n.cores = 1
+)
+```
+
+原因は不明ですが、以下の例のように`iris$`を除去して`weights`を指定すれば動作させることが可能です。
+
+```{R, gbm_weights_2}
+f <- Petal.Length ~ .
+cv <- cv.models(
+	gbm(
+		f, data = iris, weights = Sepal.Width,
+		distribution = "gaussian", n.trees = 10
+	),
+	n.trees = 10, n.cores = 1
+)
+```
+
+## data以外にもデータを用いる関数（gbmやglmのweightなど）
+
+`glm`や`gbm`の`weights`のように、一部の関数は`data`以外にもデータを用いて推定を行います。
+このような場合、`call`関数で作成した`call`オブジェクトは`cv.models`に用いることができません。
+
+```{R, call_with_other_data_error, eval = FALSE}
+# weightsを指定し、かつcall関数で作成したcallオブジェクトは
+# cv.modelsに使えない。
+call.gbm <- call(
+	"gbm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+	distribution = "gaussian", n.trees = 10, n.cores = 1
+)
+# エラー
+cv <- cv.models(call.gbm, n.trees = 10)
+
+# GLMも同様。
+call.glm <- call(
+	"glm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width
+)
+cv <- cv.models(call.glm)
+```
+
+このような場合には`call`関数ではなく、`substitute`関数を使い、また、`weights`の指定には`iris$`を使わず、変数名を指定して下さい。
+
+```{R, call_with_other_data_ok}
+# weightsを指定し、かつcall関数で作成したcallオブジェクトは
+# cv.modelsに使えない。
+call.gbm <- substitute(
+	gbm(
+		Petal.Length ~ ., data = iris, weights = Sepal.Width,
+		distribution = "gaussian", n.trees = 10, n.cores = 1
+	)
+)
+# OK!
+cv <- cv.models(call.gbm, n.trees = 10)
+
+# GLMも同様。
+call.glm <- substitute(
+	glm(Petal.Length ~ ., data = iris, weights = Sepal.Width)
+)
+cv <- cv.models(call.glm)
 ```
 
 
@@ -436,32 +529,15 @@ print(cv)
 	MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)
 	になっていることがあります。どの定義を使ったらいいのか、そのうち調べます。
 
-* **GBMがうまく動かない場合がある**
-
-	`formula`を関数の呼び出し外で定義し、`weights`を指定した場合、`gbm`がうまく動きません。
-	例えば、以下のコードはうまく動かないことがわかっています。
-	可能であれば、将来原因を特定して修正します。
-
-```{R, gbm_doesnt_work, eval = FALSE}
-	f <- Petal.Length ~ .
-	cv <- cv.models(
-		gbm(
-			f, data = iris, weights = iris$Sepal.Width,
-			distribution = "gaussian", n.trees = 10
-		),
-		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 1
-	)
-```
-
 * **Diagnostic Likelihood Ratioを使ったベストモデルの選択**
 
 	ベストモデル選択の時、Diagnostic Likelihood Ratioが高いモデルがよいモデルだと考えてモデルを選んでいますが、本当にそれでよいのか自信がありません。もし、間違いに気付いた人は教えてください。
 
 
 # 引用文献
-
-* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
 * Cohen, J. 1960. A Coefficient of Agreement for Nominal Scales. Educational and Psychological Measurement 20: 37-46.
+* Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49: 1669-1678.
+* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
 * López-Ratón, M., M. X. Rodríguez-Álvarez, C. Cadarso-Suárez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61: 36.
 
 
