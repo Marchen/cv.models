@@ -1,180 +1,20 @@
 #===============================================================================
-#	‚¢‚ë‚¢‚ë‚Èƒ‚ƒfƒ‹‚É‘Î‚µ‚ÄƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‚Å«”\w•W‚ğŒvZ‚·‚éB
-#
-#	¡‚Ì‚Æ‚±‚ë‚ÌƒNƒƒXƒoƒŠƒf[ƒVƒ‡ƒ“‘Î‰ŠÖ”
-#		lm, glm, lme, glmmML, lmer, glmer, ctree, cforest, randomForest,
-#		gbm, svm, tree, rpart, mgcv::gam, mgcv::gamm, gam::gam, ranger
-#
-#	¡‚Ì‚Æ‚±‚ë‚Ìƒpƒ‰ƒ[ƒ^[ƒ`ƒ…[ƒjƒ“ƒO‘Î‰ŠÖ”
-#		gbm (shrinkage, interaction.depth, n.minobsinnode, bag.fraction, n.trees)
-#		randomForest (mtry)
-#
-#	‘Î‰•s‰Â”\ŠÖ”
-#		MCMCglmmipredict‚ªnewdata‚É‘Î‰‚µ‚Ä‚È‚¢j
-#
-#	ŠeŠÖ”‚Ì’ˆÓ“_
-#		‘S”Ê:
-#			predictŠÖ”‚Ìtype‚Í‰“š•Ï”‚ªˆöqŒ^‚¾‚Æ"prob"‚ÉA‚»‚êˆÈŠO‚¾‚Æ
-#			"response"‚É©“®“I‚É‘‚«Š·‚¦‚ç‚ê‚Ü‚·B
-#			‰“š•Ï”‚ª“ñ€•ª•z‚ÌA‰“š•Ï”‚ğcbind‚Åw’è‚·‚é‚Ì‚É‚Í‘Î‰‚µ‚Ä‚¢‚Ü‚¹‚ñB
-#		lme:
-#			predict‚ª‚½‚Ü‚ÉNA‚ğ•Ô‚·‚Ì‚ÅAmse‚Æ‚©rmse‚ªŒvZ‚Å‚«‚È‚¢‚©‚àB
-#			ŒvZ‚Éna.omit‚ğ“ü‚ê‚¿‚á‚¤H
-#		glmmML:
-#			predict‚Íƒ‰ƒ“ƒ_ƒ€Œø‰Ê‚ğ–³‹‚µ‚ÄA‘S‘Ì‚ÌŠÖŒW®‚©‚ç
-#			—\‘ª’l‚ğŒvZ‚µ‚Ä‚¢‚Ü‚·Bpredict‚Í©‘O‚ÅÀ‘•‚µ‚Ä‚¢‚Ü‚·B
-#		randomForest:
-#			formula‚ğg‚Á‚Äƒ‚ƒfƒ‹‚ğw’è‚·‚éê‡‚¾‚¯‘Î‰B
-#		svm:
-#			formula‚ğg‚Á‚Äƒ‚ƒfƒ‹‚ğw’è‚·‚éê‡‚¾‚¯‚É‘Î‰B
-#			ƒ‚ƒfƒ‹ì¬Epredict‚É‚Í©“®“I‚Éprobability = TRUE‚ªİ’è‚³‚êA
-#			ŠeƒNƒ‰ƒX‚ÌŠm—¦‚ªŒvZ‚³‚ê‚Ü‚·B
-#		lmer, glmer
-#			ƒ‰ƒ“ƒ_ƒ€Œø‰Ê‚ÌƒOƒ‹[ƒv‚ªCV‚ÌƒeƒXƒgƒf[ƒ^‚ÆŠwKƒf[ƒ^‚Åˆá‚Á‚¿‚á‚¤‚ÆA
-#			predict‚É¸”s‚·‚éB‚»‚¤‚¢‚¤ƒ‰ƒ“ƒ_ƒ€Œø‰Ê‚Íg‚¦‚È‚¢B
-#		tree, mgcv:
-#			predict‚Ìtype‚Í‘‚«Š·‚¦‚Ä‚¢‚Ü‚¹‚ñB
-#		gam:
-#			ƒfƒtƒHƒ‹ƒg‚Å‚ÍmgcvƒpƒbƒP[ƒW‚ÌgamŠÖ”‚ğŒÄ‚Ñ‚Ü‚·B
-#			gamƒpƒbƒP[ƒW‚ÌgamŠÖ”‚ğŒÄ‚Ñ‚½‚¢‚Æ‚«‚É‚ÍApackage.name = "gam"‚ğ
-#			w’è‚µ‚Ä‚­‚¾‚³‚¢B
-#		gamm:
-#			summary‚âpredict‚É‚Ígamm$gamƒIƒuƒWƒFƒNƒg‚ğg‚Á‚Ä‚¢‚Ü‚·B
-#			predict‚·‚é‚½‚ß‚ÉApredict.gammŠÖ”‚ğ’è‹`‚µ‚Ä‚ ‚èA—\‘ª‚É‚Í
-#			ƒ‰ƒ“ƒ_ƒ€Œø‰Ê‚Í–³‹‚µ‚Ä‘S‘Ì‚ÌŠÖŒW®‚©‚ç—\‘ª’l‚ğŒvZ‚µ‚Ä‚¢‚Ü‚·B
-#
-#	V‚µ‚¢ŠÖ”‚Ö‚Ì‘Î‰
-#		Eget.package.name()ŠÖ”‚Æget.class.name()ŠÖ”‚ğV‚µ‚¢ŠÖ”‚É‘Î‰‚³‚¹‚éB
-#		E•K—v‚È‚çAˆÈ‰º‚ÌŠÖ”‚ğV‚µ‚¢ƒ‚ƒfƒ‹ŠÖ”‚É‘Î‰‚³‚¹‚éB
-#			detect.model.type
-#			expand.dot
-#			format.prediction
-#			get.formula
-#			get.response.class
-#			get.response.name
-#			get.tunable.args
-#			modify.args.model
-#			modify.args.predict
-#			modify.response.var
-#		Eƒpƒ‰ƒ[ƒ^[ƒ`ƒ…[ƒjƒ“ƒO‚É‘Î‰‚·‚é‚É‚ÍAget.tunable.args()ŠÖ”‚ğ‘‚­B
-#		E•K—v‚È‚çprint‚Æsummaryƒƒ\ƒbƒh‚É‘Î‰‚ğ‘‚­B
-#
-#	TODO:
-#		™™™
-#			Epositive class‚Ì”»•Ê‚ª‚¤‚Ü‚­‚¢‚Á‚Ä‚¢‚È‚¢‚Á‚Û‚¢B
-#			Edredge & stepAIC
-#			Eget.positive.classŠÖ”‚ÌŒxƒƒbƒZ[ƒW‚ğcheck.args()ŠÖ”‚ÖˆÚ“®B
-#			E‰“š•Ï”i‚Æ‚©j‚Élog‚ğ‚©‚Ü‚µ‚½‚è‚µ‚½‚Æ‚«A‚¤‚Ü‚­“®‚©‚È‚¢–â‘èB
-#				‚«‚Á‚ÆI(x^2)‚Æ‚©‚à‚¾‚æ‚ËB
-#		™™
-#			Eglm‚Æ‚©‚Ì‰“š•Ï”‚ªcbind‚Ì‚Æ‚«
-#			Edetect.model.type‚Í‰“š•Ï”‚ªcbind‚ÌŒ^‚Ì‚Æ‚«‚¤‚Ü‚­s‚©‚È‚¢‚Í‚¸B
-#			Emodify.args.predict.tree‚Ærpart‚Åtype‚ğ‘‚«Š·‚¦‚éB
-#			Emodify.args.predict.gbm‚Ån.trees‚ªw’è‚³‚ê‚Ä‚¢‚È‚©‚Á‚½‚Æ‚«‚Ì‘Î‰B
-#		™
-#			Egbm‚ÆrandomForest‚Íformula‚ğg‚í‚È‚¢•û‚ªƒpƒtƒH[ƒ}ƒ“ƒX‚ª‚æ‚¢‚ç‚µ‚¢B
-#				svm‚Íformulag‚í‚È‚«‚á‚È‚¢‚ç‚µ‚¢B
-#			Epredicted probability‚Ìcolname
-#			Epredict.cv.best.models()
-#			Ecforest‚Ìƒ`ƒ…[ƒjƒ“ƒO‘Î‰Hi—vƒpƒ‰ƒ[ƒ^[‘I‘ğj
-#			Eplot.cv.modelsŠÖ” 2d, 3d, 4d? parsp
-#			Ecv.moreŠÖ”‚ÆmergeŠÖ”Amore.metrics()ŠÖ”
-#
-#-------------------------------------------------------------------------------
-#	function		class			package
-#	-----------------------------------------------
-#	lm				lm				stats
-#	glm				glm, lm			stats
-#	lme				lme				nlme
-#	glmmML			glmmML			glmmML
-#	lmer			lmerMod			lme4
-#	glmer			glmerMod		lme4
-#	ctree			BinaryTree		party
-#	cforest			RandomForest	party
-#	randomForest	randomForest	randomForest
-#	gbm				gbm				gbm
-#	svm				svm.formula		e1071
-#	tree			tree			tree
-#	rpart			rpart			rpart
-#	gam				gam				mgcv, gam
-#	gamm			gamm			mgcv
-#	ranger			ranger			ranger
-#-------------------------------------------------------------------------------
-#	g‚¢•û‚Ì—á
-#
-#	# ‚Ü‚¸ƒIƒuƒWƒFƒNƒg‚ğì‚é
-#	cvgbm <- cv.models(
-#		gbm,									# ŒÄ‚Ño‚·ŠÖ”‚ğw’è
-#		args.model = list(						# ƒ‚ƒfƒ‹\’z‚Ég‚¤ˆø”‚ğw’è
-#			formula = y ~ x1 + x2 + x3,
-#			distribution = "bernoulli",
-#			shrinkage=c(0.1, 0.01),				# ƒ`ƒ…[ƒjƒ“ƒO‚·‚éƒpƒ‰ƒ[ƒ^[‚Í
-#			interaction.depth = c(1, 3, 5)		# •¡”w’è‰Â”\i‚½‚¾‚µA‘Î‰‚³‚¹‚ê‚Îj
-#		),
-#		args.predict = list(					# predict‚É“n‚·ˆø”B
-#			n.trees=c(1, 10, 100)				# ƒ`ƒ…[ƒjƒ“ƒO‚·‚éƒpƒ‰ƒ[ƒ^[‚Í
-#		),										# •¡”w’è‰Â”\i“¯ãj
-#		data = test.data,						# ƒf[ƒ^‚Íª‚Ìˆø”‚É“ü‚ê‚È‚¢
-#		cv.metrics = c(							# ŒvZ‚·‚é«”\•]‰¿w•W‚ğ“ü‚ê‚é
-#			"auc", "mse",
-#			"rmse", "informedness"
-#		),
-#		cv.folds = 10,							# CV•ªŠ„”BƒfƒtƒHƒ‹ƒg‚Í10B
-#		seed = 1,								# Œ‹‰Ê‚ğŒÅ’è‚µ‚½‚¢‚Æ‚«‚É‚Íseed‚ğw’è
-#		n.cores = 4								# ŒvZ‚Ég‚¤ƒRƒA”‚ğw’è
-#	)
-#
-#	cvglm <- cv.models(
-#		glm,
-#		args.model = list(formula = y ~ x1 + x2 + x3, family=binomial),
-#		data = test.data, cv.metrics = c("auc", "mse", "rmse", "informedness"),
-#		n.cores = 1
-#	)
-#
-#	# CV‚ÌŒ‹‰Ê‚ğŒ©‚éB
-#	cvgbm
-#	cvglm
-#
-#	# ƒxƒXƒgƒ‚ƒfƒ‹‚Ìì¬B‚±‚ÌŠÖ”‚ÅƒxƒXƒgƒ‚ƒfƒ‹‚ªì¬‚³‚ê‚éB
-#	best1 <- get.best.models(
-#		cvgbm,										# CVŒ‹‰Ê‚ğw’è
-#		metrics = c("informedness","auc", "mse")	# ƒ‚ƒfƒ‹‘I‘ğw•W‚ğw’è
-#													# •K‚¸metrics = ‚Å–¼‘Ow’èB
-#	)
-#	summary(best1)
-#
-#	# «”\w•W‚Åƒ^ƒC‚ª”­¶‚·‚é‰Â”\«‚ª‚ ‚é‚Ì‚ÅAŒ‹‰Ê‚ÍƒIƒuƒWƒFƒNƒg‚ª“ü‚Á‚½ƒŠƒXƒgB
-#	best1[[1]]$model			# ƒxƒXƒgƒ‚ƒfƒ‹‚Ìƒ‚ƒfƒ‹ƒIƒuƒWƒFƒNƒg
-#	best1[[1]]$cv.metrics		# ƒxƒXƒgƒ‚ƒfƒ‹‚ÌCVw•W
-#	best1[[1]]$cv.prediction	# CVŒvZ‚Ég‚Á‚½—\‘ª’l
-#	best1[[1]]$cv.response		# CVŒvZ‚Ég‚Á‚½•À‚×‘Ö‚¦Ï‚İ‰“š•Ï”
-#	best1[[1]]$confusion.matrix	# w•WŒvZ‚Ég‚í‚ê‚½confusion.matrix
-#	best1[[1]]$function.name	# ˆê‰•Û‘¶‚³‚ê‚Ä‚éŠÖ”–¼
-#
-#	# •¡”‚àOK
-#	best2 <- get.best.models(
-#		cvgbm, cvglm, metrics = c("informedness","auc", "mse")
-#	)
-#	summary(best2)
-#
-#
-#-------------------------------------------------------------------------------
-#	‘Î‰ŠÖ”ƒƒ‚
+#	å¯¾å¿œé–¢æ•°ãƒ¡ãƒ¢
 #
 #	gbm:
-#		distribution = "bernoulli"‚Ì‚Æ‚«A‰“š•Ï”‚Í0 or 1‚©TRUE or FALSE‚µ‚©
-#		ó‚¯•t‚¯‚È‚¢BˆöqŒ^‚Íó‚¯•t‚¯‚È‚¢B
+#		distribution = "bernoulli"ã®ã¨ãã€å¿œç­”å¤‰æ•°ã¯0 or 1ã‹TRUE or FALSEã—ã‹
+#		å—ã‘ä»˜ã‘ãªã„ã€‚å› å­å‹ã¯å—ã‘ä»˜ã‘ãªã„ã€‚
 #
 #	tree, rpart, randomForest:
-#		0 or 1/TRUE or FALSE‚ğ˜A‘±’l‚Å—\‘ª‚·‚é‚Ì‚ÆˆöqŒ^‚Å—\‘ª‚·‚é‚Ì‚ÅŒ‹‰Ê‚ªˆá‚¤
+#		0 or 1/TRUE or FALSEã‚’é€£ç¶šå€¤ã§äºˆæ¸¬ã™ã‚‹ã®ã¨å› å­å‹ã§äºˆæ¸¬ã™ã‚‹ã®ã§çµæœãŒé•ã†
 #	cforest, ctree
-#		0 or 1/TRUE or FALSE‚ğ˜A‘±’l‚Å—\‘ª‚·‚é‚Ì‚ÆˆöqŒ^‚Å—\‘ª‚·‚é‚Ì‚ÅŒ‹‰Ê‚Í“¯‚¶
+#		0 or 1/TRUE or FALSEã‚’é€£ç¶šå€¤ã§äºˆæ¸¬ã™ã‚‹ã®ã¨å› å­å‹ã§äºˆæ¸¬ã™ã‚‹ã®ã§çµæœã¯åŒã˜
 #
 #===============================================================================
 
 
 #-------------------------------------------------------------------------------
-#	ƒXƒNƒŠƒvƒg‚ª‚ ‚éƒfƒBƒŒƒNƒgƒŠ–¼‚ğ•Ô‚·ŠÖ”B
+#	ã‚¹ã‚¯ãƒªãƒ—ãƒˆãŒã‚ã‚‹ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªåã‚’è¿”ã™é–¢æ•°ã€‚
 #	http://stackoverflow.com/questions/1815606/rscript-determine-path-of-the-executing-script
 #-------------------------------------------------------------------------------
 get.this.file.dir <- function(){
@@ -197,10 +37,10 @@ library(gbm)
 library(e1071)
 
 #-------------------------------------------------------------------------------
-#	ƒ\[ƒX“Ç‚İ‚İ
+#	ã‚½ãƒ¼ã‚¹èª­ã¿è¾¼ã¿
 #-------------------------------------------------------------------------------
 
-# predict‚ğgamm‚ÆglmmML‚É‘Î‰‚³‚¹‚é
+# predictã‚’gammã¨glmmMLã«å¯¾å¿œã•ã›ã‚‹
 source(file.path(get.this.file.dir(), "R", "cluster.manager.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "classification.metrics.r"), encoding = "UTF-8")
@@ -210,67 +50,4 @@ source(file.path(get.this.file.dir(), "R", "cv.models.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "utils.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "methods.r"), encoding = "UTF-8")
 source(file.path(get.this.file.dir(), "R", "which.min.max.r"), encoding = "UTF-8")
-
-
-
-
-r <- cv.models(lm(Petal.Length ~ ., data = iris), seed = 1)
-#r <- cv.models(gbm(Petal.Length ~ ., data = iris), seed = 1, n.trees=10, positive.class = "versicolor")
-#f <- Species ~ .
-#r <- cv.models(
-	#gbm(f, data = iris, weights = iris$Petal.Length), seed = 1, n.trees = 10,
-	#positive.class = "versicolor", n.cores = 1
-#)
-
-
-#iris2 <- droplevels(subset(iris, Species != "setosa"))
-#iris2$Species <- as.numeric(iris2$Species) - 1
-#r1 <- cv.models(
-	#glm(Species ~ ., data = iris2, family = "binomial"), seed = 1
-#)
-#r2 <- cv.models(
-	#glm(Species ~ ., data = iris2, family = "binomial"), seed = 1,
-	#n.cores = 1,
-	#cutpoint.options = list(methods = c("ROC01", "Youden","MaxSumNPVPPV"))
-#)
-
-#r <- cv.models(svm(Species ~ ., data = iris2, probability = TRUE), seed = 2)
-#r <- cv.models(ranger(Species ~ ., data = iris2, write.forest = TRUE), seed = 2)
-
-
-#m <- gbm(Petal.Length ~ ., data = iris)
-#r <- predict(m, n.trees = 1:100)
-#result <- list()
-#for (i in 1:100) {
-	#result[[i]] <- predict(m, n.trees = i)
-#}
-#r <- lapply(X = 1:100, FUN = predict, object = m)
-
-#library(cv.models)
-#library(gbm)
-grid = list(interaction.depth = c(1, 2), n.minobsinnode = c(5, 10))
-grid.predict = list(n.trees = 1:10)
-#r <- cv.models(
-	#gbm(Petal.Length ~ ., data = iris), seed = 1, grid = grid,
-	#grid.predict = grid.predict
-#)
-
-#grid = list(interaction.depth = c(1, 2), n.minobsinnode = c(5, 10))
-#grid.predict = list(n.trees = 1:10)
-#r <- cv.models(
-	#gbm(Species ~ ., data = iris, n.trees = 100), seed = 1, grid = grid,
-	#grid.predict = grid.predict, n.cores = 1, positive.class = "versicolor",
-	#cutpoint.options = list(methods = c("MinPvalue", "ROC01", "Youden", "MaxSumNPVPPV"))
-#)
-r <- cv.models(
-	gbm(Species ~ ., data = iris, n.trees = 100), seed = 1, grid = grid,
-	grid.predict = grid.predict, n.cores = 1, positive.class = "versicolor"
-)
-
-
-r <- cv.models(
-	gbm(status ~ ., data = elas, distribution = "bernoulli"), seed = 1, grid = grid,
-	grid.predict = grid.predict, n.cores = 1,
-	cutpoint.options = list(methods = c("MinPvalue", "ROC01", "Youden", "MaxSumNPVPPV"))
-)
 
