@@ -4,8 +4,7 @@
 #	All test files:
 #		*	are tested with setting working directory to the directory having
 #			the files.
-#		*	should be self-contained: should load all required packages
-#			excluding cv.models and testthat.
+#		*	should load all required packages excluding cv.models and testthat.
 #		*	should remove all objects the file created.
 #===============================================================================
 library(cv.models)
