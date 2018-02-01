@@ -1,42 +1,42 @@
 #------------------------------------------------------------------------------
-#	A reference class calculating metrics for regression models.
+#	 class calculating metrics for regression models.
 #
-#'	This class has several functions calculating metrics of predictive ability
-#'	of regression models.
-#'	To obtain the metrics, initialize the object and call
-#'	\emph{calculate.metrics} method.
-#'
-#'	Following metrics are calculated for regression models.
-#'
-#'	\describe{
-#'		\item{Mean squared error (MSE)}{
-#'			\eqn{mean((prediction - response) ^ 2)}
-#'		}
-#'		\item{Root mean squared error (RMSE)}{
-#'			\eqn{sqrt(mean((prediction - response) ^ 2))}
-#'		}
-#'		\item{R squared, \eqn{R^2}}{
-#'			\eqn{Pearson's product moment correlation coefficient ^ 2}
-#'
-#'			Note that this definition of \eqn{R^2} may produce high values
-#'			for models without predictive ability so that I recommend to use
-#'			\eqn{Q ^ 2} instead of \eqn{R ^ 2}.
-#'			See
-#'			\href{http://www.russpoldrack.org/2012/12/the-perils-of-leave-one-out.html}{
-#'				this
-#'			},
-#'			\href{http://not2hastie.tumblr.com}{this} and
-#'			\href{https://metarabbit.wordpress.com/2014/03/06/evaluating-regression-with-cross-validation/}{
-#'				this
-#'			}.
-#'		}
-#'		\item{Q squared, \eqn{Q^2}}{
-#'			\eqn{
-#'				1 - \sum((prediction - response) ^ 2)
-#'				/ \sum((response - mean(response)) ^ 2)
-#'			}
-#'		}
-#'	}
+#	This class has several functions calculating metrics of predictive ability
+#	of regression models.
+#	To obtain the metrics, initialize the object and call
+#	\emph{calculate.metrics} method.
+#
+#	Following metrics are calculated for regression models.
+#
+#	\describe{
+#		\item{Mean squared error (MSE)}{
+#			\eqn{mean((prediction - response) ^ 2)}
+#		}
+#		\item{Root mean squared error (RMSE)}{
+#			\eqn{sqrt(mean((prediction - response) ^ 2))}
+#		}
+#		\item{R squared, \eqn{R^2}}{
+#			\eqn{Pearson's product moment correlation coefficient ^ 2}
+#
+#			Note that this definition of \eqn{R^2} may produce high values
+#			for models without predictive ability so that I recommend to use
+#			\eqn{Q ^ 2} instead of \eqn{R ^ 2}.
+#			See
+#			\href{http://www.russpoldrack.org/2012/12/the-perils-of-leave-one-out.html}{
+#				this
+#			},
+#			\href{http://not2hastie.tumblr.com}{this} and
+#			\href{https://metarabbit.wordpress.com/2014/03/06/evaluating-regression-with-cross-validation/}{
+#				this
+#			}.
+#		}
+#		\item{Q squared, \eqn{Q^2}}{
+#			\eqn{
+#				1 - \sum((prediction - response) ^ 2)
+#				/ \sum((response - mean(response)) ^ 2)
+#			}
+#		}
+#	}
 #------------------------------------------------------------------------------
 regression.metrics.calculator <- R6Class("regression.metrics.calculator")
 
@@ -126,7 +126,12 @@ regression.metrics.calculator$set(
 #
 #	Returns:
 #		calculated metrics in following format.
+#
 #			list(matrix(mse, rmse, r.squared, q.squared))
+#
+#		Because classification.metrics.calculator can returns metrics for
+#		different threshold determination method, the format of the result
+#		should be a list having matrix.
 #------------------------------------------------------------------------------
 regression.metrics.calculator$set(
 	"public", "calculate.metrics",
@@ -138,7 +143,7 @@ regression.metrics.calculator$set(
 			q.squared = private$calc.q.squared(fit)
 		)
 		# To have same result format with classification.metrics.calculator,
-		# return the metrics in a list.
+		# return the matrix of metrics in a list.
 		return(list(metrics))
 	}
 )
