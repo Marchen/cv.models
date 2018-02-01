@@ -35,6 +35,9 @@ old.wd <- setwd(get.this.file.dir())
 #	Prepare test files. New test file(s) need to be added to here.
 #------------------------------------------------------------------------------
 test.files <- c(
+	# Unit tests.
+	"test_unit_test_regression.metrics.calculator.r",
+	# General tests.
 	"test_types_of_call.r",
 	"test_seed.r"
 )
