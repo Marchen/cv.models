@@ -161,7 +161,7 @@ classification.metrics.calculator$set(
 				"The first threshold was used for further calculation.\n",
 				"If this is a problem, change the 'cutpoint.options' option\n",
 				"of the cv.models to find single optimal threshold.\n",
-				"For the further information, please consult manual of ",
+				"For the further information, please consult the manual of ",
 				"optimal.cutpoitns."
 			)
 			warning(msg)
