@@ -212,10 +212,13 @@ cv.models.object <- function(
 #------------------------------------------------------------------------------
 #'	Calculate metrics by cross validation.
 #'
-#'	Calculate metrics of predictive ability of the model by cross validation.
+#'	Calculate metrics of predictive ability of the model by n-fold
+#'	cross validation.
 #'
 #'	@param call
 #'		a call of model function to be tested by cross validation.
+#'	@param folds
+#'		an integer specifying number of folds f cross validation.
 #'	@param n.cores
 #'		an integer specifying number of cores used for calculation.
 #'		If NULL (default), all cores (including logical cores) are used.
