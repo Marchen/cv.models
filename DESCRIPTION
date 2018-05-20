@@ -11,12 +11,12 @@ License: MIT
 Depends:
     R (>= 3.0.0),
     R6,
-    model.adapter (>= 0.0.7)
+    model.adapter (>= 0.1.0)
 Imports:
     base,
     stats,
     parallel,
-    model.adapter (>= 0.0.7),
+    model.adapter (>= 0.1.0),
     R6,
     OptimalCutpoints
 Suggests:

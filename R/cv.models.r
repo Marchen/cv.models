@@ -78,14 +78,14 @@ merge.grid.and.cv.results <- function(grid, cv.results) {
 #		list(response, prediction, original.row.index)
 #------------------------------------------------------------------------------
 make.prediction <- function(predict.args, model, object, row.index) {
-	adapter <- model.adapter(model, envir = object$envir)
+	adapter <- model.adapter$new(model, envir = object$envir)
 	fit <- do.call(adapter$predict, predict.args)$fit
 	if (adapter$model.type == "regression") {
 		fit <- fit[, "fit"]
 		attributes(fit) <- NULL
 	}
 	# 結果の作成
-	response <- object$adapter$y.vars()[row.index, ]
+	response <- object$adapter$y.vars[row.index, ]
 	result <- list(
 		response = response, prediction = fit, index = row.index
 	)
@@ -201,7 +201,8 @@ cv.models.object <- function(
 		envir = envir, aggregate.method = aggregate.method, grid = grid,
 		grid.predict = grid.predict, cutpoint.options = cutpoint.options,
 		predict.args = list(...),
-		adapter = model.adapter(call, envir, package.name), cv.results = NULL
+		adapter = model.adapter$new(call, envir, package.name),
+		cv.results = NULL
 	)
 	class(object) <- "cv.models"
 	return(object)
@@ -326,7 +327,10 @@ cv.models <- function(
 	cutpoint.options = list(methods = "Youden"), ...
 ) {
 	# Find call.
-	call <- model.adapter(call, envir, package.name)$call
+	if (!is.language(call) & !is.symbol(substitute(call))) {
+		call <- substitute(call)
+	}
+	call <- model.adapter$new(call, envir, package.name)$call
 	object <- cv.models.object(
 		call, folds, n.cores, seed, positive.class,
 		package.name, envir, aggregate.method, grid, grid.predict,

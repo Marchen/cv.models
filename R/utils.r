@@ -12,7 +12,7 @@ set.seed.if.possible <- function(object) {
 
 
 determine.positive.class <- function(object) {
-	response <- object$adapter$y.vars()[[1]]
+	response <- object$adapter$y.vars[[1]]
 	if (is.numeric(response)) {
 		return("1")
 	}
