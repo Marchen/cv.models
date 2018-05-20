@@ -190,15 +190,16 @@ fit.cv.models <- function(object) {
 #	Create cv.models object from the arguments passed to cv.models function.
 #------------------------------------------------------------------------------
 cv.models.object <- function(
-	call, folds, n.cores, seed, positive.class, package.name, envir,
+	call, folds, stratify, n.cores, seed, positive.class, package.name, envir,
 	aggregate.method = c("mean", "join"), grid, grid.predict,
 	cutpoint.options, ...
 ) {
 	aggregate.method <- match.arg(aggregate.method)
 	object <- list(
-		call = call, folds = folds, n.cores = n.cores, seed = seed,
-		positive.class = positive.class, package.name = package.name,
-		envir = envir, aggregate.method = aggregate.method, grid = grid,
+		call = call, folds = folds, stratify = stratify, n.cores = n.cores,
+		seed = seed, positive.class = positive.class,
+		package.name = package.name, envir = envir,
+		aggregate.method = aggregate.method, grid = grid,
 		grid.predict = grid.predict, cutpoint.options = cutpoint.options,
 		predict.args = list(...),
 		adapter = model.adapter$new(call, envir, package.name),
@@ -219,6 +220,8 @@ cv.models.object <- function(
 #'		a call of model function to be tested by cross validation.
 #'	@param folds
 #'		an integer specifying number of folds f cross validation.
+#'	@param stratify
+#'		if TRUE, class stratification is used when splitting folds.
 #'	@param n.cores
 #'		an integer specifying number of cores used for calculation.
 #'		If NULL (default), all cores (including logical cores) are used.
@@ -303,8 +306,8 @@ cv.models.object <- function(
 #'	@export
 #------------------------------------------------------------------------------
 cv.models <- function(
-	call, folds = 10, n.cores = NULL, seed = NULL, positive.class = NULL,
-	package.name = NULL, envir = parent.frame(),
+	call, folds = 10, stratify = FALSE, n.cores = NULL, seed = NULL,
+	positive.class = NULL, package.name = NULL, envir = parent.frame(),
 	aggregate.method = c("mean", "join"), grid = NULL, grid.predict = NULL,
 	cutpoint.options = list(methods = "Youden"), ...
 ) {
@@ -314,7 +317,7 @@ cv.models <- function(
 	}
 	call <- model.adapter$new(call, envir, package.name)$call
 	object <- cv.models.object(
-		call, folds, n.cores, seed, positive.class,
+		call, folds, stratify, n.cores, seed, positive.class,
 		package.name, envir, aggregate.method, grid, grid.predict,
 		cutpoint.options, ...
 	)
