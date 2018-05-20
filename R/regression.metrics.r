@@ -15,7 +15,7 @@
 #		\item{Root mean squared error (RMSE)}{
 #			\eqn{sqrt(mean((prediction - response) ^ 2))}
 #		}
-#		\item{R squared, \eqn{R^2}}{
+#		\item{R squared, \eqn{R ^ 2}}{
 #			\eqn{Pearson's product moment correlation coefficient ^ 2}
 #
 #			Note that this definition of \eqn{R^2} may produce high values
