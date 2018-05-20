@@ -1,13 +1,10 @@
 #-------------------------------------------------------------------------------
-#	CVに使う分割グループを作る関数。今のところ、どのグループに割り当てられるかは
-#	データの順番に依存せずにランダム。
+#	Create grouping for cross validation.
 #
 #	Args:
-#		data: 列数を取得するためのデータフレーム。
-#		cv.folds: CVのfold数
-#
-#	Value:
-#		どの列がどのグループに入るかを示す、dataの列数と長さが同じ整数ベクトル。
+#		object (cv.models):
+#			a cv.models object having settings.
+#			'seed', 'adapter' and 'folds' fields are used.
 #-------------------------------------------------------------------------------
 cv.group <- function(object) {
 	# Fix random number before using random process.
