@@ -23,7 +23,7 @@ cv.group <- function(object) {
 #-------------------------------------------------------------------------------
 cv.group.random <- function(object) {
 	# Create groups based on row numbers.
-	cv.group <- ((1:nrow(object$adapter$data)) %% object$folds) + 1
+	cv.group <- ((0:(nrow(object$adapter$data) - 1)) %% object$folds) + 1
 	# Reorder them randomly.
 	cv.group <- sample(cv.group, length(cv.group))
 	return(cv.group)
