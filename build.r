@@ -60,6 +60,8 @@ build_vignettes()
 #	Build package
 #------------------------------------------------------------------------------
 # Build source package
+repo.path = "../repos/src/contrib"
+dir.create(repo.path, recursive = TRUE)
 build(path = "../repos/src/contrib")
 
 # Build binary package
