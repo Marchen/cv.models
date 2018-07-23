@@ -1,0 +1,571 @@
+---
+title: "Quick Start Guide for cv.models"
+author: "Michio Oguro email: paste following code into R: rawToChar(as.raw(c(109, 111, 103, 64, 102, 102, 112, 114, 105, 46, 97, 102, 102, 114, 99, 46, 103, 111, 46, 106, 112)))"
+date: "`r Sys.Date()`"
+output:
+    html_document:
+        fig_width: 6
+        fig_height: 6
+        fig_retina: 2
+        dpi: 300
+        dev.args: list(dpi = 300)
+        toc: true
+        toc_depth: 2
+        md_extensions: -ascii_identifiers
+vignette: >
+    %\VignetteIndexEntry{Quick start guid for cv.models (Japanese).}
+    %\VignetteEngine{knitr::rmarkdown}
+    \usepackage[utf8]{inputenc}
+---
+
+# Introduction
+
+This package provides simple interface for cross validation and hyper-parameter tuning for statistical/machine learning models.
+Currently, I'm designing specification of APIs and object therefore they can be changed in future version.
+If you have any questions, feel free to contact me!
+
+# Installation
+
+To install the package, copy & paste following script into R console.
+
+```{R, install, eval = FALSE}
+install.packages(
+    c("R6", "model.adapter", "cv.models"),
+    repos = c(
+        "http://hostgk3.biology.tohoku.ac.jp/marchen/R/repos", options()$repos
+    ),
+    type = "source"
+)
+```
+
+# Basic usage
+
+## Evaluation of predictive ability of a model by cross-validation
+
+`cv.models` funciton evaluate predictive ability of a model.
+Most basic usage of the `cv.models` function is putting call of statistical/machine learning model function **directory** into `cv.models` as follow.
+
+```{R, basic_usage}
+library(cv.models)
+data(iris)
+cv <- cv.models(glm(Petal.Length ~ ., data = iris))
+print(cv)
+```
+
+In the call of statistical/machine learning models, please use `data` argument for specifying data like `glm(Petal.Length ~ Petal.Width, data = iris)`.
+Currently, model call with `$` operator such as `glm(iris$Petal.Length ~ iris$Petal.Width)` can not work.
+If someone needs to use latter case, please contact me.  
+  
+Users can use `cv.models` by passing `call` object for statistical/machine learning models.
+
+```{R, basic_usage2}
+# Using substitute() function
+call.glm <- substitute(glm(Petal.Length ~ ., data = iris))
+cv <- cv.models(call.glm)
+print(cv)
+
+# Using call() function
+call.glm <- call("glm", Petal.Length ~ ., data = iris)
+cv <- cv.models(call.glm)
+print(cv)
+```
+
+Objects of some statistical/machine learning models can be used for cross-validation.  
+Only model objects keeping original `call` such as `glm` or `gbm` can be used for `cv.models`.
+
+```{R, wrong_usage}
+model <- glm(Petal.Length ~ ., data = iris)
+cv <- cv.models(model)
+print(cv)
+```
+
+## Metrics calculated for model evaluation
+
+`cv.models` automatically calculates appropriate metrics of model evaluation by detecting type of the model (i.e., regression or classification models).
+Currently `cv.models` calculates following metrics.
+
+### Regression model
+
+Name of metrics                     |Column     |Definition/Explanation
+------------------------------------|-----------|---------------------------------------------------------------------------------------
+**Mean squared error (MSE)**        |"mse"      |$MSE = mean((prediction - response) ^ 2)$
+**Root mean squared error (RMSE)**  |"rmse"     |$RMSE = sqrt(mean((prediction - response) ^ 2))$
+**R squared**                       |"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$<br>**This is calculated only for referencing purpose.** I don't recommend this metrics because adjustment of intercept and slope is done during calculation. For example, idel models produce prediction on a line y = x when plotting actual and predicted values. However, when plotted points of actual and predicted values are completely on a line of y = -2x + 1 (in other words, completely wrong prediction model), value of R squared become 1.
+**Q squared**                       |"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, <br>See Consonni et al. (2009).<br>Currently, mean values of each fold were used for mean of data ($mean(response)$) by default. On the other hand, mean value of all data is used when `aggregate.method = "join"` (see below) is specified. I will consider to find better default for improving consistency.
+
+### Classification models
+
+Name of metrics                             |Column         |Definition/Explanation
+--------------------------------------------|---------------|---------------------------------------------------------------------------
+**Optimal threshold**                       |"threshold"    |Optimal threshold separating presence/absence. By default, determined by Youden's J.
+**Specificity**                             |"specificity"  |[See Wikipedia](https://en.wikipedia.org/wiki/Sensitivity_and_specificity)
+**Sensitivity**                             |"sensitivity"  |
+**Accuracy**                                |"accuracy"     |
+**True negative count (TN)**                |"tn"           |
+**True positive count (TP)**                |"tp"           |
+**False negative count (FN)**               |"fn"           |
+**False positive count (FP)**               |"fp"           |
+**Negative predictive value (NPV)**         |"npv"          |
+**Positive predictive value (PPV)**         |"ppv"          |
+**Diagnostic likelihood ratio (DRL)+**      |"dlr.positive" |$DRL.positive = Sensitivity / (1 - Specificity)$, <br>See Lopez-Raton et al. (2014)
+**Diagnostic likelihood ratio (DRL)-**      |"dlr.negative" |$DRL.negative = (1 - Sensitivity) / Specificity$, <br>See Lopez-Raton et al. (2014)
+**Matthews correlation coefficient (MCC)**  |"mcc"          |
+**Informedness**                            |"informedness" |$Informedness = Sensitivity + Specificity - 1$
+**Markedness**                              |"markedness"   |$Markedness = PPV + NPV - 1$
+**Log-likelihood**                          |"loglik"       |$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, <br>See Lawson et al. (2014)
+**Likelihood based R squared**              |"rsq.loglik"   |See Lawson et al. (2014)
+**Cohen's Kappa**                           |"kappa"        |See Cohen (1960)
+
+## Using models requiring additional arguments for predict method
+
+For some models like `gbm` requires additional argument(s) for `predict` method which can affect predictive ability.
+To use such models with `cv.models`, specify the argument(s) as additional argument(s) of `cv.models`.
+
+```{R, predict_args}
+library(gbm)
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50
+)
+print(cv)
+```
+
+## Controlling positive class
+
+By default, `cv.models` determines positive class of the response variable by following rules.
+
+1. If the response variable is numeric, use `1` as the positive class.
+2. If the response variable is logical, use `TRUE` as the positive class.
+3. If the response variable is factor, use the first level (i.e., `levels(response)[1]`) as the positive class.
+4. If the response variable is character, use the first unique element (i.e., `unique(response)[1]`) as the positive class.
+
+When using factor or character as the response variable of the model, you can use `positive.class` argument to control which class is used for positive class.
+Classes which are not treated as positive class are treated as negative class.
+In the following example, `cv.models` treat versicolor in the `iris` data as the positive class, and setosa and virginica are treated as the negative class.
+
+```{R, positive_class}
+cv <- cv.models(
+    gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+    n.cores = 1, n.trees = 50, positive.class = "versicolor"
+)
+print(cv)
+```
+
+## Controling calculation of metrics
+
+By default, `cv.models` calculates performance metrics for each fold and then averages them.
+But this method can't work for Leave-One-Out cross validation (LOOCV) or data with class imbalance in the response variable.
+I'm not sure what is the best method handling this situation, but currently by specifying `aggregate.method = "join"`, `cv.models` calculate metrics after joining results from all folds.
+
+```{R, aggregate_method}
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    aggregate.method = "join", n.trees = 50
+)
+print(cv)
+```
+
+In this situation, SD of each metrics become NA.
+
+## Use Class Stratification
+
+When class imbalance exists in the response variable, random dividing of dataset into folds can create fold(s) without observation with specific class and can disrupt cross validation.
+Class stratification (a method to divide dataset into folds with keeping frequency of classes) can help this situation.  
+To use class stratification, specify `stratify = TRUE` in `cv.models`.
+
+```{R, class_stratification}
+library(randomForest)
+
+# Create dataset with small frequency of setosa.
+test.data <- subset(iris, Species != "setosa")
+test.data <- rbind(test.data, head(subset(iris, Species == "setosa"), 10))
+
+# Cross validation.
+cv <- cv.models(
+    randomForest(Species ~ ., data = iris, n.cores = 1),
+    aggregate.method = "join", n.trees = 50, stratify = TRUE
+)
+print(cv)
+```
+
+Currently, class stratification is implimentd only for classification models.
+
+## Controling method for optimal threshold determination
+
+Previous version of `cv.models` used Youden's J with `coords` function in `pROC` package to find optimal threshold dividing positive and negative classes.
+After ver. 0.1.0, `cv.models` uses `optimal.cutpoints` function in `OptimalCutpoints` package and this allows us to use other metrics for determining optimal threshold.
+By default, `cv.models` still use Youden's J for determination of the threshold, but users can specify a `list` having optins passed to `optimal.cutpoints` for the `cutpoint.options` argument to control method used for threshold determination.
+In the following example, sensitivity, instead of Youden's J, is maximized by specifying `list(methods = "MaxSe")` for `cutpoint.options`.
+
+```{R, cutoff_example1}
+cv <- cv.models(
+    gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+    n.cores = 1, n.trees = 50, positive.class = "setosa",
+    cutpoint.options = list(methods = "MaxSe")
+)
+print(cv)
+```
+
+`optimal.cutpoints` can determine multiple thresholds simultaneously.
+For example, by specifying `list(methods = c("MaxSe", "MaxSp"))` for `cutpoint.options`, `cv.models` can calculate two sets of metrics with the thresholds determined by sensitivity and specificty, yet they bring same results... :).
+
+```{R, cutoff_example2}
+cv <- cv.models(
+    gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+    n.cores = 1, n.trees = 50, positive.class = "setosa",
+    cutpoint.options = list(methods = c("MaxSe", "MaxSp"))
+)
+print(cv)
+```
+
+Users can specify `methods`, `op.prev` and `control` of `optimal.cutpoints` in the list used for `cutpoint.options` and other options are ignored.
+For the details of `optimal.cutpoints` see the manual and reference (Lopez-Raton et al. 2014) of it.
+
+## Changing number of folds
+
+To change number of folds, change `folds` argument.
+
+```{R, folds}
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50, folds = 5
+)
+print(cv)
+```
+
+## Fix random number
+
+Because cross validation and some modeling methods use stochastic processes, `cv.modles` returns slighly different results everytime.
+To fix the result, specify some number for `seed` argument.
+When `seed` is set, `cv.models` returns same result independent of parallel computation.
+
+```{R, set_seed}
+# Results are different each time.
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50
+)
+print(cv)
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50
+)
+print(cv)
+
+# If seed is set, same result is returned everytime.
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50, seed = 12345
+)
+print(cv)
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50, seed = 12345
+)
+print(cv)
+```
+
+## Control parallel processing
+
+By default, `cv.models` uses all logical/physical cores.
+To control number of cores (i.e., processes) used for cross validation, specify a number for `n.cores` argument.
+
+```{R, n_cores}
+# Cross validation with 2 cores.
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50, n.cores = 2
+)
+print(cv)
+```
+
+## Hyper-parameter selection
+
+`cv.models` can conduct grid search to find which combination of hyper-parameters can bring model(s) with best performance using cross validation.
+To conduct grid search for hyper-parameters, supply a named list having vector of candidate parameters for `grid` argument.
+In the following example, `cv.models` calculates performance measures with cross validation for all combination of hyper-parameteres (in this example, `1` and `5` for `interaction.depth` and `1` and `10` for `n.minobsinnode`) of `gbm`
+
+```{R, hyperparameter1}
+# See the effect of hyper parameter on predictive ability of the model.
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50,
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10))
+)
+print(cv)
+```
+
+For models having extra argument(s) for `predict` method affecting predictive ability (e.g., `n.tree` argument of `gbm`), users can specify a list of candidate parameter(s) for `grid.predict` to conduct grid search for such parameter(s).
+
+```{R, hyperparmeter2}
+# See the effect of hyper parameter on predictive ability of the model.
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
+)
+print(cv)
+```
+
+## Extract model(s) with best predictive ability
+
+After grid search, you can extarct model(s) with best predictive ability using `find.best.models` function for the result of `cv.models`.
+In the following example, `find.best.models` fuction extracts model(s) with the highest value of Q^2.
+
+```{R, bestmodel}
+# See the effect of hyper parameter on predictive ability of the model.
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
+)
+print(cv)
+# Get best model.
+best <- find.best.models(cv, "q.squared")
+print(best)
+```
+
+The result of `find.best.models` function is object of `cv.best.models`, which is a list of `cv.result` object.
+
+```{R, bestmodel2}
+# See the class of the result of find.best.models().
+class(best)
+# The results of find.best.models() is a list of cv.result object.
+class(best[[1]])
+print(best[[1]])
+```
+
+## Extracting data from cv.models object
+
+Using following functions, you can extract information from the result of `cv.models`.
+
+```{R, extract_data}
+cv <- cv.models(
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
+)
+
+# Extract prediction of the 10th model.
+# The result is a data.frame having three columns:
+# "response" having original values of response variable,
+# "prediction" having prediction of the model,
+# "index" having index of response variable in the original dataset.
+fit <- extract.fit(cv, 10)
+head(fit)
+
+# Extract the detailed information of 10th model.
+# The result is an object of cv.result.
+extract.result(cv, 10)
+
+# Extract table of performance metrics.
+extract.metrics(cv)
+```
+
+The `extract.fit` function can be used for `cv.best.models` and `cv.result` objects.
+
+```{R, extract_data2}
+# Extract prediction from the first model of best models.
+best <- find.best.models(cv, "q.squared")
+fit <- extract.fit(best, 1)
+head(fit)
+
+# Extract the 10th model as a cv.result object.
+result <- extract.result(cv, 10)
+# Extract prediction of the 10th model.
+fit <- extract.fit(result)
+head(fit)
+```
+
+## Plotting
+
+You can use `plot` function to show relationship between predicted and actual values.
+Each point represents pair of prediction and actual values, and the line represents $Y = X$.
+Currently, plotting can't work with classification model.
+
+```{R, plot}
+# Plot predicted and actual values obtained from lm model.
+cv <- cv.models(
+    lm(Petal.Length ~ ., data = iris)
+)
+plot(cv)
+
+# See the effect of hyper parameter on predictive ability of the model.
+cv <- cv.models(
+    gbm(
+        Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+        distribution = "gaussian", n.cores = 1
+    ),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
+)
+# Show the relationship between prediction and actual values in the 10th result.
+plot(cv, 10)
+```
+
+# Technical details
+
+to be continued...
+
+# Model specific information
+
+## gbm
+
+### n.trees
+
+When using `gbm`, please specify a larger or equal value of `n.trees` in `gbm` than the values used for `grid.predict`.
+When a smaller value of `n.trees` is used in the call of `gbm` compared with values used for `grid.predict`, larger values of `n.trees` than the value specified in the call have no effect on the result.
+
+```{R, gbm_wrong_ntree}
+# gbm is called with n.trees = 10,
+# but n.trees of 5, 10, 50 and 80 is used in grid.predict.
+cv <- cv.models(
+    gbm(
+        Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+        distribution = "gaussian", n.trees = 10
+    ),
+    grid.predict = list(n.trees = c(5, 10, 50, 80))
+)
+# In this situation, values of n.trees more than the value specified in gbm (10)
+# in grid.predict has no effect on predictive ability of the model and
+# same results are returned.
+print(cv)
+```
+
+### weights
+
+When `formula` is defined outside of function call, and `weights` is specified following way, `cv.models` can't work with `gbm`.
+
+```{R, gbm_weights_1, eval = FALSE}
+# This can work.
+cv <- cv.models(
+    gbm(
+        Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+        distribution = "gaussian", n.trees = 10
+    ),
+    n.trees = 10, n.cores = 1
+)
+
+# For unknown reason, this can't work.
+f <- Petal.Length ~ .
+cv <- cv.models(
+    gbm(
+        f, data = iris, weights = iris$Sepal.Width,
+        distribution = "gaussian", n.trees = 10
+    ),
+    n.trees = 10, n.cores = 1
+)
+```
+
+For a workaround, you can use `weights` by specifying without `iris$`.
+
+```{R, gbm_weights_2}
+f <- Petal.Length ~ .
+cv <- cv.models(
+    gbm(
+        f, data = iris, weights = Sepal.Width,
+        distribution = "gaussian", n.trees = 10
+    ),
+    n.trees = 10, n.cores = 1
+)
+```
+
+## Funcitons using additional data (e.g., weights of gbm and glm)
+
+Some functions use additional data such as `weights` argument of `glm` and `gbm`.
+In this situation, function call produced by `call` can't be used for `cv.models`.
+
+```{R, call_with_other_data_error, eval = FALSE}
+# call object produced by call function with weights can't be used for cv.models.
+call.gbm <- call(
+    "gbm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+    distribution = "gaussian", n.trees = 10, n.cores = 1
+)
+# Error!
+cv <- cv.models(call.gbm, n.trees = 10)
+
+# Same for GLM.
+call.glm <- call(
+    "glm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width
+)
+cv <- cv.models(call.glm)
+```
+
+For a workaround please use `substitute` function instead of `call` function.
+Also, please use variable name without `iris$` for `weights`.
+
+```{R, call_with_other_data_ok}
+# Making call with substitute.
+call.gbm <- substitute(
+    gbm(
+        Petal.Length ~ ., data = iris, weights = Sepal.Width,
+        distribution = "gaussian", n.trees = 10, n.cores = 1
+    )
+)
+# OK!
+cv <- cv.models(call.gbm, n.trees = 10)
+
+# Same for GLM.
+call.glm <- substitute(
+    glm(Petal.Length ~ ., data = iris, weights = Sepal.Width)
+)
+cv <- cv.models(call.glm)
+```
+
+# Known issues
+
+* **To many kinds of complicated objects**
+
+    The functions in this package create `cv.models`, `cv.best.models` and `cv.result` objects.
+    This may be refactored in the future version.
+
+* **Almost no tests!**
+
+    Test codes for the package is still in development.
+    Some function may not be working correctly.
+
+* **Always AUC become more than 0.5**
+
+    <s>When the model is worse than random prediction, i.e., if it produce reveresed prediction, pROC::coords switches positive and negative class when calculating AUC.</s>  
+    I'm not sure for the way of AUC calculation in OptimalCutpoints package.
+
+* **Definition of MSE**
+
+    Some literature defined MSE as:
+    MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)
+    This is different for the definition used for the one used in this package.
+
+* **Best model selection with Diagnostic Likelihood Ratio**
+
+    Currently, `cv.models` considers models with higher Diagnostic Likelihood Ratio for better model, but I'm not confident this is OK. If you have some reference for the answer, please let me know.
+
+# References
+
+* Cohen, J. 1960. A Coefficient of Agreement for Nominal Scales. Educational and Psychological Measurement 20: 37-46.
+* Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49: 1669-1678.
+* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
+* Lopez-Raton, M., M. X. Rodriguez-Alvarez, C. Cadarso-Suarez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61: 36.
+
+# Version history
+
+* 2018-05-22: 0.1.2
+  * Compatible with `model.adapter` package ver.0.1.0.
+  * Impliment Class Stratification.
+* 2018-01-31: 0.1.1
+  * Bug fix: `cv.models` does not run cross validation when called with `call()` function or model object.
+* 2018-01-28: 0.1.0
+  * `find.best.models` uses seed of random number specified in `cv.models` to fix the result.
+  * Dependency on `pROC` package is replaced with `OptimalCutpoints` package and optimal threshold can be calculated other criteria than Youden's J. By this modification, `cv.models` doesn't calculate metrics such as `1-npv` and does calculate Diagnostic Likelihood Ratio.
+  * Implimented Cohen's Kappa for classification model.
+  * Bug fix: parallel processing produce different result even when seed of random number is specified.
+  * Bug fix: wrong message from print.cv.best.models().
+* 2017-09-10: 0.0.4
+  * Experimental: add log-likelihood and likelihood based R^2 for metrics for classification models.
+  * Bug fix: wrong assignment of CPU cores.
+* 2017-07-07: 0.0.3
+  * Bug fix: occasional failure for calculation.
+* 2017-07-07: 0.0.2
+  * Bug fix: correspondence between explanatory and response variable was wrong.
+* 2017-07-05: 0.0.1
+  * Start versioning.
+
