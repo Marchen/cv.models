@@ -1,6 +1,6 @@
 ---
 title: "cv.models クイックスタートガイド"
-author: "Michio Oguro"
+author: "Michio Oguro (email: 以下のコードをRにペースト：「rawToChar(as.raw(c(109, 111, 103, 64, 102, 102, 112, 114, 105, 46, 97, 102, 102, 114, 99, 46, 103, 111, 46, 106, 112)))」)"
 date: "`r Sys.Date()`"
 output:
     html_document:
@@ -58,6 +58,8 @@ cv <- cv.models(glm(Petal.Length ~ ., data = iris))
 print(cv)
 ```
 
+モデルを作る際には`glm(iris$Petal.Length ~ iris$Petal.Width)`ではなく`glm(Petal.Length ~ Petal.Width, data = iris)`のように、`data`にデータを入れてモデル作成関数を呼び出してください。前者をどうしても使わないといけない場合があるなら対応するので教えてください。  
+  
 また、モデル作成関数の呼び出しを含む`call`オブジェクトを作成して、`cv.models`関数に渡すこともできます。
 
 ```{R, basic_usage2}
@@ -93,8 +95,8 @@ print(cv)
 ------------------------------------|-----------|---------------------------------------------------------------------------------------
 **Mean squared error (MSE)**		|"mse"		|$MSE = mean((prediction - response) ^ 2)$
 **Root mean squared error (RMSE)**	|"rmse"		|$RMSE = sqrt(mean((prediction - response) ^ 2))$
-**R二乗**							|"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$
-**Q二乗**							|"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, </br>Consonni et al. (2009)を参照。
+**R二乗**							|"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$<br>参考のために計算していますが、相関係数の２乗は切片と傾きが再調整されるので使用をおすすめしません。予測値と実測値をプロットした点が、y = xの線上に乗るのが理想的なモデルですが、例えば予測値と実測値をプロットした点がy = -2x + 1の線に完全に乗っている場合でも（つまり予測がぜんぜんダメでも）相関係数の２乗は１になります。
+**Q二乗**							|"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, <br>Consonni et al. (2009)を参照。<br>現在のバージョンではデータの平均（$mean(response)$）にデフォルトでは各foldの平均値を、`aggregate.method = "join"`（後述）を使ったときにはデータ全体の平均を使っています。一貫性がないので次のバージョンあたりで整理する予定です。
 
 ### 識別モデル
 
@@ -110,12 +112,12 @@ print(cv)
 **False positive count (FP)**				|"fp"			|
 **Negative predictive value (NPV)**			|"npv"			|
 **Positive predictive value (PPV)**			|"ppv"			|
-**Diagnostic likelihood ratio (DRL)+**      |"dlr.positive" |$DRL.positive = Sensitivity / (1 - Specificity)$, </br>López-Ratón et al. (2014)を参照。
-**Diagnostic likelihood ratio (DRL)-**      |"dlr.negative" |$DRL.negative = (1 - Sensitivity) / Specificity$, </br>López-Ratón et al. (2014)を参照。
+**Diagnostic likelihood ratio (DRL)+**      |"dlr.positive" |$DRL.positive = Sensitivity / (1 - Specificity)$, <br>Lopez-Raton et al. (2014)を参照。
+**Diagnostic likelihood ratio (DRL)-**      |"dlr.negative" |$DRL.negative = (1 - Sensitivity) / Specificity$, <br>Lopez-Raton et al. (2014)を参照。
 **Matthews correlation coefficient (MCC)**	|"mcc"			|
 **Informedness**							|"informedness"	|$Informedness = Sensitivity + Specificity - 1$
 **Markedness**								|"markedness"	|$Markedness = PPV + NPV - 1$
-**Log-likelihood**							|"loglik"		|$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, </br>Lawson et al. (2014)を参照。
+**Log-likelihood**							|"loglik"		|$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, <br>Lawson et al. (2014)を参照。
 **尤度に基づいたR二乗**					    |"rsq.loglik"	|Lawson et al. (2014)を参照。
 **Cohen's Kappa**							|"kappa"		|Cohen (1960)を参照。
 
@@ -140,11 +142,11 @@ print(cv)
 
 1. 応答変数が数値型の時には`1`を使う（整数型の二項データを仮定）。
 2. 応答変数が論理型の時には`TRUE`を使う。
-3. 応答変数が因子型の時には一番目のレベルを使う。
+3. 応答変数が因子型の時には一番目のレベル（`levels(response)[1]`）を使う。
 4. 応答変数が文字列型の時には一意な値の１番目を使う。
 
 因子型や文字列型の変数を応答変数として扱うモデルの場合、`positive.class`引数を使うことで、どのレベルを陽性として扱うかを指定することができます。
-`positive.class`で指定されなかったクラスは全て陰性として扱われます。
+妖精として扱われなかったクラスは全て陰性として扱われます。
 以下の例では`iris`データを使い、versicolorを陽性、setosaとvirginicaを陰性として扱い、計算を行います。
 
 ```{R, positive_class}
@@ -158,7 +160,7 @@ print(cv)
 
 ## 性能評価指標の計算方法を制御する
 
-cv.modelsは性能評価指標を計算するとき、デフォルトでは各foldごとに指標を計算し、それを平均します。
+`cv.models`は性能評価指標を計算するとき、デフォルトでは各foldごとに指標を計算し、それを平均します。
 しかし、この方法はLeave-one-out Cross Validation (LOOCV)を行う時や在・不在データのバランスが偏っている時などにはうまく行かないことがあります。
 このような問題をどう扱うのが正しいのか、現在情報収集中なのですが、とりあえず`aggregate.method = "join"`を指定することで、全体の予測値・応答変数のデータを結合した上で、性能評価指標を計算することができます。
 
@@ -171,6 +173,32 @@ print(cv)
 ```
 
 この場合、各指標のSDは計算されません（NAになります）。
+
+
+## Class Stratificationを使う
+
+応答変数のクラスごとのサンプル数に偏りがある場合、foldの分割をランダムに行うと、あるクラスのサンプルが全てのfoldに含まれないことがあります。
+このような場合、Class Stratification（応答変数の各クラスが各foldに均等に含まれるようにデータを分割する分割方法）を使うと、問題が解決する場合があります。  
+Class Stratificationを使うには`cv.models`の引数で`stratify = TRUE`を指定します。
+
+```{R, class_stratification}
+library(randomForest)
+
+# setosaが少ない偏ったデータを作成。
+test.data <- subset(iris, Species != "setosa")
+test.data <- rbind(test.data, head(subset(iris, Species == "setosa"), 10))
+
+# クロスバリデーション。
+cv <- cv.models(
+	randomForest(Species ~ ., data = iris, n.cores = 1),
+	aggregate.method = "join", n.trees = 50, stratify = TRUE
+)
+print(cv)
+```
+
+今のところ、Class Stratificationは識別モデルに対してだけ実装されています。
+回帰モデルでもClass Stratificationが必要な人はご連絡ください。
+
 
 
 ## 閾値の計算方法を制御する
@@ -203,7 +231,7 @@ print(cv)
 ```
 
 `cutpoint.options`には`optimal.cutpoints`関数の引数のうち、`methods`、`op.prev`、 `control`を指定することができ、そのほかの値は無視されます。これで問題がないだろうと思っているのですが、もし他の引数を使う必要がある場合には教えてください。
-`optimal.cutpoints`の詳しい使い方はマニュアルや文献（López-Ratón et al. 2014）を見てください。
+`optimal.cutpoints`の詳しい使い方はマニュアルや文献（Lopez-Raton et al. 2014）を見てください。
 
 
 ## データ分割数の設定
@@ -270,7 +298,7 @@ print(cv)
 `cv.models`を使うとクロスバリデーションによる予測性能を用いて、モデルのハイパーパラメーターの選択を行うこともできます。
 ハイパーパラメーターの選択を行うには`grid`引数に、候補となるパラメーターのベクトルを格納したリストを指定します。
 以下の例では`gbm`のハイパーパラメーターの`interaction.depth`の候補に`1`と`5`、`n.minobsinnode`の候補に`1`と`10`を指定しています。
-`cv.models`は`grid`に指定された
+`cv.models`は`grid`に指定された候補パラメーターの組み合わせ全てに対して、モデルの構築とクロスバリデーションによる予測性能評価を行います。
 
 ```{R, hyperparameter1}
 # ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
@@ -404,7 +432,7 @@ plot(cv, 10)
 ## gbm
 
 ### n.treesの指定
-`gbm`を使う際には`grid.predict`に渡すn.treesの候補で使われる以上の値を`gbm`の呼び出しにも指定して下さい。
+`gbm`を使う際には`grid.predict`に渡す`n.trees`の候補で使われる以上の値を`gbm`の呼び出しにも指定して下さい。
 以下の例では`grid.predict`に指定された`n.trees`の候補のなかで、`gbm`呼び出しの`n.trees`の値を超えたものは、どれも`gbm`の呼び出しに指定された`n.trees`の値を使ったときと同じ結果になってしまっています。
 
 ```{R, gbm_wrong_ntree}
@@ -484,8 +512,7 @@ cv <- cv.models(call.glm)
 このような場合には`call`関数ではなく、`substitute`関数を使い、また、`weights`の指定には`iris$`を使わず、変数名を指定して下さい。
 
 ```{R, call_with_other_data_ok}
-# weightsを指定し、かつcall関数で作成したcallオブジェクトは
-# cv.modelsに使えない。
+# substituteでcallを作成。
 call.gbm <- substitute(
 	gbm(
 		Petal.Length ~ ., data = iris, weights = Sepal.Width,
@@ -519,7 +546,7 @@ cv <- cv.models(call.glm)
 	<s>対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
 	多くの文献がAUCは0.5～1の間に収まると仮定しているので、これをどう扱うのが正しいのか、まだ自分の中で結論が出ていません。
 	ということで、とりあえず対応は保留してあります。
-	近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。</s>
+	近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。</s>  
 	OptimalCutpointsパッケージで同様の問題が起こるのかはわかりません。
 	何かわかった方は教えてください。
 
@@ -538,7 +565,7 @@ cv <- cv.models(call.glm)
 * Cohen, J. 1960. A Coefficient of Agreement for Nominal Scales. Educational and Psychological Measurement 20: 37-46.
 * Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49: 1669-1678.
 * Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
-* López-Ratón, M., M. X. Rodríguez-Álvarez, C. Cadarso-Suárez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61: 36.
+* Lopez-Raton, M., M. X. Rodriguez-Alvarez, C. Cadarso-Suarez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61: 36.
 
 
 # 更新履歴
