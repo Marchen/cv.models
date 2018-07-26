@@ -148,7 +148,7 @@ cluster.manager$methods(
 		} else {
 			cores <- as.integer(object$n.cores)
 		}
-		if (cores == 1L) {
+		if (is.na(cores) | cores == 1L) {
 			return(1L)
 		} else if (is.null(object$grid)) {
 			return(switch(type, cv = cores, grid = 1L))

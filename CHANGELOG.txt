@@ -1,4 +1,5 @@
 	- Support model adapter > 0.1.0.
+	- Bug fix: occasionally fail to detect number of CPU cores.
 2018-01-31: 0.1.1
 	- Bug fix: cross validation is not conducted when model object or call produced by call() function is specified.
 2018-01-28: 0.1.0
