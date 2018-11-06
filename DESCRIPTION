@@ -1,9 +1,10 @@
 Package: cv.models
-Version: 0.1.1
-Date: 2018-01-31
-Title: Model selection and hyperparameter tuning by cross validation.
-Author: Michio Oguro <emailName@some.domain.net>
-Maintainer: Michio Oguro <emailName@some.domain.net>
+Version: 0.1.2
+Date: 2018-09-14
+Title: Model selection and hyperparameter tuning by cross validation
+Author: Michio Oguro <mog@ffpri.affrc.go.jp>
+Maintainer: Michio Oguro <mog@ffpri.affrc.go.jp>
+URL: https://github.com/Marchen/cv.models
 Description:
     This package provides simple interface for cross validation and parameter
     selection for several models.
