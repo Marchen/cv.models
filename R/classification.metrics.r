@@ -151,7 +151,7 @@ classification.metrics.calculator$set(
 	function(object, method) {
 		# Extract threshold and metrics from the result of optimal.cutpoints.
 		# Because field name "Global" is only used for the first method,
-		# access elemnt of list by index (1) instead of name ("Global").
+		# access element of list by index (1) instead of name ("Global").
 		cutoff <- object[[method]][[1]]$optimal.cutoff
 		if (any(sapply(cutoff, length) > 2)) {
 			# ここに来ることがあるのか、ちょっとわからない。
