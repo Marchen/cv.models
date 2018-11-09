@@ -271,6 +271,22 @@ cv <- cv.models(
 print(cv)
 ```
 
+## グループを指定してクロスバリデーションを行う
+
+`cv.models`はデフォルトではランダムにグループ分けを行い、モデルの性能評価を行いますが、空間自己相関などが存在し、データが独立ではない場合、ランダムなグループ分けはモデルの性能を過大評価することがあります（Roberts et al. 2017）。
+このような場合、完全にランダムなデータ分割ではなく、グループを考慮したクロスバリデーションを行うことで、問題を軽減できる可能性があり（Roberts et al. 2017）、`blockCV`パッケージ（Valavi et al. 2018）でそのようなグループ作成を行えるようです。
+外部で定義したグループを用いるには`group`引数にグループ分けに用いるデータの観測数と同じ長さのベクトルデータを指定します。
+グループの指定には`character`、`factor`、`integer`、`logical`を用いることができます。
+
+以下の例では異なる種を予測したときの性能を評価しています。
+
+```{R, grouped_cross_validation}
+cv <- cv.models(
+    randomForest(Petal.Length ~ ., data = iris, n.cores = 1, n.trees = 50),
+    n.cores = 1, group = iris$Species
+)
+print(cv)
+```
 
 ## 並列計算を制御する
 
@@ -555,6 +571,8 @@ cv <- cv.models(call.glm)
 * Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49:1669-1678.
 * Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5:54-64.
 * Lopez-Raton, M., M. X. Rodriguez-Alvarez, C. Cadarso-Suarez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61:36.
+* Roberts, D. R., V. Bahn, S. Ciuti, M. S. Boyce, J. Elith, G. Guillera-Arroita, S. Hauenstein, J. J. Lahoz-Monfort, B. Schröder, W. Thuiller, D. I. Warton, B. A. Wintle, F. Hartig, and C. F. Dormann. 2017. Cross-validation strategies for data with temporal, spatial, hierarchical, or phylogenetic structure. Ecography 40:913-929.
+* Valavi, R., J. Elith, J. J. Lahoz-Monfort, and G. Guillera-Arroita. 2018. blockCV: an R package for generating spatially or environmentally separated folds for k-fold cross-validation of species distribution models. Methods in Ecology and Evolution 00:1-8.
 
 # 更新履歴
 * 2018-09-14: 0.1.2

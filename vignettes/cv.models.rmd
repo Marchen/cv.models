@@ -267,6 +267,24 @@ cv <- cv.models(
 print(cv)
 ```
 
+## Use user specified grouping for cross validation
+
+By default, `cv.models` randomly separates data into several folds and runs cross validation.
+However, when each observation are not independent each other (e.g., when dataset having some internal structure such as spatial autocorrelation), cross validation with random separation would bring optimistic estimates of model performance measures (Roberts et al. 2017).
+In this situation, blocked cross validation would bring better results (Roberts et al. 2017) and groupings of datasets produced by other packages such as `blockCV` package (Valavi et al. 2018) can be used for cross validation.
+To use user defined grouping rather than default random separation of dataset, specify a vector representing grouping of observations for `group` argument of `cv.models`.
+For the `group` argument, a vector of `character`, `factor`, `integer` and `logical` having same length as the number of observation can be used.
+
+Following example shows testing predictive ability of the model for different species using the `iris` data.
+
+```{R, grouped_cross_validation}
+cv <- cv.models(
+    randomForest(Petal.Length ~ ., data = iris, n.cores = 1, n.trees = 50),
+    n.cores = 1, group = iris$Species
+)
+print(cv)
+```
+
 ## Control parallel processing
 
 By default, `cv.models` uses all logical/physical cores.
@@ -547,6 +565,8 @@ cv <- cv.models(call.glm)
 * Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49:1669-1678.
 * Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5:54-64.
 * Lopez-Raton, M., M. X. Rodriguez-Alvarez, C. Cadarso-Suarez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61:36.
+* Roberts, D. R., V. Bahn, S. Ciuti, M. S. Boyce, J. Elith, G. Guillera-Arroita, S. Hauenstein, J. J. Lahoz-Monfort, B. Schröder, W. Thuiller, D. I. Warton, B. A. Wintle, F. Hartig, and C. F. Dormann. 2017. Cross-validation strategies for data with temporal, spatial, hierarchical, or phylogenetic structure. Ecography 40:913-929.
+* Valavi, R., J. Elith, J. J. Lahoz-Monfort, and G. Guillera-Arroita. 2018. blockCV: an R package for generating spatially or environmentally separated folds for k-fold cross-validation of species distribution models. Methods in Ecology and Evolution 00:1-8.
 
 # Version history
 
