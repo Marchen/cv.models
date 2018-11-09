@@ -191,7 +191,7 @@ fit.cv.models <- function(object) {
 #------------------------------------------------------------------------------
 cv.models.object <- function(
 	call, folds, stratify, n.cores, seed, positive.class, package.name, envir,
-	aggregate.method = c("mean", "join"), grid, grid.predict,
+	aggregate.method = c("mean", "join"), grid, grid.predict, group,
 	cutpoint.options, ...
 ) {
 	aggregate.method <- match.arg(aggregate.method)
@@ -200,10 +200,14 @@ cv.models.object <- function(
 		seed = seed, positive.class = positive.class,
 		package.name = package.name, envir = envir,
 		aggregate.method = aggregate.method, grid = grid,
-		grid.predict = grid.predict, cutpoint.options = cutpoint.options,
-		predict.args = list(...),
+		grid.predict = grid.predict, group = group,
+		cutpoint.options = cutpoint.options, predict.args = list(...),
 		adapter = model.adapter$new(call, envir, package.name),
 		cv.results = NULL
+	)
+	# Change number of folds when user defined group is specified.
+	object$folds <- ifelse(
+		is.null(group), folds, length(unique(cv.group(object)))
 	)
 	class(object) <- "cv.models"
 	return(object)
@@ -259,6 +263,12 @@ cv.models.object <- function(
 #'	@param grid.predict
 #'		a named list having vector of candidate hyper-parameters of the model
 #'		which are specified in \code{predict} method of the model.
+#'	@param group
+#'		a vector of integer, character, logical or factor specifying user
+#'		defined grouping of folds. The vector sshould have the same length
+#'		as the data used for modeling. When \code{gorup} is specified,
+#'		\code{folds} and \code{stratify} are ignored and grouping of folds
+#'		is determined solely basing on the \code{group}.
 #'	@param cutpoint.options
 #'		a list having options for
 #'		\code{\link[OptimalCutpoints]{optimal.cutpoints}} by which threshold
@@ -309,7 +319,7 @@ cv.models <- function(
 	call, folds = 10, stratify = FALSE, n.cores = NULL, seed = NULL,
 	positive.class = NULL, package.name = NULL, envir = parent.frame(),
 	aggregate.method = c("mean", "join"), grid = NULL, grid.predict = NULL,
-	cutpoint.options = list(methods = "Youden"), ...
+	group = NULL, cutpoint.options = list(methods = "Youden"), ...
 ) {
 	# Find call.
 	if (!is.language(call) & !is.symbol(substitute(call))) {
@@ -319,7 +329,7 @@ cv.models <- function(
 	object <- cv.models.object(
 		call, folds, stratify, n.cores, seed, positive.class,
 		package.name, envir, aggregate.method, grid, grid.predict,
-		cutpoint.options, ...
+		group, cutpoint.options, ...
 	)
 	objects <- apply.grid.for.object(object)
 	cl.man <- cluster.manager(object, "grid")

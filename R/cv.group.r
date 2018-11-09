@@ -4,17 +4,19 @@
 #	Args:
 #		object (cv.models):
 #			a cv.models object having settings.
-#			'seed', 'adapter', 'folds' and 'stratify' fields are used.
+#			'seed', 'adapter', 'folds', 'stratify' and 'group' fields are used.
 #-------------------------------------------------------------------------------
 cv.group <- function(object) {
 	# Fix random number before using random process.
 	set.seed.if.possible(object)
 	# Create group.
+	if (!is.null(object$group)) {
+		return(cv.group.from.group(object))
+	}
 	if (object$stratify) {
 		return(cv.group.stratified(object))
-	} else {
-		return(cv.group.random(object))
 	}
+	return(cv.group.random(object))
 }
 
 
@@ -60,4 +62,28 @@ cv.group.stratified <- function(object) {
 	shuffled.y <- unlist(tapply(1:length(y), y, sample), use.names = FALSE)
 	cv.group <- (((0:(length(y) - 1)) %% object$folds) + 1)[order(shuffled.y)]
 	return(cv.group)
+}
+
+
+#-------------------------------------------------------------------------------
+#	Create group index from specified group.
+#-------------------------------------------------------------------------------
+cv.group.from.group <- function(object) {
+	# Error check
+	if (length(object$group) != nrow(object$adapter$data)) {
+		stop("Length of 'group' should be same as the number of observation.")
+	}
+	# Create grouping values depending on the atomic type of 'object$group'.
+	if (is.logical(object$group) | is.factor(object$group)) {
+		return(as.integer(object$group))
+	}
+	if (is.character(object$group)) {
+		return(as.integer(as.factor(object$group)))
+	}
+	if (is.numeric(object$group)) {
+		if (all(object$group %% 1 == 0)) {
+			return(as.integer(as.factor(object$group)))
+		}
+	}
+	stop("'group' should be one of logical, factor, character or integer")
 }
