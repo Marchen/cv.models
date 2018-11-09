@@ -1,6 +1,6 @@
 ---
 title: "cv.models クイックスタートガイド"
-author: "Michio Oguro (email: 以下のコードをRにペースト：「rawToChar(as.raw(c(109, 111, 103, 64, 102, 102, 112, 114, 105, 46, 97, 102, 102, 114, 99, 46, 103, 111, 46, 106, 112)))」)"
+author: "Michio Oguro"
 date: "`r Sys.Date()`"
 output:
     html_document:
@@ -18,12 +18,13 @@ vignette: >
     \usepackage[utf8]{inputenc}
 ---
 
+[English](cv.models.html)
+
 # はじめに
 
 このパッケージはクロスバリデーションを用いて統計・機械学習モデルの予測能力の推定や、ハイパーパラメーターの調整を行うパッケージです。
 現在のバージョンはまだAPIや仕様の設計段階なので、将来仕様が変わるかもしれません。
-もし、なにかわからないことやご要望があったら教えてください。
-
+もし、バグにお気づきだったりご要望があったりしたらメール（アドレスは以下のコードをRにペースト：「rawToChar(as.raw(c(109, 111, 103, 64, 102, 102, 112, 114, 105, 46, 97, 102, 102, 114, 99, 46, 103, 111, 46, 106, 112)))」）もしくは[GitHub](https://github.com/Marchen/cv.models)にご連絡下さい。
 
 ```{R, preparation, echo = FALSE, message = FALSE, include = FALSE}
 library(cv.models)
@@ -36,11 +37,10 @@ library(gbm)
 
 ```{R, install, eval = FALSE}
 install.packages(
-	c("R6", "model.adapter", "cv.models"),
-	repos = c(
-		"http://hostgk3.biology.tohoku.ac.jp/marchen/R/repos", options()$repos
-	),
-	type = "source"
+    c("R6", "model.adapter", "cv.models"), type = "source",
+    repos = c(
+        "http://florivory.net/R/repos", options()$repos
+    )
 )
 ```
 
@@ -83,7 +83,6 @@ cv <- cv.models(model)
 print(cv)
 ```
 
-
 ## 計算される指標の一覧
 
 `cv.models`はモデルの種類（回帰モデル・識別モデル）を自動的に判定し、指標を計算します。
@@ -91,35 +90,35 @@ print(cv)
 
 ### 回帰モデル
 
-指標名								|列名		|定義/説明
-------------------------------------|-----------|---------------------------------------------------------------------------------------
-**Mean squared error (MSE)**		|"mse"		|$MSE = mean((prediction - response) ^ 2)$
-**Root mean squared error (RMSE)**	|"rmse"		|$RMSE = sqrt(mean((prediction - response) ^ 2))$
-**R二乗**							|"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$<br>参考のために計算していますが、相関係数の２乗は切片と傾きが再調整されるので使用をおすすめしません。予測値と実測値をプロットした点が、y = xの線上に乗るのが理想的なモデルですが、例えば予測値と実測値をプロットした点がy = -2x + 1の線に完全に乗っている場合でも（つまり予測がぜんぜんダメでも）相関係数の２乗は１になります。
-**Q二乗**							|"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, <br>Consonni et al. (2009)を参照。<br>現在のバージョンではデータの平均（$mean(response)$）にデフォルトでは各foldの平均値を、`aggregate.method = "join"`（後述）を使ったときにはデータ全体の平均を使っています。一貫性がないので次のバージョンあたりで整理する予定です。
+指標名                            |列名       |定義/説明
+----------------------------------|-----------|---------------------------------------------------------------------------------------
+**Mean squared error (MSE)**      |"mse"      |$MSE = mean((prediction - response) ^ 2)$
+**Root mean squared error (RMSE)**|"rmse"     |$RMSE = sqrt(mean((prediction - response) ^ 2))$
+**R二乗**                         |"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$<br>参考のために計算していますが、相関係数の２乗は切片と傾きが再調整されるので使用をおすすめしません。予測値と実測値をプロットした点が、y = xの線上に乗るのが理想的なモデルですが、例えば予測値と実測値をプロットした点がy = -2x + 1の線に完全に乗っている場合でも（つまり予測がぜんぜんダメでも）相関係数の２乗は１になります。
+**Q二乗**                         |"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, <br>Consonni et al. (2009)を参照。<br>現在のバージョンではデータの平均（$mean(response)$）にデフォルトでは各foldの平均値を、`aggregate.method = "join"`（後述）を使ったときにはデータ全体の平均を使っています。一貫性がないので次のバージョンあたりで整理する予定です。
 
 ### 識別モデル
 
-指標名										|列名			|定義/説明
---------------------------------------------|---------------|---------------------------------------------------------------------------
-**最適な閾値**								|"threshold"	|在/不在を分ける最適な閾値。デフォルトではYouden'Jで決定される。
-**Specificity**								|"specificity"	|https://en.wikipedia.org/wiki/Sensitivity_and_specificity
-**Sensitivity**								|"sensitivity"	|
-**Accuracy**								|"accuracy"		|
-**True negative count (TN)**				|"tn"			|
-**True positive count (TP)**				|"tp"			|
-**False negative count (FN)**				|"fn"			|
-**False positive count (FP)**				|"fp"			|
-**Negative predictive value (NPV)**			|"npv"			|
-**Positive predictive value (PPV)**			|"ppv"			|
-**Diagnostic likelihood ratio (DRL)+**      |"dlr.positive" |$DRL.positive = Sensitivity / (1 - Specificity)$, <br>Lopez-Raton et al. (2014)を参照。
-**Diagnostic likelihood ratio (DRL)-**      |"dlr.negative" |$DRL.negative = (1 - Sensitivity) / Specificity$, <br>Lopez-Raton et al. (2014)を参照。
-**Matthews correlation coefficient (MCC)**	|"mcc"			|
-**Informedness**							|"informedness"	|$Informedness = Sensitivity + Specificity - 1$
-**Markedness**								|"markedness"	|$Markedness = PPV + NPV - 1$
-**Log-likelihood**							|"loglik"		|$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, <br>Lawson et al. (2014)を参照。
-**尤度に基づいたR二乗**					    |"rsq.loglik"	|Lawson et al. (2014)を参照。
-**Cohen's Kappa**							|"kappa"		|Cohen (1960)を参照。
+指標名                                    |列名            |定義/説明
+------------------------------------------|----------------|---------------------------------------------------------------------------
+**最適な閾値**                            |"threshold"     |在/不在を分ける最適な閾値。デフォルトではYouden'Jで決定される。
+**Specificity**                           |"specificity"   |https://en.wikipedia.org/wiki/Sensitivity_and_specificity
+**Sensitivity**                           |"sensitivity"   |
+**Accuracy**                              |"accuracy"      |
+**True negative count (TN)**              |"tn"            |
+**True positive count (TP)**              |"tp"            |
+**False negative count (FN)**             |"fn"            |
+**False positive count (FP)**             |"fp"            |
+**Negative predictive value (NPV)**       |"npv"           |
+**Positive predictive value (PPV)**       |"ppv"           |
+**Diagnostic likelihood ratio (DRL)+**    |"dlr.positive"  |$DRL.positive = Sensitivity / (1 - Specificity)$, <br>Lopez-Raton et al. (2014)を参照。
+**Diagnostic likelihood ratio (DRL)-**    |"dlr.negative"  |$DRL.negative = (1 - Sensitivity) / Specificity$, <br>Lopez-Raton et al. (2014)を参照。
+**Matthews correlation coefficient (MCC)**|"mcc"           |
+**Informedness**                          |"informedness"  |$Informedness = Sensitivity + Specificity - 1$
+**Markedness**                            |"markedness"    |$Markedness = PPV + NPV - 1$
+**Log-likelihood**                        |"loglik"        |$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, <br>Lawson et al. (2014)を参照。
+**尤度に基づいたR二乗**                   |"rsq.loglik"    |Lawson et al. (2014)を参照。
+**Cohen's Kappa**                         |"kappa"         |Cohen (1960)を参照。
 
 ## predictに引数が必要なモデルを使う
 
@@ -129,12 +128,11 @@ print(cv)
 ```{R, predict_args}
 library(gbm)
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	n.trees = 50
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50
 )
 print(cv)
 ```
-
 
 ## 陽性として扱うクラスを制御する
 
@@ -151,12 +149,11 @@ print(cv)
 
 ```{R, positive_class}
 cv <- cv.models(
-	gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
-	n.cores = 1, n.trees = 50, positive.class = "versicolor"
+    gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+    n.cores = 1, n.trees = 50, positive.class = "versicolor"
 )
 print(cv)
 ```
-
 
 ## 性能評価指標の計算方法を制御する
 
@@ -166,14 +163,13 @@ print(cv)
 
 ```{R, aggregate_method}
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	aggregate.method = "join", n.trees = 50
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    aggregate.method = "join", n.trees = 50
 )
 print(cv)
 ```
 
 この場合、各指標のSDは計算されません（NAになります）。
-
 
 ## Class Stratificationを使う
 
@@ -190,16 +186,14 @@ test.data <- rbind(test.data, head(subset(iris, Species == "setosa"), 10))
 
 # クロスバリデーション。
 cv <- cv.models(
-	randomForest(Species ~ ., data = iris, n.cores = 1),
-	aggregate.method = "join", n.trees = 50, stratify = TRUE
+    randomForest(Species ~ ., data = iris, n.trees = 50),
+    aggregate.method = "join", stratify = TRUE, n.cores = 1
 )
 print(cv)
 ```
 
 今のところ、Class Stratificationは識別モデルに対してだけ実装されています。
 回帰モデルでもClass Stratificationが必要な人はご連絡ください。
-
-
 
 ## 閾値の計算方法を制御する
 
@@ -211,9 +205,9 @@ Ver. 0.1.0からこれを`OptimalCutpoints`パッケージの`optimal.cutpoints`
 
 ```{R, cutoff_example1}
 cv <- cv.models(
-	gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
-	n.cores = 1, n.trees = 50, positive.class = "setosa",
-	cutpoint.options = list(methods = "MaxSe")
+    gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+    n.cores = 1, n.trees = 50, positive.class = "setosa",
+    cutpoint.options = list(methods = "MaxSe")
 )
 print(cv)
 ```
@@ -223,9 +217,9 @@ print(cv)
 
 ```{R, cutoff_example2}
 cv <- cv.models(
-	gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
-	n.cores = 1, n.trees = 50, positive.class = "setosa",
-	cutpoint.options = list(methods = c("MaxSe", "MaxSp"))
+    gbm(Species ~ ., data = iris, n.trees = 50, distribution = "multinomial"),
+    n.cores = 1, n.trees = 50, positive.class = "setosa",
+    cutpoint.options = list(methods = c("MaxSe", "MaxSp"))
 )
 print(cv)
 ```
@@ -233,47 +227,46 @@ print(cv)
 `cutpoint.options`には`optimal.cutpoints`関数の引数のうち、`methods`、`op.prev`、 `control`を指定することができ、そのほかの値は無視されます。これで問題がないだろうと思っているのですが、もし他の引数を使う必要がある場合には教えてください。
 `optimal.cutpoints`の詳しい使い方はマニュアルや文献（Lopez-Raton et al. 2014）を見てください。
 
-
 ## データ分割数の設定
 
 クロスバリデーションのデータ分割数を変えるには`folds`オプションを変更します。
 
 ```{R, folds}
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	n.trees = 50, folds = 5
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50, folds = 5
 )
 print(cv)
 ```
-
 
 ## 乱数を固定する
 
 クロスバリデーションや一部の統計モデルの当てはめには乱数が使われいてるため、計算の度に結果が変わります。
 これを固定したい場合には`cv.models`の`seed`引数に適当な値を指定します。
 `seed`を指定した場合、並列計算のありなしにかかわらず、同じ結果を返します。
+
 ```{R, set_seed}
 # 実行の度に値が変わる。
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	n.trees = 50
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50
 )
 print(cv)
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	n.trees = 50
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50
 )
 print(cv)
 
 # seedに値を指定すると、結果が固定される。
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	n.trees = 50, seed = 12345
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50, seed = 12345
 )
 print(cv)
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	n.trees = 50, seed = 12345
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50, seed = 12345
 )
 print(cv)
 ```
@@ -283,15 +276,15 @@ print(cv)
 
 `cv.models`はデフォルトで全てのCPUコアを使用して計算を行います。
 計算に使われるコア数を制御したいときには、`n.cores`引数に適当な値を指定します。
+
 ```{R, n_cores}
 # コアを２つ使って計算する。
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	n.trees = 50, n.cores = 2
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50, n.cores = 2
 )
 print(cv)
 ```
-
 
 ## モデルのパラメーターを選択する
 
@@ -303,9 +296,9 @@ print(cv)
 ```{R, hyperparameter1}
 # ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	n.trees = 50,
-	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10))
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    n.trees = 50,
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10))
 )
 print(cv)
 ```
@@ -315,13 +308,12 @@ print(cv)
 ```{R, hyperparmeter2}
 # ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
-	grid.predict = list(n.trees = c(10, 50, 80))
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
 )
 print(cv)
 ```
-
 
 ## 最良モデルの取り出し
 
@@ -331,9 +323,9 @@ print(cv)
 ```{R, bestmodel}
 # ハイパーパラメータが違うと予測性能がどう変わるかを評価する。
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
-	grid.predict = list(n.trees = c(10, 50, 80))
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
 )
 print(cv)
 # 最良モデルの取り出し。
@@ -352,16 +344,15 @@ class(best[[1]])
 print(best[[1]])
 ```
 
-
 ## cv.modelsオブジェクトからのデータの取り出し
 
 以下の関数を使って`cv.models`オブジェクトからデータを取り出すことができます。
 
 ```{R, extract_data}
 cv <- cv.models(
-	gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
-	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
-	grid.predict = list(n.trees = c(10, 50, 80))
+    gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
 )
 
 # 10番目のモデルの予測結果を取得。
@@ -393,7 +384,6 @@ fit <- extract.fit(result)
 head(fit)
 ```
 
-
 ## 簡易作図
 
 `plot`関数を使って、予測値と応答変数の関係を作図することができます。
@@ -409,29 +399,28 @@ plot(cv)
 
 # gbmモデルのパラメーター組み合わせ候補を作成。
 cv <- cv.models(
-	gbm(
-		Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
-		distribution = "gaussian", n.cores = 1
-	),
-	grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
-	grid.predict = list(n.trees = c(10, 50, 80))
+    gbm(
+        Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+        distribution = "gaussian", n.cores = 1
+    ),
+    grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
+    grid.predict = list(n.trees = c(10, 50, 80))
 )
 # 10番目の予測結果を作図。
 plot(cv, 10)
 
 ```
 
-
 # 技術的詳細
 
 @準備中。
-
 
 # モデルごとの注意事項
 
 ## gbm
 
 ### n.treesの指定
+
 `gbm`を使う際には`grid.predict`に渡す`n.trees`の候補で使われる以上の値を`gbm`の呼び出しにも指定して下さい。
 以下の例では`grid.predict`に指定された`n.trees`の候補のなかで、`gbm`呼び出しの`n.trees`の値を超えたものは、どれも`gbm`の呼び出しに指定された`n.trees`の値を使ったときと同じ結果になってしまっています。
 
@@ -439,11 +428,11 @@ plot(cv, 10)
 # gbm呼び出しのn.treesは10だが、
 # grid.predictではn.treesの候補として5、10、50、80を指定している。
 cv <- cv.models(
-	gbm(
-		Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
-		distribution = "gaussian", n.trees = 10
-	),
-	grid.predict = list(n.trees = c(5, 10, 50, 80))
+    gbm(
+        Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+        distribution = "gaussian", n.trees = 10
+    ),
+    grid.predict = list(n.trees = c(5, 10, 50, 80))
 )
 # そのような場合、gbmの呼び出しに使われたn.treesの値（10）以上の値を
 # grid.predictに指定しても、予測性能はn.trees = 10の時と同じになる。
@@ -451,26 +440,27 @@ print(cv)
 ```
 
 ### weightsの指定
+
 `formula`を関数の呼び出し外で定義し、以下のような方法で`weights`を指定した場合、`gbm`に対する性能評価がうまく動きません。
 
 ```{R, gbm_weights_1, eval = FALSE}
 # これは動く。
 cv <- cv.models(
-	gbm(
-		Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
-		distribution = "gaussian", n.trees = 10
-	),
-	n.trees = 10, n.cores = 1
+    gbm(
+        Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+        distribution = "gaussian", n.trees = 10
+    ),
+    n.trees = 10, n.cores = 1
 )
 
 # 原因はわからないが、これは動かない。
 f <- Petal.Length ~ .
 cv <- cv.models(
-	gbm(
-		f, data = iris, weights = iris$Sepal.Width,
-		distribution = "gaussian", n.trees = 10
-	),
-	n.trees = 10, n.cores = 1
+    gbm(
+        f, data = iris, weights = iris$Sepal.Width,
+        distribution = "gaussian", n.trees = 10
+    ),
+    n.trees = 10, n.cores = 1
 )
 ```
 
@@ -479,11 +469,11 @@ cv <- cv.models(
 ```{R, gbm_weights_2}
 f <- Petal.Length ~ .
 cv <- cv.models(
-	gbm(
-		f, data = iris, weights = Sepal.Width,
-		distribution = "gaussian", n.trees = 10
-	),
-	n.trees = 10, n.cores = 1
+    gbm(
+        f, data = iris, weights = Sepal.Width,
+        distribution = "gaussian", n.trees = 10
+    ),
+    n.trees = 10, n.cores = 1
 )
 ```
 
@@ -496,15 +486,15 @@ cv <- cv.models(
 # weightsを指定し、かつcall関数で作成したcallオブジェクトは
 # cv.modelsに使えない。
 call.gbm <- call(
-	"gbm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
-	distribution = "gaussian", n.trees = 10, n.cores = 1
+    "gbm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
+    distribution = "gaussian", n.trees = 10, n.cores = 1
 )
 # エラー
 cv <- cv.models(call.gbm, n.trees = 10)
 
 # GLMも同様。
 call.glm <- call(
-	"glm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width
+    "glm", Petal.Length ~ ., data = iris, weights = iris$Sepal.Width
 )
 cv <- cv.models(call.glm)
 ```
@@ -514,78 +504,76 @@ cv <- cv.models(call.glm)
 ```{R, call_with_other_data_ok}
 # substituteでcallを作成。
 call.gbm <- substitute(
-	gbm(
-		Petal.Length ~ ., data = iris, weights = Sepal.Width,
-		distribution = "gaussian", n.trees = 10, n.cores = 1
-	)
+    gbm(
+        Petal.Length ~ ., data = iris, weights = Sepal.Width,
+        distribution = "gaussian", n.trees = 10, n.cores = 1
+    )
 )
 # OK!
 cv <- cv.models(call.gbm, n.trees = 10)
 
 # GLMも同様。
 call.glm <- substitute(
-	glm(Petal.Length ~ ., data = iris, weights = Sepal.Width)
+    glm(Petal.Length ~ ., data = iris, weights = Sepal.Width)
 )
 cv <- cv.models(call.glm)
 ```
-
 
 # 既知の問題
 
 * **オブジェクトの構造がよくわからない**
 
-	`cv.models`オブジェクトはまぁいいとして、`cv.best.models`オブジェクトとか、`cv.result`オブジェクトとか、なんか混乱している気がします。
-	なので将来的に再設計・リファクタリングしてもうちょっと整理したいと思っています。
+    `cv.models`オブジェクトはまぁいいとして、`cv.best.models`オブジェクトとか、`cv.result`オブジェクトとか、なんか混乱している気がします。
+    なので将来的に再設計・リファクタリングしてもうちょっと整理したいと思っています。
 
 * **テストしてない**
 
-	とりあえずテストコードをほとんど作ってないので、うまく動いてないことがある可能性があります。
+    とりあえずテストコードをほとんど作ってないので、うまく動いてないことがある可能性があります。
 
 * **AUCがいつも0.5以上になる**
 
-	<s>対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
-	多くの文献がAUCは0.5～1の間に収まると仮定しているので、これをどう扱うのが正しいのか、まだ自分の中で結論が出ていません。
-	ということで、とりあえず対応は保留してあります。
-	近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。</s>  
-	OptimalCutpointsパッケージで同様の問題が起こるのかはわかりません。
-	何かわかった方は教えてください。
+    <s>対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
+    多くの文献がAUCは0.5～1の間に収まると仮定しているので、これをどう扱うのが正しいのか、まだ自分の中で結論が出ていません。
+    ということで、とりあえず対応は保留してあります。
+    近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。</s>  
+    OptimalCutpointsパッケージで同様の問題が起こるのかはわかりません。
+    何かわかった方は教えてください。
 
 * **MSEの定義**
 
-	論文によってはMSEの定義が
-	MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)
-	になっていることがあります。どの定義を使ったらいいのか、そのうち調べます。
+    論文によってはMSEの定義が
+    MSE = sum((response - predict) ^ 2) / (sample size - number of parameter)
+    になっていることがあります。どの定義を使ったらいいのか、そのうち調べます。
 
 * **Diagnostic Likelihood Ratioを使ったベストモデルの選択**
 
-	ベストモデル選択の時、Diagnostic Likelihood Ratioが高いモデルがよいモデルだと考えてモデルを選んでいますが、本当にそれでよいのか自信がありません。もし、間違いに気付いた人は教えてください。
-
+    ベストモデル選択の時、Diagnostic Likelihood Ratioが高いモデルがよいモデルだと考えてモデルを選んでいますが、本当にそれでよいのか自信がありません。もし、間違いに気付いた人は教えてください。
 
 # 引用文献
-* Cohen, J. 1960. A Coefficient of Agreement for Nominal Scales. Educational and Psychological Measurement 20: 37-46.
-* Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49: 1669-1678.
-* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
-* Lopez-Raton, M., M. X. Rodriguez-Alvarez, C. Cadarso-Suarez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61: 36.
 
+* Cohen, J. 1960. A Coefficient of Agreement for Nominal Scales. Educational and Psychological Measurement 20: 37-46.
+* Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49:1669-1678.
+* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5:54-64.
+* Lopez-Raton, M., M. X. Rodriguez-Alvarez, C. Cadarso-Suarez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61:36.
 
 # 更新履歴
 * 2018-09-14: 0.1.2
-	- model.adapterパッケージver.0.1.0に対応。
-	- Class Stratificationに対応。
+  * model.adapterパッケージver.0.1.0に対応。
+  * Class Stratificationに対応。
 * 2018-01-31: 0.1.1
-	- call()関数やモデルオブジェクトを使ってcv.modelsを呼び出した場合、クロスバリデーションが行われないバグを修正した。
+  * call()関数やモデルオブジェクトを使ってcv.modelsを呼び出した場合、クロスバリデーションが行われないバグを修正した。
 * 2018-01-28: 0.1.0
-	- `find.best.models`が`cv.models`に指定した乱数の種子を用いて結果を固定するようにした。
-	- pROCパッケージへの依存をOptimalCutpointsパッケージに置き換え、Youden's J以外の指標でも閾値を選択できるようにした。この変更により`1-npv`などの指標が計算されなくなり、Diagnostic Likelihood Ratioが計算されるようになった。
-	- Cohen's Kappaを識別モデルの性能評価指標に追加した。
-	- バグ修正：seedを指定したとき、並列計算ありなしで結果が変わるバグを修正。
-	- バグ修正：print.cv.best.models()のメッセージの修正。
+  * `find.best.models`が`cv.models`に指定した乱数の種子を用いて結果を固定するようにした。
+  * pROCパッケージへの依存をOptimalCutpointsパッケージに置き換え、Youden's J以外の指標でも閾値を選択できるようにした。この変更により`1-npv`などの指標が計算されなくなり、Diagnostic Likelihood Ratioが計算されるようになった。
+  * Cohen's Kappaを識別モデルの性能評価指標に追加した。
+  * バグ修正：seedを指定したとき、並列計算ありなしで結果が変わるバグを修正。
+  * バグ修正：print.cv.best.models()のメッセージの修正。
 * 2017-09-10: 0.0.4
-	- 試験的に対数尤度と尤度に基づいたR^2を識別モデルの性能評価指標に追加。
-	- バグ修正：CPUコアの割り当てがおかしかったバグを修正。
+  * 試験的に対数尤度と尤度に基づいたR^2を識別モデルの性能評価指標に追加。
+  * バグ修正：CPUコアの割り当てがおかしかったバグを修正。
 * 2017-07-07: 0.0.3
-	- バグ修正：まれに計算に失敗する問題を修正。
+  * バグ修正：まれに計算に失敗する問題を修正。
 * 2017-07-07: 0.0.2
-	- バグ修正：説明変数と応答変数の対応がおかしくなっていたバグを修正。
+  * バグ修正：説明変数と応答変数の対応がおかしくなっていたバグを修正。
 * 2017-07-05: 0.0.1
-	- バージョン付け開始。
+  * バージョン付け開始。

@@ -1,6 +1,6 @@
 ---
 title: "Quick Start Guide for cv.models"
-author: "Michio Oguro email: paste following code into R: rawToChar(as.raw(c(109, 111, 103, 64, 102, 102, 112, 114, 105, 46, 97, 102, 102, 114, 99, 46, 103, 111, 46, 106, 112)))"
+author: "Michio Oguro"
 date: "`r Sys.Date()`"
 output:
     html_document:
@@ -18,23 +18,25 @@ vignette: >
     \usepackage[utf8]{inputenc}
 ---
 
+[日本語](cv.models.j.html)
+
 # Introduction
 
 This package provides simple interface for cross validation and hyper-parameter tuning for statistical/machine learning models.
 Currently, I'm designing specification of APIs and object therefore they can be changed in future version.
-If you have any questions, feel free to contact me!
+If you find bugs or if you have any requests, please let me know by [GitHub](https://github.com/Marchen/cv.models) or email: paste following code into R to get my address: rawToChar(as.raw(c(109, 111, 103, 64, 102, 102, 112, 114, 105, 46, 97, 102, 102, 114, 99, 46, 103, 111, 46, 106, 112))).
 
 # Installation
 
 To install the package, copy & paste following script into R console.
+Currently, it may produce many warnings related with compilation of documents, but it does not affect any functionality of the package.
 
 ```{R, install, eval = FALSE}
 install.packages(
-    c("R6", "model.adapter", "cv.models"),
+    c("R6", "model.adapter", "cv.models"), type = "source",
     repos = c(
-        "http://hostgk3.biology.tohoku.ac.jp/marchen/R/repos", options()$repos
-    ),
-    type = "source"
+        "http://florivory.net/R/repos", options()$repos
+    )
 )
 ```
 
@@ -42,7 +44,7 @@ install.packages(
 
 ## Evaluation of predictive ability of a model by cross-validation
 
-`cv.models` funciton evaluate predictive ability of a model.
+`cv.models` function evaluate predictive ability of a model.
 Most basic usage of the `cv.models` function is putting call of statistical/machine learning model function **directory** into `cv.models` as follow.
 
 ```{R, basic_usage}
@@ -86,35 +88,35 @@ Currently `cv.models` calculates following metrics.
 
 ### Regression model
 
-Name of metrics                     |Column     |Definition/Explanation
-------------------------------------|-----------|---------------------------------------------------------------------------------------
-**Mean squared error (MSE)**        |"mse"      |$MSE = mean((prediction - response) ^ 2)$
-**Root mean squared error (RMSE)**  |"rmse"     |$RMSE = sqrt(mean((prediction - response) ^ 2))$
-**R squared**                       |"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$<br>**This is calculated only for referencing purpose.** I don't recommend this metrics because adjustment of intercept and slope is done during calculation. For example, idel models produce prediction on a line y = x when plotting actual and predicted values. However, when plotted points of actual and predicted values are completely on a line of y = -2x + 1 (in other words, completely wrong prediction model), value of R squared become 1.
-**Q squared**                       |"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, <br>See Consonni et al. (2009).<br>Currently, mean values of each fold were used for mean of data ($mean(response)$) by default. On the other hand, mean value of all data is used when `aggregate.method = "join"` (see below) is specified. I will consider to find better default for improving consistency.
+Name of metrics                   |Column     |Definition/Explanation
+----------------------------------|-----------|---------------------------------------------------------------------------------------
+**Mean squared error (MSE)**      |"mse"      |$MSE = mean((prediction - response) ^ 2)$
+**Root mean squared error (RMSE)**|"rmse"     |$RMSE = sqrt(mean((prediction - response) ^ 2))$
+**R squared**                     |"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$<br>**This is calculated only for referencing purpose.** I don't recommend this metrics because adjustment of intercept and slope is done during calculation. For example, idel models produce prediction on a line y = x when plotting actual and predicted values. However, when plotted points of actual and predicted values are completely on a line of y = -2x + 1 (in other words, completely wrong prediction model), value of R squared become 1.
+**Q squared**                     |"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, <br>See Consonni et al. (2009).<br>Currently, mean values of each fold were used for mean of data ($mean(response)$) by default. On the other hand, mean value of all data is used when `aggregate.method = "join"` (see below) is specified. I will consider to find better default for improving consistency.
 
 ### Classification models
 
-Name of metrics                             |Column         |Definition/Explanation
---------------------------------------------|---------------|---------------------------------------------------------------------------
-**Optimal threshold**                       |"threshold"    |Optimal threshold separating presence/absence. By default, determined by Youden's J.
-**Specificity**                             |"specificity"  |[See Wikipedia](https://en.wikipedia.org/wiki/Sensitivity_and_specificity)
-**Sensitivity**                             |"sensitivity"  |
-**Accuracy**                                |"accuracy"     |
-**True negative count (TN)**                |"tn"           |
-**True positive count (TP)**                |"tp"           |
-**False negative count (FN)**               |"fn"           |
-**False positive count (FP)**               |"fp"           |
-**Negative predictive value (NPV)**         |"npv"          |
-**Positive predictive value (PPV)**         |"ppv"          |
-**Diagnostic likelihood ratio (DRL)+**      |"dlr.positive" |$DRL.positive = Sensitivity / (1 - Specificity)$, <br>See Lopez-Raton et al. (2014)
-**Diagnostic likelihood ratio (DRL)-**      |"dlr.negative" |$DRL.negative = (1 - Sensitivity) / Specificity$, <br>See Lopez-Raton et al. (2014)
-**Matthews correlation coefficient (MCC)**  |"mcc"          |
-**Informedness**                            |"informedness" |$Informedness = Sensitivity + Specificity - 1$
-**Markedness**                              |"markedness"   |$Markedness = PPV + NPV - 1$
-**Log-likelihood**                          |"loglik"       |$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, <br>See Lawson et al. (2014)
-**Likelihood based R squared**              |"rsq.loglik"   |See Lawson et al. (2014)
-**Cohen's Kappa**                           |"kappa"        |See Cohen (1960)
+Name of metrics                           |Column        |Definition/Explanation
+------------------------------------------|--------------|---------------------------------------------------------------------------
+**Optimal threshold**                     |"threshold"   |Optimal threshold separating presence/absence. By default, determined by Youden's J.
+**Specificity**                           |"specificity" |[See Wikipedia](https://en.wikipedia.org/wiki/Sensitivity_and_specificity)
+**Sensitivity**                           |"sensitivity" |
+**Accuracy**                              |"accuracy"    |
+**True negative count (TN)**              |"tn"          |
+**True positive count (TP)**              |"tp"          |
+**False negative count (FN)**             |"fn"          |
+**False positive count (FP)**             |"fp"          |
+**Negative predictive value (NPV)**       |"npv"         |
+**Positive predictive value (PPV)**       |"ppv"         |
+**Diagnostic likelihood ratio (DRL)+**    |"dlr.positive"|$DRL.positive = Sensitivity / (1 - Specificity)$, <br>See Lopez-Raton et al. (2014)
+**Diagnostic likelihood ratio (DRL)-**    |"dlr.negative"|$DRL.negative = (1 - Sensitivity) / Specificity$, <br>See Lopez-Raton et al. (2014)
+**Matthews correlation coefficient (MCC)**|"mcc"         |
+**Informedness**                          |"informedness"|$Informedness = Sensitivity + Specificity - 1$
+**Markedness**                            |"markedness"  |$Markedness = PPV + NPV - 1$
+**Log-likelihood**                        |"loglik"      |$Log_likelihood = \sum(log(p * y + (1 - p) * (1 - y)))$, <br>See Lawson et al. (2014)
+**Likelihood based R squared**            |"rsq.loglik"  |See Lawson et al. (2014)
+**Cohen's Kappa**                         |"kappa"       |See Cohen (1960)
 
 ## Using models requiring additional arguments for predict method
 
@@ -151,7 +153,7 @@ cv <- cv.models(
 print(cv)
 ```
 
-## Controling calculation of metrics
+## Controlling calculation of metrics
 
 By default, `cv.models` calculates performance metrics for each fold and then averages them.
 But this method can't work for Leave-One-Out cross validation (LOOCV) or data with class imbalance in the response variable.
@@ -188,13 +190,13 @@ cv <- cv.models(
 print(cv)
 ```
 
-Currently, class stratification is implimentd only for classification models.
+Currently, class stratification is implemented only for classification models.
 
-## Controling method for optimal threshold determination
+## Controlling method for optimal threshold determination
 
 Previous version of `cv.models` used Youden's J with `coords` function in `pROC` package to find optimal threshold dividing positive and negative classes.
 After ver. 0.1.0, `cv.models` uses `optimal.cutpoints` function in `OptimalCutpoints` package and this allows us to use other metrics for determining optimal threshold.
-By default, `cv.models` still use Youden's J for determination of the threshold, but users can specify a `list` having optins passed to `optimal.cutpoints` for the `cutpoint.options` argument to control method used for threshold determination.
+By default, `cv.models` still use Youden's J for determination of the threshold, but users can specify a `list` having options passed to `optimal.cutpoints` for the `cutpoint.options` argument to control method used for threshold determination.
 In the following example, sensitivity, instead of Youden's J, is maximized by specifying `list(methods = "MaxSe")` for `cutpoint.options`.
 
 ```{R, cutoff_example1}
@@ -207,7 +209,7 @@ print(cv)
 ```
 
 `optimal.cutpoints` can determine multiple thresholds simultaneously.
-For example, by specifying `list(methods = c("MaxSe", "MaxSp"))` for `cutpoint.options`, `cv.models` can calculate two sets of metrics with the thresholds determined by sensitivity and specificty, yet they bring same results... :).
+For example, by specifying `list(methods = c("MaxSe", "MaxSp"))` for `cutpoint.options`, `cv.models` can calculate two sets of metrics with the thresholds determined by sensitivity and specificity, yet they bring same results... :).
 
 ```{R, cutoff_example2}
 cv <- cv.models(
@@ -235,7 +237,7 @@ print(cv)
 
 ## Fix random number
 
-Because cross validation and some modeling methods use stochastic processes, `cv.modles` returns slighly different results everytime.
+Because cross validation and some modeling methods use stochastic processes, `cv.models` returns slightly different results every time.
 To fix the result, specify some number for `seed` argument.
 When `seed` is set, `cv.models` returns same result independent of parallel computation.
 
@@ -252,7 +254,7 @@ cv <- cv.models(
 )
 print(cv)
 
-# If seed is set, same result is returned everytime.
+# If seed is set, same result is returned every time.
 cv <- cv.models(
     gbm(Petal.Length ~ ., data = iris, distribution = "gaussian", n.cores = 1),
     n.trees = 50, seed = 12345
@@ -283,7 +285,7 @@ print(cv)
 
 `cv.models` can conduct grid search to find which combination of hyper-parameters can bring model(s) with best performance using cross validation.
 To conduct grid search for hyper-parameters, supply a named list having vector of candidate parameters for `grid` argument.
-In the following example, `cv.models` calculates performance measures with cross validation for all combination of hyper-parameteres (in this example, `1` and `5` for `interaction.depth` and `1` and `10` for `n.minobsinnode`) of `gbm`
+In the following example, `cv.models` calculates performance measures with cross validation for all combination of hyper-parameters (in this example, `1` and `5` for `interaction.depth` and `1` and `10` for `n.minobsinnode`) of `gbm`
 
 ```{R, hyperparameter1}
 # See the effect of hyper parameter on predictive ability of the model.
@@ -309,8 +311,8 @@ print(cv)
 
 ## Extract model(s) with best predictive ability
 
-After grid search, you can extarct model(s) with best predictive ability using `find.best.models` function for the result of `cv.models`.
-In the following example, `find.best.models` fuction extracts model(s) with the highest value of Q^2.
+After grid search, you can extract model(s) with best predictive ability using `find.best.models` function for the result of `cv.models`.
+In the following example, `find.best.models` function extracts model(s) with the highest value of Q^2.
 
 ```{R, bestmodel}
 # See the effect of hyper parameter on predictive ability of the model.
@@ -526,7 +528,7 @@ cv <- cv.models(call.glm)
 
 * **Always AUC become more than 0.5**
 
-    <s>When the model is worse than random prediction, i.e., if it produce reveresed prediction, pROC::coords switches positive and negative class when calculating AUC.</s>  
+    <s>When the model is worse than random prediction, i.e., if it produce reversed prediction, pROC::coords switches positive and negative class when calculating AUC.</s>  
     I'm not sure for the way of AUC calculation in OptimalCutpoints package.
 
 * **Definition of MSE**
@@ -541,22 +543,22 @@ cv <- cv.models(call.glm)
 
 # References
 
-* Cohen, J. 1960. A Coefficient of Agreement for Nominal Scales. Educational and Psychological Measurement 20: 37-46.
-* Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49: 1669-1678.
-* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5: 54-64.
-* Lopez-Raton, M., M. X. Rodriguez-Alvarez, C. Cadarso-Suarez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61: 36.
+* Cohen, J. 1960. A Coefficient of Agreement for Nominal Scales. Educational and Psychological Measurement 20:37-46.
+* Consonni, V., D. Ballabio, and R. Todeschini. 2009. Comments on the Definition of the Q2 Parameter for QSAR Validation. Journal of Chemical Information and Modeling 49:1669-1678.
+* Lawson CR, Hodgson JA, Wilson RJ, et al. 2014. Prevalence, thresholds and the performance of presence-absence models. Methods in Ecology and Evolution 5:54-64.
+* Lopez-Raton, M., M. X. Rodriguez-Alvarez, C. Cadarso-Suarez, and F. Gude-Sampedro. 2014. OptimalCutpoints: An R Package for Selecting Optimal Cutpoints in Diagnostic Tests. Journal of Statistical Software 61:36.
 
 # Version history
 
 * 2018-09-14: 0.1.2
   * Compatible with `model.adapter` package ver.0.1.0.
-  * Impliment Class Stratification.
+  * Implement Class Stratification.
 * 2018-01-31: 0.1.1
   * Bug fix: `cv.models` does not run cross validation when called with `call()` function or model object.
 * 2018-01-28: 0.1.0
   * `find.best.models` uses seed of random number specified in `cv.models` to fix the result.
   * Dependency on `pROC` package is replaced with `OptimalCutpoints` package and optimal threshold can be calculated other criteria than Youden's J. By this modification, `cv.models` doesn't calculate metrics such as `1-npv` and does calculate Diagnostic Likelihood Ratio.
-  * Implimented Cohen's Kappa for classification model.
+  * Implemented Cohen's Kappa for classification model.
   * Bug fix: parallel processing produce different result even when seed of random number is specified.
   * Bug fix: wrong message from print.cv.best.models().
 * 2017-09-10: 0.0.4
@@ -568,4 +570,3 @@ cv <- cv.models(call.glm)
   * Bug fix: correspondence between explanatory and response variable was wrong.
 * 2017-07-05: 0.0.1
   * Start versioning.
-
