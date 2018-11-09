@@ -11,7 +11,7 @@
 	- Bug fix: specifying 'seed' returns same result even with cluster.
 	- Minor bug fix of print.cv.best.models().
 2017-09-10: 0.0.4
-	- Experimental: implimented log-likelihood and likelihood based R squared values for classification models.
+	- Experimental: implemented log-likelihood and likelihood based R squared values for classification models.
 	- Bug fix: wrong assignment of CPU cores.
 2017-07-07: 0.0.3
 	- Bug fix: occasionally evaluation of model fails.
