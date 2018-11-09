@@ -162,3 +162,36 @@ rm(
 	create.test.data.for.stratification,
 	try.and.test.having.setosa
 )
+
+
+#==============================================================================
+#	Unit test of cv.group with user defined group
+#==============================================================================
+
+context("Unit test for cv.group with user defined group.")
+
+test_that(
+	"Test user defined group with different variable types", {
+		create.test.object <- function(group) {
+			call <- substitute(randomForest(Petal.Length ~ ., data = iris))
+			object <- list(
+				call = call, group = group,
+				adapter = model.adapter$new(call, environment(), NULL)
+			)
+			class(object) <- "cv.models"
+			return(object)
+		}
+		# Test number of groups.
+		obj <- create.test.object(rep(c("a","b"), each = 75))
+		expect_equal(length(unique(cv.models:::cv.group(obj))), 2)
+		obj <- create.test.object(rep(1:3, each = 50))
+		expect_equal(length(unique(cv.models:::cv.group(obj))), 3)
+		obj <- create.test.object(rep(c(TRUE, FALSE), each = 75))
+		expect_equal(length(unique(cv.models:::cv.group(obj))), 2)
+		obj <- create.test.object(iris$Species)
+		expect_equal(length(unique(cv.models:::cv.group(obj))), 3)
+		# Test invalid group actually produce error.
+		obj <- create.test.object(list(1))
+		expect_error(cv.models:::cv.group(obj))
+	}
+)

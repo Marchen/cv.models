@@ -37,6 +37,7 @@ test.files <- c(
 	# Unit tests.
 	"test_unit_test_regression.metrics.calculator.r",
 	"test_unit_cv.group.r",
+	"test_unit_cv.models.object.r",
 	# General tests.
 	"test_types_of_call.r",
 	"test_seed.r"
