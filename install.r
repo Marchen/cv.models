@@ -16,8 +16,10 @@ get.this.file.dir <- function() {
 
 old.wd <- setwd(get.this.file.dir())
 
+
 #------------------------------------------------------------------------------
 #	Install the package before compiling.
 #------------------------------------------------------------------------------
-system("Rscript -e library(devtools);install()")
+system("Rscript -e 'library(devtools);install()'")
 
+setwd(old.wd)
