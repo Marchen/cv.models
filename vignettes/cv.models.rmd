@@ -570,6 +570,8 @@ cv <- cv.models(call.glm)
 
 # Version history
 
+* 2018-11-10: 0.1.3
+  * Add `group` argument which supply user defined grouping for `cv.models`.
 * 2018-09-14: 0.1.2
   * Compatible with `model.adapter` package ver.0.1.0.
   * Implement Class Stratification.

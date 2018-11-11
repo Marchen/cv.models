@@ -1,3 +1,5 @@
+2018-11-10: 0.1.3
+	- Add `group` argument which controls user defined grouping for cross validation.
 2018-09-14: 0.1.2
 	- Support model adapter > 0.1.0.
 	- Bug fix: occasionally fail to detect number of CPU cores.
