@@ -81,6 +81,28 @@ cv.metrics.calculator$set(
 
 
 #------------------------------------------------------------------------------
+#	Create metrics for all folds and returns it as a list of matrix/matrices.
+#
+#	Args:
+#		fits:
+#			result of cross validation. Usually 'fits' field of cv.models
+#			object.
+#		cal:
+#			classification.metrics.calculator or
+#			regression.metrics.calculator object.
+#------------------------------------------------------------------------------
+cv.metrics.calculator$set(
+	"private", "create.metrics.of.folds",
+	function(fits, cal) {
+		metrics.of.folds <- lapply(fits, cal$calculate.metrics)
+		metrics.of.folds <- swap.list.hierarchy(metrics.of.folds)
+		metrics.table <- lapply(metrics.of.folds, do.call, what = rbind)
+		return(metrics.table)
+	}
+)
+
+
+#------------------------------------------------------------------------------
 #	Calculate all metrics using single method of optimal.cutpoints.
 #
 #	Args:
@@ -94,9 +116,8 @@ cv.metrics.calculator$set(
 cv.metrics.calculator$set(
 	"private", "calculate.metrics.of.single.result",
 	function(fits, cal) {
-		metrics.of.folds <- lapply(fits, cal$calculate.metrics)
-		metrics.of.folds <- swap.list.hierarchy(metrics.of.folds)
-		metrics.table <- lapply(metrics.of.folds, do.call, what = rbind)
+		# Calculate metrics for all folds.
+		metrics.table <- private$create.metrics.of.folds(fits, cal)
 		# Calculate mean and SD of the metrics.
 		result.mean <- lapply(metrics.table, colMeans)
 		result.sd <- lapply(metrics.table, apply, 2, sd)
