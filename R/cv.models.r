@@ -84,7 +84,7 @@ make.prediction <- function(predict.args, model, object, row.index) {
 		fit <- fit[, "fit"]
 		attributes(fit) <- NULL
 	}
-	# 結果の作成
+	# Make result.
 	response <- object$adapter$y.vars[row.index, ]
 	result <- list(
 		response = response, prediction = fit, index = row.index
@@ -105,11 +105,11 @@ make.prediction <- function(predict.args, model, object, row.index) {
 model.one.fold <- function(cv.index, object) {
 	# Fix random number before using random process.
 	set.seed.if.possible(object)
-	# モデル構築用データを作成
+	# Create data for model construction.
 	data.test <- object$adapter$data[object$cv.group == cv.index, ]
 	data.train <- object$adapter$data[object$cv.group != cv.index, ]
 	row.index <- (1:nrow(object$adapter$data))[object$cv.group == cv.index]
-	# モデル構築
+	# Construct model.
 	child.env <- new.env(parent = object$envir)
 	if (is.language(object$call$data)) {
 		assign(as.character(object$call$data), data.train, envir = child.env)
@@ -117,7 +117,7 @@ model.one.fold <- function(cv.index, object) {
 		object$call$data <- data.train
 	}
 	model <- eval(object$call, child.env)
-	# 予測値を計算
+	# Create prediction.
 	type <- ifelse(
 		object$adapter$model.type == "regression", "response", "prob"
 	)
@@ -153,13 +153,13 @@ swap.list.hierarchy <- function(x) {
 
 #------------------------------------------------------------------------------
 fit.cv.models <- function(object) {
-	# クロスバリデーションを実行。
+	# Run cross validation.
 	object$cv.group <- cv.group(object)
 	cl.man <- cluster.manager(object, "cv")
 	on.exit(cl.man$finalize())
 	fits.of.folds <- cl.man$lapply(1:object$folds, model.one.fold, object)
 	fits <- swap.list.hierarchy(fits.of.folds)
-	# 性能評価指標を計算。
+	# Calculate metrics.
 	metrics <- cv.metrics(object, fits)
 	metrics <- lapply(
 		metrics, merge.grid.and.metrics, grid = object$grid.predict
@@ -171,7 +171,8 @@ fit.cv.models <- function(object) {
 			)
 		}
 	}
-	# 結果を整形して、１回のCV結果が１要素のリストに変換する。
+	# Make a list of results of cross validation.
+	# Each element of the list represent one result of cross validation.
 	result <- vector("list", length(fits) * length(metrics))
 	for (i in 1:length(fits)) {
 		for (j in 1:length(metrics)) {

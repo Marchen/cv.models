@@ -154,7 +154,7 @@ classification.metrics.calculator$set(
 		# access element of list by index (1) instead of name ("Global").
 		cutoff <- object[[method]][[1]]$optimal.cutoff
 		if (any(sapply(cutoff, length) > 2)) {
-			# ここに来ることがあるのか、ちょっとわからない。
+			# Not sure there is a possibility to be here.
 			msg <- paste0(
 				"Single optimal threshold was not determined ",
 				"by specified settings.\n",

@@ -74,12 +74,6 @@ print.cv.best.models <- function(x, ...) {
 #'	@describeIn cv.models print method for cv.models.
 #'	@export
 #------------------------------------------------------------------------------
-#	cv.modelsクラス用のprint。
-#
-#	Args:
-#		x: cv.modelsオブジェクト。
-#		...: 使われていません。
-#------------------------------------------------------------------------------
 print.cv.models <- function(x, ...) {
 	cat("Result of cross validation\n")
 	cat(sprintf("Function name: %s\n", x$function.name))
