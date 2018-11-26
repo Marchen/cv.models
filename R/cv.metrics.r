@@ -92,7 +92,7 @@ cv.metrics.calculator$set(
 #			regression.metrics.calculator object.
 #------------------------------------------------------------------------------
 cv.metrics.calculator$set(
-	"private", "create.metrics.of.folds",
+	"private", "calculate.metrics.of.folds",
 	function(fits, cal) {
 		metrics.of.folds <- lapply(fits, cal$calculate.metrics)
 		metrics.of.folds <- swap.list.hierarchy(metrics.of.folds)
@@ -114,13 +114,11 @@ cv.metrics.calculator$set(
 #			regression.metrics.calculator object.
 #------------------------------------------------------------------------------
 cv.metrics.calculator$set(
-	"private", "calculate.metrics.of.single.result",
-	function(fits, cal) {
-		# Calculate metrics for all folds.
-		metrics.table <- private$create.metrics.of.folds(fits, cal)
+	"private", "aggregate.folds",
+	function(metrics.tables) {
 		# Calculate mean and SD of the metrics.
-		result.mean <- lapply(metrics.table, colMeans)
-		result.sd <- lapply(metrics.table, apply, 2, sd)
+		result.mean <- lapply(metrics.tables, colMeans)
+		result.sd <- lapply(metrics.tables, apply, 2, sd)
 		for (i in 1:length(result.sd)) {
 			names(result.sd[[i]]) <- paste0("sd.", names(result.sd[[i]]))
 		}
@@ -149,10 +147,17 @@ cv.metrics.calculator$set(
 		} else {
 			cal <- classification.metrics.calculator$new(object)
 		}
+		# Calculate metrics for all folds.
+		# 'metrics' can be list with length > 1 (multiple sets of folds)
+		# because multiple optimal threshold can be calculated by
+		# OptimalCutpoints.
 		metrics <- lapply(
-			fits, private$calculate.metrics.of.single.result, cal = cal
+			fits, private$calculate.metrics.of.folds, cal = cal
 		)
-		metrics <- swap.list.hierarchy(metrics)
+		if (object$aggregate.method %in% c("mean", "join")) {
+			metrics <- lapply(metrics, private$aggregate.folds)
+			metrics <- swap.list.hierarchy(metrics)
+		}
 		result <- lapply(
 			metrics, function(x) as.data.frame(do.call(rbind, x))
 		)
