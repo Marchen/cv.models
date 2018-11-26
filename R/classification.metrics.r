@@ -17,7 +17,7 @@ NAME_CONVERSION_TABLE <- c(
 #------------------------------------------------------------------------------
 #	A reference class calculating metrics for classification models.
 #------------------------------------------------------------------------------
-classification.metrics.calculator <- R6Class(
+classification.metrics.calculator <- R6::R6Class(
 	"classification.metrics.calculator",
 	private = list(
 		cutpoint.options = NULL,
