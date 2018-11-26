@@ -19,9 +19,12 @@ r_binary_packages:
   - ranger
   - MASS
   - MCMCglmm
+r_github_packages:
+  - marchen/model.adapter
 repos:
   CRAN: https://cloud.r-project.org
   glmmadmb: http://glmmadmb.r-forge.r-project.org/repos
+  model.a
 before_script:
   - rm .travis.yml
   - R -e 'install.packages("roxygen2");devtools::document()'
