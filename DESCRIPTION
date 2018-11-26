@@ -1,14 +1,14 @@
 Package: cv.models
-Version: 0.1.3
+Version: 0.1.3.9000
 Date: 2018-11-10
-Title: Model selection and hyperparameter tuning by cross validation
+Title: Model selection and hyper-parameter tuning by cross validation
 Author: Michio Oguro <mog@ffpri.affrc.go.jp>
 Maintainer: Michio Oguro <mog@ffpri.affrc.go.jp>
 URL: https://github.com/Marchen/cv.models
 Description:
     This package provides simple interface for cross validation and parameter
     selection for several models.
-License: MIT
+License: MIT + file LICENSE
 Depends:
     R (>= 3.0.0),
     R6,
@@ -30,6 +30,7 @@ Suggests:
     tree,
     rpart,
     mgcv,
-    gam
+    gam,
+    knitr
 VignetteBuilder: knitr
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
