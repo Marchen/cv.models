@@ -12,42 +12,33 @@
 #
 #===============================================================================
 
+library(model.adapter)
 
 #-------------------------------------------------------------------------------
 #	スクリプトがあるディレクトリ名を返す関数。
 #	http://stackoverflow.com/questions/1815606/rscript-determine-path-of-the-executing-script
 #-------------------------------------------------------------------------------
-get.this.file.dir <- function(){
-	cmdArgs <- commandArgs(trailingOnly = FALSE)
-	needle <- "--file="
-	match <- grep(needle, cmdArgs)
-	if (length(match) > 0) {
-		# Rscript
-		return(dirname(sub(needle, "", cmdArgs[match])))
+get.this.file.dir <- function() {
+	args <- commandArgs()
+	with.file <- grepl("--file=", args)
+	if (any(with.file)) {
+		# The script was executed from Rscript.
+		file.path <- sub("--file=", "", args[with.file])
 	} else {
-		# 'source'd via R console
-		return(dirname(normalizePath(sys.frames()[[1]]$ofile)))
+		# The script was sourced from R.
+		file.path <- sys.frames()[[1]]$ofile
 	}
+	return(dirname(normalizePath(file.path)))
 }
 
-library(model.adapter)
-library(R6)
-library(ranger)
-library(gbm)
-library(e1071)
 
 #-------------------------------------------------------------------------------
 #	ソース読み込み
 #-------------------------------------------------------------------------------
 
 # predictをgammとglmmMLに対応させる
-source(file.path(get.this.file.dir(), "R", "cluster.manager.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "cv.best.models.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "classification.metrics.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "regression.metrics.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "cv.metrics.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "cv.models.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "utils.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "methods.r"), encoding = "UTF-8")
-source(file.path(get.this.file.dir(), "R", "which.min.max.r"), encoding = "UTF-8")
+files <- list.files(file.path(get.this.file.dir(), "R"))
+for (i in files) {
+	source(file.path(get.this.file.dir(), "R", i), encoding = "UTF-8")
+}
 
