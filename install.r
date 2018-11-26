@@ -22,6 +22,7 @@ old.wd <- setwd(get.this.file.dir())
 #------------------------------------------------------------------------------
 unlink("man", recursive = TRUE)
 devtools::document()
+devtools::build_vignettes(clean = FALSE)
 
 
 #------------------------------------------------------------------------------
