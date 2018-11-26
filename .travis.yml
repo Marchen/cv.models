@@ -26,6 +26,7 @@ repos:
   glmmadmb: http://glmmadmb.r-forge.r-project.org/repos
 before_script:
   - rm .travis.yml
+  - rm .gitignore
   - R -e 'install.packages("roxygen2")'
   - R -e 'devtools::document()'
   - R -e 'devtools::build_vignettes()'
