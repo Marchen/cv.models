@@ -38,7 +38,7 @@
 #		}
 #	}
 #------------------------------------------------------------------------------
-regression.metrics.calculator <- R6Class("regression.metrics.calculator")
+regression.metrics.calculator <- R6::R6Class("regression.metrics.calculator")
 
 
 #------------------------------------------------------------------------------

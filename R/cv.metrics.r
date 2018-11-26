@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 #	An R6 Class calculating accuracy metrics of the model.
 #------------------------------------------------------------------------------
-cv.metrics.calculator <- R6Class("cv.metrics.calculator")
+cv.metrics.calculator <- R6::R6Class("cv.metrics.calculator")
 
 
 #------------------------------------------------------------------------------
