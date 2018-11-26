@@ -1,18 +1,110 @@
 #------------------------------------------------------------------------------
-#	An R6 Class calculating accuracy metrics of the model.
+#'	(Internal) An R6 Class calculating performance metrics of the model.
+#'
+#'	@section Methods
+#'
+#'	\strong{join.factor(x)}
+#'
+#'		Join vectors of factors.
+#'
+#'		\subseciton{Args}{
+#'			\describe{
+#'				\item{x}{a list of factors.}
+#'			}
+#'		}
+#'
+#'		\subseciton{Returns}{
+#'			A vector of factor.
+#'		}
+#'
+#'	\strong{join.fits(fits)}
+#'
+#'		Join predicted results of each fold.
+#'
+#'		\subsection{Args}{
+#'			\describe{
+#'				\item{fits}{
+#'					result of cross validation.
+#'					Usually 'fits' field of cv.models object.
+#'				}
+#'			}
+#'		}
+#'
+#'		\subsection{Details}{
+#'			This method convert the structure of the fits.
+#'				list(
+#'					list(response1, prediction1, index1),
+#'					list(response2, prediction2, index2),
+#'					...
+#'				)
+#'				->
+#'				list(
+#'					list(
+#'						c(response1, response2, ...)
+#'						c(prediction1, prediction2, ...)
+#'						c(index1, index2, ...)
+#'					)
+#'				)
+#'		}
+#'
+#'	\strong{calculate.metrics.of.folds(fits, cal)}
+#'
+#'		Create metrics for all folds and returns it as a list of
+#'		matrix/matrices.
+#'
+#'		\subsection{Args}{
+#'			\describe{
+#'				\item{fits}{
+#'					result of cross validation. Usually 'fits' field of
+#'					cv.models object.
+#'				}
+#'				\item{cal}{
+#'					\code{classification.metrics.calculator} or
+#'					\code{regression.metrics.calculator} object.
+#'				}
+#'			}
+#'		}
+#'
+#'		\subsection{Returns}{
+#'			A list of matrix/matrices which represents performance metrics for
+#'			all folds.
+#'		}
+#'
+#'	\strong{aggregate.folds(metrics.tables)}
+#'
+#'		Calculate all metrics using single method of optimal.cutpoints.
+#'
+#'		\subsection{Args}{
+#'			\describe{
+#'				\item{metrics.tables}{
+#'					a list of matrix/matrices which represents performance
+#'					metrics for all folds.
+#'				}
+#'			}
+#'		}
+#'
+#'		\subsection{Returns}{
+#'			A list of matrix/matrices which represents performance metrics for
+#'			all folds.
+#'		}
+#'
+#'	\strong{calculate.metrics(object, fits)}
+#'
+#'		Calculate all metrics for all methods of optimal.cutpoints.
+#'
+#'		\subsection{Args}{
+#'			\describe{
+#'				\item{object}{a cv.models object.}
+#'				\item{fits}{a list having fits field of cv.models.}
+#'			}
+#'		}
+#'
+#'	@name cv.metrics.calculator-class
+#'
 #------------------------------------------------------------------------------
 cv.metrics.calculator <- R6::R6Class("cv.metrics.calculator")
 
 
-#------------------------------------------------------------------------------
-#	Join vectors of factor.
-#
-#	Args:
-#		x:
-#			a list of factors.
-#
-#	Returns:
-#		vector of factor.
 #------------------------------------------------------------------------------
 cv.metrics.calculator$set(
 	"private", "join.factor",
@@ -31,32 +123,6 @@ cv.metrics.calculator$set(
 )
 
 
-#------------------------------------------------------------------------------
-#	Join results of cross validation.
-#
-#	This method join results of each fold of cross validation.
-#	The resultant object is used in the case aggregate.method = "join".
-#
-#	Args:
-#		fits:
-#			result of cross validation.
-#			Usually 'fits' field of cv.models object.
-#
-#	Details:
-#		This method convert the structure of the fits.
-#			list(
-#				list(response1, prediction1, index1),
-#				list(response2, prediction2, index2),
-#				...
-#			)
-#			->
-#			list(
-#				list(
-#					c(response1, response2, ...)
-#					c(prediction1, prediction2, ...)
-#					c(index1, index2, ...)
-#				)
-#			)
 #------------------------------------------------------------------------------
 cv.metrics.calculator$set(
 	"private", "join.fits",
@@ -81,16 +147,6 @@ cv.metrics.calculator$set(
 
 
 #------------------------------------------------------------------------------
-#	Create metrics for all folds and returns it as a list of matrix/matrices.
-#
-#	Args:
-#		fits:
-#			result of cross validation. Usually 'fits' field of cv.models
-#			object.
-#		cal:
-#			classification.metrics.calculator or
-#			regression.metrics.calculator object.
-#------------------------------------------------------------------------------
 cv.metrics.calculator$set(
 	"private", "calculate.metrics.of.folds",
 	function(fits, cal) {
@@ -102,16 +158,6 @@ cv.metrics.calculator$set(
 )
 
 
-#------------------------------------------------------------------------------
-#	Calculate all metrics using single method of optimal.cutpoints.
-#
-#	Args:
-#		fits:
-#			result of cross validation. Usually 'fits' field of cv.models
-#			object.
-#		cal:
-#			classification.metrics.calculator or
-#			regression.metrics.calculator object.
 #------------------------------------------------------------------------------
 cv.metrics.calculator$set(
 	"private", "aggregate.folds",
@@ -127,12 +173,6 @@ cv.metrics.calculator$set(
 )
 
 
-#------------------------------------------------------------------------------
-#	Calculate all metrics for all methods of optimal.cutpoints.
-#
-#	Args:
-#		object:
-#			a cv.models object.
 #------------------------------------------------------------------------------
 cv.metrics.calculator$set(
 	"public", "calculate.metrics",
@@ -167,13 +207,26 @@ cv.metrics.calculator$set(
 
 
 #------------------------------------------------------------------------------
-#'	Calculate model evaluation metrics.
+#'	(Internal) Calculate model evaluation metrics.
 #'
 #'	This function calculates several model evaluation metrics for both
 #'	regression and classification models.
 #'
 #'	@param object
 #'		a \code{cv.models} object.
+#'		If object$aggregate.method is "folds" (it can't be specified by users),
+#'		cv.metrics returns metrics for all folds.
+#'
+#'	@param fits
+#'		a list having fits field of cv.models.
+#'		Structure of the list should be:
+#'			list(
+#'				list(	-> Each element represents a fold.
+#'					list(response, prediction, index),
+#'					list(response, prediction, index),
+#'					list(response, prediction, index),
+#'				)
+#'			)
 #------------------------------------------------------------------------------
 cv.metrics <- function(object, fits) {
 	cal <- cv.metrics.calculator$new()
