@@ -51,18 +51,17 @@ cluster.manager$methods(
 			}
 		}
 		"
-		library(parallel)
 		.self$n.cores <- .self$detect.cores(object, type)
 		if (.self$n.cores > 1) {
 			# Initialize cluster
-			.self$cl <- makeCluster(.self$n.cores)
+			.self$cl <- parallel::makeCluster(.self$n.cores)
 			.self$export.functions()
-			clusterExport(
+			parallel::clusterExport(
 				.self$cl, ls(envir = object$envir), envir = object$envir
 			)
-			clusterEvalQ(.self$cl, library(model.adapter))
-			clusterEvalQ(.self$cl, library(cv.models))
-			clusterCall(
+			parallel::clusterEvalQ(.self$cl, library(model.adapter))
+			parallel::clusterEvalQ(.self$cl, library(cv.models))
+			parallel::clusterCall(
 				.self$cl, library, object$adapter$package.name,
 				character.only = TRUE
 			)
@@ -81,7 +80,7 @@ cluster.manager$methods(
 		Stops Cluster
 		"
 		if (!is.null(.self$cl)) {
-			stopCluster(.self$cl)
+			parallel::stopCluster(.self$cl)
 			.self$cl <- NULL
 		}
 	}
@@ -95,7 +94,9 @@ cluster.manager$methods(
 		Export required functions to the cluster.
 		"
 		object.names <- c("apply.grid", "make.prediction")
-		clusterExport(.self$cl, object.names, loadNamespace("cv.models"))
+		parallel::clusterExport(
+			.self$cl, object.names, loadNamespace("cv.models")
+		)
 	}
 )
 
@@ -117,7 +118,7 @@ cluster.manager$methods(
 		"
 		type <- match.arg(type)
 		if (is.null(object$n.cores)) {
-			cores <- detectCores()
+			cores <- parallel::detectCores()
 		} else {
 			cores <- as.integer(object$n.cores)
 		}
@@ -144,7 +145,7 @@ cluster.manager$methods(
 		Parallel/One-by-one Version of \\code{lapply}
 		"
 		if (.self$n.cores > 1) {
-			return(parLapply(.self$cl, X, FUN, ...))
+			return(parallel::parLapply(.self$cl, X, FUN, ...))
 		} else {
 			return(base::lapply(X, FUN, ...))
 		}
