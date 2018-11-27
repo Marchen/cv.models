@@ -17,10 +17,10 @@ set.formula <- function(object, call, new.formula) {
 # クロスバリデーションを実行し、ベストモデルを取得し、callを保存する補助関数。
 # call: 実行するcv.modelsのcall。
 # metric: ベストモデルを選ぶ基準を表す文字列。
-eval.model <- function(call, metric) {
-	result <- eval(call)
+eval.model <- function(call, metric, envir) {
+	result <- eval(call, envir)
 	result$call <- call
-	result$best <- get.best.models(result, metrics = metric)
+	result$best <- find.best.models(result, criteria = metric)
 	return(result)
 }
 
@@ -28,14 +28,14 @@ eval.model <- function(call, metric) {
 # x: 除去する変数名
 # call: モデルの呼び出し式
 # metric: ベストモデルを選ぶ基準にする指標名。
-next.model <- function(x, call, metric) {
+next.model <- function(x, call, metric, envir) {
 	# モデル式を作成する。
 	dummy <- make.dummy(as.character(call$model.function), call$package.name)
 	args.model <- expand.dot(dummy, eval(call$args.model), eval(call$data))
 	formula <- get.formula(dummy, args.model)
 	formula <- update.formula(formula, sprintf(". ~ . - %s", x))
 	call <- set.formula(dummy, call, formula)
-	return(eval.model(call, metric))
+	return(eval.model(call, metric, envir))
 }
 
 
@@ -125,19 +125,18 @@ get.drop.terms <- function(call) {
 #	・真剣にテストしてない。
 #
 #==============================================================================
-select.params <- function(x, metric, n.cores = 1) {
+select.params <- function(x, metric, n.cores = 1, envir = parent.frame()) {
 	# フルモデルを作成
 	call <- match.call(cv.models, substitute(x))
 	result <- list(models = list())
-	prev.model <- result$initial <- eval.model(call, metric)
+	prev.model <- result$initial <- eval.model(call, metric, envir)
 	# 除去可能な変数リストを作成。
 	drop.terms <- get.drop.terms(call)
 	# クラスター準備
 	if (n.cores > 1) {
-		require(parallel)
-		cl <- makeCluster(detectCores())
+		cl <- parallel::makeCluster(detectCores())
 		on.exit(stopCluster(cl))
-		clusterExport(cl, varlist = ls(.GlobalEnv, all = TRUE))
+		clusterExport(cl, varlist = ls(envir, all = TRUE))
 	}
 	# インデックスを初期化
 	index = 1
@@ -145,11 +144,13 @@ select.params <- function(x, metric, n.cores = 1) {
 		# 候補モデルを作成。
 		if (n.cores > 1) {
 			result$models[[index]] <- clusterApplyLB(
-				cl, drop.terms, next.model, call = call, metric = metric
+				cl, drop.terms, next.model, call = call, metric = metric,
+				envir = envir
 			)
 		} else {
 			result$models[[index]] <- lapply(
-				drop.terms, next.model, call = call, metric = metric
+				drop.terms, next.model, call = call, metric = metric,
+				envir = envir
 			)
 		}
 		names(result$models[[index]]) <- drop.terms
