@@ -1,19 +1,19 @@
 #------------------------------------------------------------------------------
 #'	(Internal) An R6 Class calculating performance metrics of the model.
 #'
-#'	@section Methods
+#'	@section Methods:
 #'
 #'	\strong{join.factor(x)}
 #'
 #'		Join vectors of factors.
 #'
-#'		\subseciton{Args}{
+#'		\subsection{Args}{
 #'			\describe{
 #'				\item{x}{a list of factors.}
 #'			}
 #'		}
 #'
-#'		\subseciton{Returns}{
+#'		\subsection{Returns}{
 #'			A vector of factor.
 #'		}
 #'
