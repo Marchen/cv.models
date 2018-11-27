@@ -4,8 +4,11 @@
 #	This test check whetehr direct input, via call(), via substitute(), call in
 #	model object can produce same results.
 #===============================================================================
+library(testthat)
+library(cv.models)
 library(randomForest)
 library(gbm)
+
 
 #------------------------------------------------------------------------------
 context("Test different types of call produce same result")

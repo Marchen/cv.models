@@ -1,7 +1,11 @@
 #==============================================================================
 #	Unit test of regression.metrics.calculator class.
 #==============================================================================
+library(testthat)
+library(cv.models)
 
+
+#------------------------------------------------------------------------------
 context("Unit test for regression.metrics.calculator class.")
 
 

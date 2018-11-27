@@ -1,10 +1,13 @@
 #==============================================================================
 #	Unit test of cv.group with class stratification
 #==============================================================================
+library(testthat)
+library(cv.models)
+library(randomForest)
 
+
+#------------------------------------------------------------------------------
 context("Unit test for cv.group with class stratification.")
-
-require(randomForest)
 
 
 #------------------------------------------------------------------------------

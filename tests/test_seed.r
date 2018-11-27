@@ -1,6 +1,8 @@
 #===============================================================================
 #	Test setting same 'seed' produces same result.
 #===============================================================================
+library(testthat)
+library(cv.models)
 library(randomForest)
 library(gbm)
 

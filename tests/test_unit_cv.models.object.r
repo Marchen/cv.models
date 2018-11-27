@@ -1,10 +1,13 @@
 #==============================================================================
 #	Unit test of cv.models.object with user defined group
 #==============================================================================
+library(testthat)
+library(cv.models)
+library(randomForest)
 
+
+#------------------------------------------------------------------------------
 context("Unit test for cv.models.object with user defined group.")
-
-require(randomForest)
 
 test_that(
 	"Test folds with user defined group with different variable types", {
