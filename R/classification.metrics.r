@@ -125,9 +125,8 @@ classification.metrics.calculator$set(
 classification.metrics.calculator$set(
 	"private", "run.optimal.cutpoints",
 	function(fit) {
-		require(OptimalCutpoints)
 		args <- private$prepare.optimal.cutpoints.args(fit)
-		result <- do.call(optimal.cutpoints, args)
+		result <- do.call(OptimalCutpoints::optimal.cutpoints, args)
 		return(result)
 	}
 )
