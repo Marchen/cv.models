@@ -15,7 +15,7 @@ context("Unit test for cv.group with class stratification.")
 #------------------------------------------------------------------------------
 biased.iris <- function() {
 	iris2 <- iris[Species != "setosa", ]
-	iris2 <- rbind(iris2, head(iris[Species == "setosa", ], 10))
+	iris2 <- rbind(iris2, head(iris[iris$Species == "setosa", ], 10))
 	return(iris2)
 }
 
