@@ -13,7 +13,7 @@ output:
         toc_depth: 2
         md_extensions: -ascii_identifiers
 vignette: >
-    %\VignetteIndexEntry{Quick start guid for cv.models (Japanese).}
+    %\VignetteIndexEntry{Quick start guide for cv.models (Japanese)}
     %\VignetteEngine{knitr::rmarkdown}
     \usepackage[utf8]{inputenc}
 ---
