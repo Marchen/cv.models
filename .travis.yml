@@ -19,6 +19,7 @@ r_binary_packages:
   - ranger
   - MASS
   - MCMCglmm
+  - OptimalCutpoints
 r_github_packages:
   - marchen/model.adapter
 repos:
