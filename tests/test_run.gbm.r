@@ -19,7 +19,6 @@ run.gbm.regression <- function() {
 		),
 		n.trees = 10
 	)
-	print(cv)
 }
 
 # GBM regression without cluster.
@@ -31,7 +30,6 @@ run.gbm.regression.no.cluster <- function() {
 		),
 		n.trees = 10, n.cores = 1
 	)
-	print(cv)
 }
 
 # GBM regression with grid search.
@@ -44,7 +42,6 @@ run.gbm.regression.with.grid <- function() {
 		grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
 		n.trees = 10
 	)
-	print(cv)
 }
 
 # GBM regression with grid search without cluster.
@@ -57,7 +54,6 @@ run.gbm.regression.with.grid.no.cluster <- function() {
 		grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
 		n.trees = 10, n.cores = 1
 	)
-	print(cv)
 }
 
 # GBM regression with grid search for predct args.
@@ -65,11 +61,10 @@ run.gbm.regression.with.grid.predict <- function() {
 	cv <- cv.models(
 		gbm(
 			Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
-			distribution = "gaussian", n.trees = 10, n.cores = 1
+			distribution = "gaussian", n.trees = 100, n.cores = 1
 		),
 		grid.predict = list(n.trees = c(5, 10, 50, 80))
 	)
-	print(cv)
 }
 
 # GBM regression with grid search for predct args without cluster.
@@ -77,11 +72,10 @@ run.gbm.regression.with.grid.predict.no.cluster <- function() {
 	cv <- cv.models(
 		gbm(
 			Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
-			distribution = "gaussian", n.trees = 10, n.cores = 1
+			distribution = "gaussian", n.trees = 100, n.cores = 1
 		),
 		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 1
 	)
-	print(cv)
 }
 
 # GBM regression with "join".
@@ -93,7 +87,6 @@ run.gbm.regression.join <- function() {
 		),
 		n.trees = 10, aggregate.method = "join"
 	)
-	print(cv)
 }
 
 # GBM regression with "join" without cluster.
@@ -105,20 +98,18 @@ run.gbm.regression.join.no.cluster <- function() {
 		),
 		n.trees = 10, aggregate.method = "join", n.cores = 1
 	)
-	print(cv)
 }
 
-# 動かない。
 run.gbm.regression.external.formula <- function() {
 	f <- Petal.Length ~ .
 	cv <- cv.models(
 		gbm(
-			f, data = iris, weights = iris$Sepal.Width,
-			distribution = "gaussian", n.trees = 10
+			f, data = iris, weights = Sepal.Width,
+			distribution = "gaussian", n.trees = 100
 		),
 		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 1
 	)
-	print(cv)
+
 }
 
 
@@ -135,7 +126,6 @@ run.gbm.classification <- function() {
 		),
 		n.trees = 10, positive.class = "virginica"
 	)
-	print(cv)
 }
 
 # GBM classification without cluster.
@@ -178,11 +168,12 @@ run.gbm.classification.with.grid.predict <- function() {
 	cv <- cv.models(
 		gbm(
 			Species ~ ., data = iris, weights = iris$Sepal.Width,
-			distribution = "multinomial", n.trees = 10, n.cores = 1
+			distribution = "multinomial", n.trees = 100, n.cores = 1
 		),
 		grid.predict = list(n.trees = c(5, 10, 50, 80)),
 		n.trees = 10, positive.class = "virginica"
 	)
+
 }
 
 # GBM classification with grid for prediction without cluster.
@@ -190,7 +181,7 @@ run.gbm.classification.with.grid.predict.no.cluster <- function() {
 	cv <- cv.models(
 		gbm(
 			Species ~ ., data = iris, weights = iris$Sepal.Width,
-			distribution = "multinomial", n.trees = 10, n.cores = 1
+			distribution = "multinomial", n.trees = 100, n.cores = 1
 		),
 		grid.predict = list(n.trees = c(5, 10, 50, 80)),
 		n.trees = 10, positive.class = "virginica", n.cores = 1
@@ -221,10 +212,14 @@ run.gbm.classification.join.no.cluster <- function() {
 }
 
 
+#-------------------------------------------------------------------------------
+#	Run all tests for GBM.
+#-------------------------------------------------------------------------------
+context("Test compatibility with gbm")
 
 do.test.that <- function(fun) {
 	msg <- deparse(substitute(fun))
-	test_that(msg, fun())
+	test_that(msg, expect_silent(fun()))
 }
 
 do.test.that(run.gbm.regression)
@@ -235,7 +230,7 @@ do.test.that(run.gbm.regression.with.grid.predict)
 do.test.that(run.gbm.regression.with.grid.predict.no.cluster)
 do.test.that(run.gbm.regression.join)
 do.test.that(run.gbm.regression.join.no.cluster)
-#do.test.that(run.gbm.regression.external.formula)
+do.test.that(run.gbm.regression.external.formula)
 
 do.test.that(run.gbm.classification)
 do.test.that(run.gbm.classification.no.cluster)
