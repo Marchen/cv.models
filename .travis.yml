@@ -30,6 +30,5 @@ before_script:
   - R -e 'install.packages("roxygen2")'
   - R -e 'devtools::document()'
   - R -e 'devtools::install()'
-  - R -e 'devtools::build_vignettes()'
 sudo:
   required
