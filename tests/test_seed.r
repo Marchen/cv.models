@@ -32,7 +32,7 @@ run.tests <- function(fun) {
 #------------------------------------------------------------------------------
 context("Test same seeds produce same results")
 
-test__same_seeds_produce_same_results <- function(call, msg) {
+test.same.seeds.produce.same.results <- function(call, msg) {
 	test_that(
 		msg, {
 			cv.1 <- cv.models(call, seed = 1, n.cores = 1, n.trees = 10)
@@ -47,14 +47,13 @@ test__same_seeds_produce_same_results <- function(call, msg) {
 	)
 }
 
-run.tests(test__same_seeds_produce_same_results)
-rm(test__same_seeds_produce_same_results)
+run.tests(test.same.seeds.produce.same.results)
 
 
 #------------------------------------------------------------------------------
 context("Test different seeds produce different results")
 
-test__different_seeds_produce_different_results <- function(call, msg) {
+test.different.seeds.produce.different.results <- function(call, msg) {
 	test_that(
 		msg, {
 			cv.1 <- cv.models(call, seed = 1, n.cores = 1, n.trees = 10)
@@ -65,8 +64,7 @@ test__different_seeds_produce_different_results <- function(call, msg) {
 	)
 }
 
-run.tests(test__different_seeds_produce_different_results)
-rm(test__different_seeds_produce_different_results)
+run.tests(test.different.seeds.produce.different.results)
 
 
 #------------------------------------------------------------------------------
@@ -96,12 +94,15 @@ test_that(
 #------------------------------------------------------------------------------
 context("Test same seeds produce same results using cluster")
 
-test__same_seeds_produce_same_results_with_custer <- function(call, msg) {
+test.same.seeds.produce.same.results.with.custer <- function(call, msg) {
 	test_that(
 		msg, {
+			# No cluster.
 			cv.1 <- cv.models(call, seed = 1, n.cores = 1, n.trees = 10)
+			# Using all cluster.
 			cv.2 <- cv.models(call, seed = 1, n.cores = 2, n.trees = 10)
-			cv.20 <- cv.models(call, seed = 1, n.cores = 20, n.trees = 10)
+			# Using 2/3 of clusters.
+			cv.20 <- cv.models(call, seed = 1, folds = 2, n.cores = 3, n.trees = 10)
 			fields <- names(cv.1)[!names(cv.1) %in% c("n.cores", "adapter")]
 			for (i in fields) {
 				expect_identical(
@@ -115,8 +116,7 @@ test__same_seeds_produce_same_results_with_custer <- function(call, msg) {
 	)
 }
 
-run.tests(test__same_seeds_produce_same_results_with_custer)
-rm(test__same_seeds_produce_same_results_with_custer)
+run.tests(test.same.seeds.produce.same.results.with.custer)
 
 
 #------------------------------------------------------------------------------
@@ -134,16 +134,14 @@ test_that(
 				grid = list(
 					interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)
 				),
-				grid.predict = list(n.trees = 1:3)
+				grid.predict = list(n.trees = c(1, 3))
 			)
 			return(cv)
 		}
 		cv.1 <- run.cv.models(1)
 		cv.2 <- run.cv.models(2)
-		cv.20 <- run.cv.models(20)
+		cv.20 <- run.cv.models(10)
 		expect_equal(cv.1$cv.results, cv.2$cv.results, info = "1 vs 2")
-		expect_equal(cv.1$cv.results, cv.20$cv.results, info = "1 vs 20")
+		expect_equal(cv.1$cv.results, cv.20$cv.results, info = "1 vs 10")
 	}
 )
-
-rm(run.tests)
