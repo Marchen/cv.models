@@ -17,7 +17,7 @@ run.gbm.regression <- function() {
 			Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
 			distribution = "gaussian", n.trees = 10, n.cores = 1
 		),
-		n.trees = 10
+		n.trees = 10, n.cores = 2
 	)
 }
 
@@ -40,7 +40,7 @@ run.gbm.regression.with.grid <- function() {
 			distribution = "gaussian", n.trees = 10, n.cores = 1
 		),
 		grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
-		n.trees = 10
+		n.trees = 10, n.cores = 2
 	)
 }
 
@@ -63,7 +63,7 @@ run.gbm.regression.with.grid.predict <- function() {
 			Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
 			distribution = "gaussian", n.trees = 100, n.cores = 1
 		),
-		grid.predict = list(n.trees = c(5, 10, 50, 80))
+		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 2
 	)
 }
 
@@ -85,7 +85,7 @@ run.gbm.regression.join <- function() {
 			Petal.Length ~ ., data = iris, weights = iris$Sepal.Width,
 			distribution = "gaussian", n.trees = 10, n.cores = 1
 		),
-		n.trees = 10, aggregate.method = "join"
+		n.trees = 10, aggregate.method = "join", n.cores = 2
 	)
 }
 
@@ -99,8 +99,20 @@ run.gbm.regression.join.no.cluster <- function() {
 		n.trees = 10, aggregate.method = "join", n.cores = 1
 	)
 }
-
+# GBM regression with external formula.
 run.gbm.regression.external.formula <- function() {
+	f <- Petal.Length ~ .
+	cv <- cv.models(
+		gbm(
+			f, data = iris, weights = Sepal.Width,
+			distribution = "gaussian", n.trees = 100
+		),
+		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 2
+	)
+}
+
+# GBM regression with external formula without cluster.
+run.gbm.regression.external.formula.no.cluster <- function() {
 	f <- Petal.Length ~ .
 	cv <- cv.models(
 		gbm(
@@ -109,8 +121,8 @@ run.gbm.regression.external.formula <- function() {
 		),
 		grid.predict = list(n.trees = c(5, 10, 50, 80)), n.cores = 1
 	)
-
 }
+
 
 
 #-------------------------------------------------------------------------------
@@ -124,7 +136,7 @@ run.gbm.classification <- function() {
 			Species ~ ., data = iris, weights = iris$Sepal.Width,
 			distribution = "multinomial", n.trees = 10, n.cores = 1
 		),
-		n.trees = 10, positive.class = "virginica"
+		n.trees = 10, positive.class = "virginica", n.cores = 2
 	)
 }
 
@@ -147,7 +159,7 @@ run.gbm.classification.with.grid <- function() {
 			distribution = "multinomial", n.trees = 10, n.cores = 1
 		),
 		grid = list(interaction.depth = c(1, 5), n.minobsinnode = c(1, 10)),
-		n.trees = 10, positive.class = "virginica"
+		n.trees = 10, positive.class = "virginica", n.cores = 2
 	)
 }
 
@@ -171,7 +183,7 @@ run.gbm.classification.with.grid.predict <- function() {
 			distribution = "multinomial", n.trees = 100, n.cores = 1
 		),
 		grid.predict = list(n.trees = c(5, 10, 50, 80)),
-		n.trees = 10, positive.class = "virginica"
+		n.trees = 10, positive.class = "virginica", n.cores = 2
 	)
 
 }
@@ -188,18 +200,19 @@ run.gbm.classification.with.grid.predict.no.cluster <- function() {
 	)
 }
 
-# GBM classification.
+# GBM classification with "join".
 run.gbm.classification.join <- function() {
 	cv <- cv.models(
 		gbm(
 			Species ~ ., data = iris, weights = iris$Sepal.Width,
 			distribution = "multinomial", n.trees = 10, n.cores = 1
 		),
-		n.trees = 10, positive.class = "virginica", aggregate.method = "join"
+		n.trees = 10, positive.class = "virginica", aggregate.method = "join",
+		n.cores = 2
 	)
 }
 
-# GBM classification without cluster.
+# GBM classification with "join" without cluster.
 run.gbm.classification.join.no.cluster <- function() {
 	cv <- cv.models(
 		gbm(
@@ -210,6 +223,31 @@ run.gbm.classification.join.no.cluster <- function() {
 		n.cores = 1
 	)
 }
+
+# GBM classification with external formula.
+run.gbm.classification.external.formula <- function() {
+	f <- Species ~ .
+	cv <- cv.models(
+		gbm(
+			f, data = iris, weights = Sepal.Width,
+			distribution = "multinomial", n.trees = 10, n.cores = 1
+		),
+		n.trees = 10, positive.class = "virginica", n.cores = 2
+	)
+}
+
+# GBM classification with external formula without cluster.
+run.gbm.classification.external.formula.no.cluster <- function() {
+	f <- Species ~ .
+	cv <- cv.models(
+		gbm(
+			f, data = iris, weights = Sepal.Width,
+			distribution = "multinomial", n.trees = 10, n.cores = 1
+		),
+		n.trees = 10, positive.class = "virginica", n.cores = 1
+	)
+}
+
 
 
 #-------------------------------------------------------------------------------
@@ -231,6 +269,7 @@ do.test.that(run.gbm.regression.with.grid.predict.no.cluster)
 do.test.that(run.gbm.regression.join)
 do.test.that(run.gbm.regression.join.no.cluster)
 do.test.that(run.gbm.regression.external.formula)
+do.test.that(run.gbm.regression.external.formula.no.cluster)
 
 do.test.that(run.gbm.classification)
 do.test.that(run.gbm.classification.no.cluster)
@@ -240,4 +279,5 @@ do.test.that(run.gbm.classification.with.grid.predict)
 do.test.that(run.gbm.classification.with.grid.predict.no.cluster)
 do.test.that(run.gbm.classification.join)
 do.test.that(run.gbm.classification.join.no.cluster)
-
+do.test.that(run.gbm.classification.external.formula)
+do.test.that(run.gbm.classification.external.formula.no.cluster)
