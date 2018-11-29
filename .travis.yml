@@ -9,6 +9,8 @@ r:
 cache: packages
 repos:
   CRAN: https://cloud.r-project.org
+r_github_packages:
+  - marchen/model.adapter
 before_install:
   - R -e 'install.packages("R2admb")'
   - R -e 'install.packages("glmmADMB", repos=c("http://glmmadmb.r-forge.r-project.org/repos", getOption("repos")), type="source")'
