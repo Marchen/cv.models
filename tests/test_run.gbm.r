@@ -5,6 +5,8 @@ library(testthat)
 library(cv.models)
 library(gbm)
 
+set.seed(12345)
+
 
 #-------------------------------------------------------------------------------
 #	Tests for regression by GBM.
