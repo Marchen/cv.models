@@ -20,16 +20,17 @@ vignette: >
 
 [English](cv.models.html)
 
+```{R, preparation, echo = FALSE, message = FALSE, include = FALSE}
+library(cv.models)
+library(gbm)
+set.seed(12345)
+```
+
 # はじめに
 
 このパッケージはクロスバリデーションを用いて統計・機械学習モデルの予測能力の推定や、ハイパーパラメーターの調整を行うパッケージです。
 現在のバージョンはまだAPIや仕様の設計段階なので、将来仕様が変わるかもしれません。
 もし、バグにお気づきだったりご要望があったりしたらメール（アドレスは以下のコードをRにペースト：「rawToChar(as.raw(c(109, 111, 103, 64, 102, 102, 112, 114, 105, 46, 97, 102, 102, 114, 99, 46, 103, 111, 46, 106, 112)))」）もしくは[GitHub](https://github.com/Marchen/cv.models)にご連絡下さい。
-
-```{R, preparation, echo = FALSE, message = FALSE, include = FALSE}
-library(cv.models)
-library(gbm)
-```
 
 # インストール
 

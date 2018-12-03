@@ -20,6 +20,12 @@ vignette: >
 
 [日本語](cv.models.j.html)
 
+```{R, preparation, echo = FALSE, message = FALSE, include = FALSE}
+library(cv.models)
+library(gbm)
+set.seed(12345)
+```
+
 # Introduction
 
 This package provides simple interface for cross validation and hyper-parameter tuning for statistical/machine learning models.
