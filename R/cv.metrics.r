@@ -229,6 +229,12 @@ cv.metrics.calculator$set(
 #'			)
 #------------------------------------------------------------------------------
 cv.metrics <- function(object, fits) {
+	# Test aggreate.method.
+	# Because user input is checked by cv.models,
+	# error can be introduced by developpers, not by users.
+	if (!object$aggregate.method %in% c("join", "mean", "folds")) {
+		stop("'aggregate.method' should be one of 'join', 'mean' and 'folds'.")
+	}
 	cal <- cv.metrics.calculator$new()
 	return(cal$calculate.metrics(object, fits))
 }
