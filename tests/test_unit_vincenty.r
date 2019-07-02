@@ -9,6 +9,8 @@ library(testthat)
 context("Unit test for distance using the Vincenty's formulae.")
 
 deg2rad <- cv.models:::deg2rad
+vincenty.distance <- cv.models:::vincenty.distance
+
 
 #------------------------------------------------------------------------------
 test_that(
