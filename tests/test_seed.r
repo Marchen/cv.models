@@ -98,9 +98,9 @@ test.same.seeds.produce.same.results.with.custer <- function(call, msg) {
 	test_that(
 		msg, {
 			# No cluster.
-			cv.1 <- cv.models(call, seed = 1, n.cores = 1, n.trees = 10)
+			cv.1 <- cv.models(call, seed = 1, folds = 2, n.cores = 1, n.trees = 10)
 			# Using all cluster.
-			cv.2 <- cv.models(call, seed = 1, n.cores = 2, n.trees = 10)
+			cv.2 <- cv.models(call, seed = 1, folds = 2, n.cores = 2, n.trees = 10)
 			# Using 2/3 of clusters.
 			cv.20 <- cv.models(call, seed = 1, folds = 2, n.cores = 3, n.trees = 10)
 			fields <- names(cv.1)[!names(cv.1) %in% c("n.cores", "adapter")]
