@@ -10,6 +10,16 @@ library(gbm)
 #------------------------------------------------------------------------------
 context("Preparing tests")
 
+# Because Travis seems not to support testing with processes more than
+# number of cores, this function tests availability of specified number of
+# cores.
+exceeds.travis.process.limitation <- function(n.cores) {
+	return(
+		n.cores > parallel::detectCores()
+		& "ON_TRAVIS" %in% names(Sys.getenv())
+	)
+}
+
 run.tests <- function(fun) {
 	# Make calls of functions.
 	call.glm <- substitute(glm(Petal.Length ~ ., data = iris))
@@ -98,18 +108,27 @@ test.same.seeds.produce.same.results.with.custer <- function(call, msg) {
 	test_that(
 		msg, {
 			# No cluster.
-			cv.1 <- cv.models(call, seed = 1, folds = 2, n.cores = 1, n.trees = 10)
-			# Using all cluster.
-			cv.2 <- cv.models(call, seed = 1, folds = 2, n.cores = 2, n.trees = 10)
-			# Using 2/3 of clusters.
-			cv.20 <- cv.models(call, seed = 1, folds = 2, n.cores = 3, n.trees = 10)
+			cv.1 <- cv.models(
+				call, seed = 1, folds = 2, n.cores = 1, n.trees = 10
+			)
+			# Using 2 workwers
+			cv.2 <- cv.models(
+				call, seed = 1, folds = 2, n.cores = 2, n.trees = 10
+			)
+			# Using 2/3 of workers
+			if (!exceeds.travis.process.limitation(3)) {
+				# Travis CI doesn't support >2 cores so skip on Travis.
+				cv.3 <- cv.models(
+					call, seed = 1, folds = 2, n.cores = 3, n.trees = 10
+				)
+			}
 			fields <- names(cv.1)[!names(cv.1) %in% c("n.cores", "adapter")]
 			for (i in fields) {
 				expect_identical(
 					cv.1[[i]], cv.2[[i]], info = sprintf("Field: %s", i)
 				)
 				expect_identical(
-					cv.1[[i]], cv.20[[i]], info = sprintf("Field: %s", i)
+					cv.1[[i]], cv.3[[i]], info = sprintf("Field: %s", i)
 				)
 			}
 		}
@@ -125,6 +144,9 @@ context("Test same seed produce same result with parameter grid with cluster")
 test_that(
 	"Test same seed produce same result with parameter grid.", {
 		run.cv.models <- function(n.cores) {
+			if (exceeds.travis.process.limitation(n.core)) {
+				return()
+			}
 			cv <- cv.models(
 				call = gbm(
 					Petal.Length ~ ., data = iris, distribution = "gaussian",
