@@ -20,3 +20,5 @@ before_script:
   - R -e 'install.packages("devtools")'
   - R -e 'install.packages("roxygen2")'
   - R -e 'devtools::document()'
+env:
+  - ON_TRAVIS=yes
