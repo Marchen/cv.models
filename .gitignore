@@ -7,3 +7,4 @@ vignettes/*.html
 vignettes/*.R
 vignettes/.build.timestamp
 NAMESPACE
+.Rproj.user

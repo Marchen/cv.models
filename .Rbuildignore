@@ -1,0 +1,7 @@
+^Meta$
+^doc$
+^.*\.Rproj$
+^\.Rproj\.user$
+.*\.sh
+^.travis\.yml$
+^include\.r$
