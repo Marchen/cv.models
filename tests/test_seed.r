@@ -144,7 +144,7 @@ context("Test same seed produce same result with parameter grid with cluster")
 test_that(
 	"Test same seed produce same result with parameter grid.", {
 		run.cv.models <- function(n.cores) {
-			if (exceeds.travis.process.limitation(n.core)) {
+			if (exceeds.travis.process.limitation(n.cores)) {
 				return()
 			}
 			cv <- cv.models(
