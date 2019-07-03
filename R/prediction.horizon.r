@@ -204,6 +204,11 @@ find.vincenty.parameters <- function(f, L, U1, U2, threshold, maxit) {
 #'		The value of 1e-12 produces precision of 0.06mm.
 #'	@param maxit
 #'		maximum number of iteration to try before convergence.
+#'
+#'	@section References:
+#'		Vincenty, T. (1975)
+#'		Direct and inverse solutions of geodesics on the ellipsoid with
+#'		application of nested equations. Survey Review 23:88-93.
 #------------------------------------------------------------------------------
 vincenty.distance <- function(
 	a, b, lon1, phi1, lon2, phi2, threshold = 1e-12, maxit = 1000
@@ -331,7 +336,9 @@ calculate.distance.between.train.and.test <- function(
 #'		If FALSE, this function only returns calculated results and draw
 #'		nothing.
 #'	@param ...
-#'		graphical parameters passed to plot method.
+#'		graphical parameters passed to plot function.
+#'
+#'	@returns
 #'
 #'	@export
 #------------------------------------------------------------------------------

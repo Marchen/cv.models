@@ -28,6 +28,14 @@ apply.grid <- function(x, grid) {
 
 
 #------------------------------------------------------------------------------
+#	Using the parameter grid in the object, create list of cv.models objects
+#	having different calls.
+#	If the object does not have parameter grid, simply returns the object
+#	in a list.
+#
+#	Input: cv.models
+#	Output: list(cv.models, cv.models, ...)
+#------------------------------------------------------------------------------
 apply.grid.for.object <- function(object) {
 	if (is.null(object$grid)) {
 		return(list(object))
@@ -309,7 +317,8 @@ cv.models.object <- function(
 #'		to be continued...
 #'
 #'	@seealso
-#'		to be continued...
+#'		For the detailed introduction of the function, see vignettes (
+#'		\link[=../doc/cv.models.j.html]{Japanese}.
 #'
 #'	@examples
 #'		# to be continued...
