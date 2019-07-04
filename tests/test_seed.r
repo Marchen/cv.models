@@ -13,10 +13,7 @@ context("Preparing tests")
 # Because R CMD CHECK
 exceeds.core.limit <- function(n.cores) {
 	is.limited <- Sys.getenv("_R_CHECK_LIMIT_CORES_", unset = "")
-	if (is.limited == "") {
-		is.limited <- FALSE
-	}
-	return(is.limited)
+	return(ifelse(is.limited == "" | is.limited == "FALSE", FALSE, TRUE))
 }
 
 run.tests <- function(fun) {
