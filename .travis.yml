@@ -21,4 +21,4 @@ before_script:
   - R -e 'install.packages("roxygen2")'
   - R -e 'devtools::document()'
 env:
-  - ON_TRAVIS=yes
+  - _R_CHECK_LIMIT_CORES_=FALSE
