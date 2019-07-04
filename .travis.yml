@@ -6,6 +6,11 @@ r:
   - oldrel
   - release
   - devel
+# Tentative, until Travis-CI can test devel on osx.
+matrix:
+  exclude:
+    - r: devel
+      os: osx
 cache: packages
 repos:
   CRAN: https://cloud.r-project.org
@@ -14,6 +19,8 @@ r_github_packages:
 before_install:
   - R -e 'install.packages("R2admb")'
   - R -e 'install.packages("glmmADMB", repos=c("http://glmmadmb.r-forge.r-project.org/repos", getOption("repos")), type="source")'
+# Tentative.
+  - R -e 'install.packages("tree", repos = "https://mran.microsoft.com/snapshot/2019-04-15")'
 before_script:
   - rm .travis.yml
   - rm install.r
