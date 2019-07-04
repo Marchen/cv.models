@@ -10,14 +10,13 @@ library(gbm)
 #------------------------------------------------------------------------------
 context("Preparing tests")
 
-# Because Travis seems not to support testing with processes more than
-# number of cores, this function tests availability of specified number of
-# cores.
-exceeds.travis.process.limitation <- function(n.cores) {
-	return(
-		n.cores > parallel::detectCores()
-		& "ON_TRAVIS" %in% names(Sys.getenv())
-	)
+# Because R CMD CHECK
+exceeds.core.limit <- function(n.cores) {
+	is.limited <- Sys.getenv("_R_CHECK_LIMIT_CORES_", unset = "")
+	if (is.limited == "") {
+		is.limited <- FALSE
+	}
+	return(is.limited)
 }
 
 run.tests <- function(fun) {
@@ -116,7 +115,7 @@ test.same.seeds.produce.same.results.with.custer <- function(call, msg) {
 				call, seed = 1, folds = 2, n.cores = 2, n.trees = 10
 			)
 			# Using 2/3 of workers
-			if (!exceeds.travis.process.limitation(3)) {
+			if (!exceeds.core.limit(3)) {
 				# Travis CI doesn't support >2 cores so skip on Travis.
 				cv.3 <- cv.models(
 					call, seed = 1, folds = 2, n.cores = 3, n.trees = 10
@@ -127,9 +126,11 @@ test.same.seeds.produce.same.results.with.custer <- function(call, msg) {
 				expect_identical(
 					cv.1[[i]], cv.2[[i]], info = sprintf("Field: %s", i)
 				)
-				expect_identical(
-					cv.1[[i]], cv.3[[i]], info = sprintf("Field: %s", i)
-				)
+				if (!exceeds.core.limit(3)) {
+					expect_identical(
+						cv.1[[i]], cv.3[[i]], info = sprintf("Field: %s", i)
+					)
+				}
 			}
 		}
 	)
@@ -144,7 +145,7 @@ context("Test same seed produce same result with parameter grid with cluster")
 test_that(
 	"Test same seed produce same result with parameter grid.", {
 		run.cv.models <- function(n.cores) {
-			if (exceeds.travis.process.limitation(n.cores)) {
+			if (exceeds.core.limit(n.cores)) {
 				return()
 			}
 			cv <- cv.models(
