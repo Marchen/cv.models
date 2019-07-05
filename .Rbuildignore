@@ -6,3 +6,4 @@
 ^.travis\.yml$
 ^include\.r$
 ^install\.r$
+^\.travis\.yml$
