@@ -23,8 +23,8 @@ extract.fit.cv.best.models <- function(object, index = 1) {
 }
 
 #'	@export
-plot.cv.models <- function(object, index = 1, ...) {
-	fits <- extract.fit(object, index)
+plot.cv.models <- function(x, index = 1, ...) {
+	fits <- extract.fit(x, index)
 	plot(
 		fits$prediction, fits$response, xlab = "Prediction", ylab = "Reponse",
 		...
