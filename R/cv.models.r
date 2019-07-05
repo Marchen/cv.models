@@ -84,6 +84,8 @@ merge.grid.and.cv.results <- function(grid, cv.results) {
 #------------------------------------------------------------------------------
 #	Returns:
 #		list(response, prediction, original.row.index)
+#
+#'	@import model.adapter
 #------------------------------------------------------------------------------
 make.prediction <- function(predict.args, model, object, row.index) {
 	adapter <- model.adapter::model.adapter$new(model, envir = object$envir)
@@ -197,6 +199,8 @@ fit.cv.models <- function(object) {
 
 #------------------------------------------------------------------------------
 #	Create cv.models object from the arguments passed to cv.models function.
+#
+#'	@import model.adapter
 #------------------------------------------------------------------------------
 cv.models.object <- function(
 	call, folds, stratify, n.cores, seed, positive.class, package.name, envir,
@@ -324,6 +328,7 @@ cv.models.object <- function(
 #'		# to be continued...
 #'
 #'	@export
+#'	@import model.adapter
 #------------------------------------------------------------------------------
 cv.models <- function(
 	call, folds = 10, stratify = FALSE, n.cores = NULL, seed = NULL,
