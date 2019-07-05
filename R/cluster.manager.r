@@ -118,7 +118,11 @@ cluster.manager$methods(
 		"
 		type <- match.arg(type)
 		if (is.null(object$n.cores)) {
-			cores <- parallel::detectCores()
+			if (Sys.getenv("_R_CHECK_LIMIT_CORES_", "") == "TRUE") {
+				cores <- 1
+			} else {
+				cores <- parallel::detectCores()
+			}
 		} else {
 			cores <- as.integer(object$n.cores)
 		}
