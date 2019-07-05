@@ -86,7 +86,7 @@ merge.grid.and.cv.results <- function(grid, cv.results) {
 #		list(response, prediction, original.row.index)
 #------------------------------------------------------------------------------
 make.prediction <- function(predict.args, model, object, row.index) {
-	adapter <- model.adapter$new(model, envir = object$envir)
+	adapter <- model.adapter::model.adapter$new(model, envir = object$envir)
 	fit <- do.call(adapter$predict, predict.args)$fit
 	if (adapter$model.type == "regression") {
 		fit <- fit[, "fit"]
@@ -211,7 +211,7 @@ cv.models.object <- function(
 		aggregate.method = aggregate.method, grid = grid,
 		grid.predict = grid.predict, group = group,
 		cutpoint.options = cutpoint.options, predict.args = list(...),
-		adapter = model.adapter$new(call, envir, package.name),
+		adapter = model.adapter::model.adapter$new(call, envir, package.name),
 		cv.results = NULL
 	)
 	# Change number of folds when user defined group is specified.
@@ -335,7 +335,7 @@ cv.models <- function(
 	if (!is.language(call) & !is.symbol(substitute(call))) {
 		call <- substitute(call)
 	}
-	call <- model.adapter$new(call, envir, package.name)$call
+	call <- model.adapter::model.adapter$new(call, envir, package.name)$call
 	object <- cv.models.object(
 		call, folds, stratify, n.cores, seed, positive.class,
 		package.name, envir, aggregate.method, grid, grid.predict,

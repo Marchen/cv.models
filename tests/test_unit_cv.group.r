@@ -28,7 +28,7 @@ create.test.cv.models.object <- function(stratify) {
 	call <- substitute(randomForest(Species ~ ., data = iris2))
 	object <- list(
 		call = call, folds = 10, stratify = stratify,
-		adapter = model.adapter$new(call, environment(), NULL)
+		adapter = model.adapter::model.adapter$new(call, environment(), NULL)
 	)
 	class(object) <- "cv.models"
 	return(object)
@@ -127,7 +127,9 @@ test_that(
 		call <- substitute(randomForest(Petal.Length ~ ., data = iris))
 		object <- list(
 			call = call, folds = 10, stratify = TRUE,
-			adapter = model.adapter$new(call, environment(), NULL)
+			adapter = model.adapter::model.adapter$new(
+				call, environment(), NULL
+			)
 		)
 		class(object) <- "cv.models"
 		# regexp <- paste0(
@@ -147,7 +149,9 @@ test_that(
 		call <- substitute(randomForest(Species ~ ., data = iris2))
 		object <- list(
 			call = call, folds = 20, stratify = TRUE,
-			adapter = model.adapter$new(call, environment(), NULL)
+			adapter = model.adapter::model.adapter$new(
+				call, environment(), NULL
+			)
 		)
 		class(object) <- "cv.models"
 		# regexp <- paste0(
@@ -179,7 +183,9 @@ test_that(
 			call <- substitute(randomForest(Petal.Length ~ ., data = iris))
 			object <- list(
 				call = call, group = group,
-				adapter = model.adapter$new(call, environment(), NULL)
+				adapter = model.adapter::model.adapter$new(
+					call, environment(), NULL
+				)
 			)
 			class(object) <- "cv.models"
 			return(object)
