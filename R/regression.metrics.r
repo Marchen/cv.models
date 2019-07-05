@@ -30,6 +30,12 @@
 #				this
 #			}.
 #		}
+#		\item{Spearman's rho}{
+#			\code{cor(response, prediction, method = "spearman")}
+#		}
+#		\item{Kendall's tau}{
+#			\code{cor(response, prediction, method = "spearman")}
+#		}
 #		\item{Q squared, \eqn{Q^2}}{
 #			\eqn{
 #				1 - \sum((prediction - response) ^ 2)
@@ -96,6 +102,44 @@ regression.metrics.calculator$set(
 
 
 #------------------------------------------------------------------------------
+#	Calculate Spearman's rho.
+#
+#	Args:
+#		fit:
+#			a list having result of one fold of cross validation
+#			with "response", "prediction" and "index" fields.
+#------------------------------------------------------------------------------
+regression.metrics.calculator$set(
+	"private", "calc.spearman",
+	function(fit) {
+		if (is.factor(fit$response)) {
+			return(NA)
+		}
+		return(cor(fit$response, fit$prediction, method = "spearman"))
+	}
+)
+
+
+#------------------------------------------------------------------------------
+#	Calculate Kendall's tau.
+#
+#	Args:
+#		fit:
+#			a list having result of one fold of cross validation
+#			with "response", "prediction" and "index" fields.
+#------------------------------------------------------------------------------
+regression.metrics.calculator$set(
+	"private", "calc.kendall",
+	function(fit) {
+		if (is.factor(fit$response)) {
+			return(NA)
+		}
+		return(cor(fit$response, fit$prediction, method = "kendall"))
+	}
+)
+
+
+#------------------------------------------------------------------------------
 #	Calculate Q squared.
 #
 #	Args:
@@ -127,7 +171,9 @@ regression.metrics.calculator$set(
 #	Returns:
 #		calculated metrics in following format.
 #
-#			list(matrix(mse, rmse, r.squared, q.squared))
+#			list(
+#				matrix(mse, rmse, r.squared, spearman, kendall, q.squared)
+#			)
 #
 #		Because classification.metrics.calculator can returns metrics for
 #		different threshold determination method, the format of the result
@@ -140,6 +186,8 @@ regression.metrics.calculator$set(
 			mse = private$calc.mse(fit),
 			rmse = private$calc.rmse(fit),
 			r.squared = private$calc.r.squared(fit),
+			spearman = private$calc.spearman(fit),
+			kendall = private$calc.kendall(fit),
 			q.squared = private$calc.q.squared(fit)
 		)
 		# To have same result format with classification.metrics.calculator,
