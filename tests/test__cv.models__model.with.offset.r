@@ -48,6 +48,8 @@ test_that(
 		cors <- c("r.squared", "spearman", "kendall", "q.squared")
 		metrics.no.offset <- extract.metrics(cv.no.offset)
 		metrics.offset <- extract.metrics(cv.no.offset)
+		print(metrics.no.offset)
+		print(metrics.offset)
 		expect_true(all(metrics.no.offset[errors] >= metrics.offset[errors]))
 		expect_true(all(metrics.no.offset[cors] <= metrics.offset[cors]))
 	}
