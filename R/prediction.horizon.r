@@ -362,6 +362,8 @@ forecast.horizon <- function(
 		1:object$folds, calculate.distance.between.train.and.test,
 		data = data, cv.group = cv.group, distance.fun = distance.fun
 	)
-	plot(distance, metrics[, metric.name], ylab = ylab, xlab = xlab, ...)
+	graphics::plot(
+		distance, metrics[, metric.name], ylab = ylab, xlab = xlab, ...
+	)
 	invisible(cbind(data.frame(distance = distance), metrics))
 }
