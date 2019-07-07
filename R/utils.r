@@ -26,21 +26,3 @@ determine.positive.class <- function(object) {
 		"Response of the model should be integer, logical, factor or character."
 	)
 }
-
-calculate.model.index <- function(object, index) {
-	if (is.null(object$grid.predict)) {
-		return(1L)
-	}
-	n.grid.predict <- nrow(expand.grid(object$grid.predict))
-	model.index <- (index - 1) %/% n.grid.predict + 1
-	return(model.index)
-}
-
-calculate.predict.index <- function(object, index) {
-	if (is.null(object$grid.predict)) {
-		return(1L)
-	}
-	n.grid.predict <- nrow(expand.grid(object$grid.predict))
-	predict.index <- (index - 1) %% n.grid.predict + 1
-	return(predict.index)
-}
