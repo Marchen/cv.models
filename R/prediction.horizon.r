@@ -363,5 +363,5 @@ forecast.horizon <- function(
 		data = data, cv.group = cv.group, distance.fun = distance.fun
 	)
 	plot(distance, metrics[, metric.name], ylab = ylab, xlab = xlab, ...)
-	invisible(cbind(data.frame(distance=distance), metrics))
+	invisible(cbind(data.frame(distance = distance), metrics))
 }
