@@ -1,9 +1,3 @@
-rbind.cv.result <- function(...) {
-	result <- do.call(rbind, lapply(object$fits, as.data.frame))
-	rownames(result) <- NULL
-	return(result)
-}
-
 set.seed.if.possible <- function(object) {
 	if (!is.null(object$seed)) {
 		set.seed(object$seed)
