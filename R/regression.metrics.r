@@ -96,7 +96,7 @@ regression.metrics.calculator$set(
 		if (is.factor(fit$response)) {
 			return(NA)
 		}
-		return(cor(fit$response, fit$prediction) ^ 2)
+		return(stats::cor(fit$response, fit$prediction) ^ 2)
 	}
 )
 
@@ -115,7 +115,7 @@ regression.metrics.calculator$set(
 		if (is.factor(fit$response)) {
 			return(NA)
 		}
-		return(cor(fit$response, fit$prediction, method = "spearman"))
+		return(stats::cor(fit$response, fit$prediction, method = "spearman"))
 	}
 )
 
@@ -134,7 +134,7 @@ regression.metrics.calculator$set(
 		if (is.factor(fit$response)) {
 			return(NA)
 		}
-		return(cor(fit$response, fit$prediction, method = "kendall"))
+		return(stats::cor(fit$response, fit$prediction, method = "kendall"))
 	}
 )
 
