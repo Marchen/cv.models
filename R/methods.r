@@ -25,11 +25,11 @@ extract.fit.cv.best.models <- function(object, index = 1) {
 #'	@export
 plot.cv.models <- function(x, index = 1, ...) {
 	fits <- extract.fit(x, index)
-	plot(
+	graphics::plot(
 		fits$prediction, fits$response, xlab = "Prediction", ylab = "Reponse",
 		...
 	)
-	curve(x * 1, add = TRUE)
+	graphics::curve(x * 1, add = TRUE)
 }
 
 #'	@export
