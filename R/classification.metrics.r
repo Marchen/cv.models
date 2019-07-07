@@ -282,8 +282,8 @@ classification.metrics.calculator$set(
 		tn <- metrics[, "tn"]
 		fp <- metrics[, "fp"]
 		fn <- metrics[, "fn"]
-		denom <- sqrt((tp + fn) * (tp + fp) * (tn + fp) * (tn + fn))
-		mcc <- (tp * tn - fp * fn) / denom
+		denominator <- sqrt((tp + fn) * (tp + fp) * (tn + fp) * (tn + fn))
+		mcc <- (tp * tn - fp * fn) / denominator
 		return(mcc)
 	}
 )
