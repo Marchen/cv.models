@@ -262,7 +262,7 @@ vincenty.distance <- function(
 #------------------------------------------------------------------------------
 geographic.distance <- function(
 	x.name, y.name, ellipsoid = c("grs80", "wgs84", "bessel1841"),
-	method = c("vincenty"), threhsold = 1e-12, maxit = 10000
+	method = c("vincenty"), threshold = 1e-12, maxit = 10000
 ) {
 	ellipsoid <- match.arg(ellipsoid)
 	a <- ELLIPSOIDS[[ellipsoid]]$semi.major.axis.m
