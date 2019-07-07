@@ -24,7 +24,7 @@
 #'		an integer representing number of cores used for calculation.
 #'		This is automatically determined by settings of cross validation.
 #------------------------------------------------------------------------------
-cluster.manager <- setRefClass(
+cluster.manager <- methods::setRefClass(
 	"cluster.manager",
 	fields = list(
 		cl = "ANY",
