@@ -260,8 +260,8 @@ vincenty.distance <- function(
 #'	@param maxit
 #'		maximum number of iteration to try before convergence.
 #'
-#'	@details:
-#'		https://en.wikipedia.org/wiki/Vincenty%27s_formulae
+#'	@section Details:
+#'		\url{https://en.wikipedia.org/wiki/Vincenty's_formulae}.
 #'
 #'	@export
 #------------------------------------------------------------------------------

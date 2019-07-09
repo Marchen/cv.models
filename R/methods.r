@@ -27,7 +27,7 @@ extract.fit <- function(object, index = 1) {
 #-----------------------------------------------------------------------------
 #'	@export
 #'	@method extract.fit cv.models
-#	@describeIn extract. fitS3 method for \code{cv.models}.
+#'	@describeIn extract.fit S3 method for \code{cv.models}.
 #-----------------------------------------------------------------------------
 extract.fit.cv.models <- function(object, index = 1) {
 	fits <- lapply(object$cv.results[[index]]$fits, as.data.frame)
@@ -38,7 +38,7 @@ extract.fit.cv.models <- function(object, index = 1) {
 #-----------------------------------------------------------------------------
 #'	@export
 #'	@method extract.fit cv.result
-#	@describeIn extract.fit S3 method for \code{cv.result}.
+#'	@describeIn extract.fit S3 method for \code{cv.result}.
 #-----------------------------------------------------------------------------
 extract.fit.cv.result <- function(object, index = 1) {
 	dfs <- lapply(object$fits, as.data.frame)
