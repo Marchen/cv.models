@@ -1,28 +1,75 @@
+#-----------------------------------------------------------------------------
+#'	Extract predicted values
+#'
+#'	Extract predicted values from a \code{cv.models}, \code{cv.result} or
+#'	\code{cv.best.models} object.
+#'
+#'	@param object
+#'	an object of \code{cv.models}, \code{cv.result} or \code{cv.best.models}.
+#'
+#'	@param index
+#'	an integer specifying index of model to extract.
+#'	If the \code{object} is \code{cv.models}, index in the models created by
+#'	hyper-parameter tuning.
+#'	If the \code{object} is \code{cv.best.models}, index in the models having
+#'	same performance measure.
+#'	Ignored if the \code{object} is \code{cv.result}.
+#'
+#'	@return a data.frame having original response variable ("response"),
+#'	predicted values ("prediction"), and index in the original data ("index").
+#'
 #'	@export
+#-----------------------------------------------------------------------------
 extract.fit <- function(object, index = 1) {
 	UseMethod("extract.fit")
 }
 
+#-----------------------------------------------------------------------------
 #'	@export
+#'	@method extract.fit cv.models
+#	@describeIn extract. fitS3 method for \code{cv.models}.
+#-----------------------------------------------------------------------------
 extract.fit.cv.models <- function(object, index = 1) {
 	fits <- lapply(object$cv.results[[index]]$fits, as.data.frame)
 	fits <- do.call(rbind, fits)
 	return(fits)
 }
 
+#-----------------------------------------------------------------------------
 #'	@export
+#'	@method extract.fit cv.models
+#	@describeIn extract.fit S3 method for \code{cv.result}.
+#-----------------------------------------------------------------------------
 extract.fit.cv.result <- function(object, index = 1) {
 	dfs <- lapply(object$fits, as.data.frame)
 	result <- do.call(rbind, dfs)
 	return(result)
 }
 
+#-----------------------------------------------------------------------------
 #'	@export
+#'	@method extract.fit cv.models
+#'	@describeIn extract.fit S3 method for \code{cv.best.models}.
+#-----------------------------------------------------------------------------
 extract.fit.cv.best.models <- function(object, index = 1) {
 	return(extract.fit(object[[index]]))
 }
 
+
+#-----------------------------------------------------------------------------
+#'	Plot predicted and actual values.
+#'
+#'	Draw scatter plot for predicted and actual values.
+#'
+#'	@param x
+#'	a \code{cv.models} or \code{cv.best.models} object.
+#'
+#'	@param index
+#'	an integer specifying index of the model.
+#'	For the detail, see \code{index} argument of \code{\link{extract.fit}}.
+#'
 #'	@export
+#-----------------------------------------------------------------------------
 plot.cv.models <- function(x, index = 1, ...) {
 	fits <- extract.fit(x, index)
 	graphics::plot(
@@ -32,6 +79,15 @@ plot.cv.models <- function(x, index = 1, ...) {
 	graphics::curve(x * 1, add = TRUE)
 }
 
+
+#------------------------------------------------------------------------------
+#'	Extract performance measures
+#'
+#'	@param object
+#'	a \code{cv.models} object.
+#'
+#'	@return data.frame having all performance measures.
+#'
 #'	@export
 #------------------------------------------------------------------------------
 extract.metrics <- function(object) {
@@ -41,7 +97,13 @@ extract.metrics <- function(object) {
 	return(result)
 }
 
+
+#------------------------------------------------------------------------------
+#'	print method
+#'	@param x a \code{cv.result} object.
+#'	@param ... currently not used.
 #'	@export
+#------------------------------------------------------------------------------
 print.cv.result <- function(x, ...) {
 	cat("Result of cross validation\n")
 	cat(sprintf("Function name: %s\n", x$function.name))
@@ -50,8 +112,12 @@ print.cv.result <- function(x, ...) {
 	cat("\n")
 }
 
-
+#------------------------------------------------------------------------------
+#'	print method
+#'	@param x a \code{cv.best.models} object.
+#'	@param ... currently not used.
 #'	@export
+#------------------------------------------------------------------------------
 print.cv.best.models <- function(x, ...) {
 	hr <- "------------------------------------------------"
 	if (length(x) > 1) {
@@ -70,7 +136,10 @@ print.cv.best.models <- function(x, ...) {
 	}
 }
 
+#------------------------------------------------------------------------------
 #'	print method for \emph{cv.models} class.
+#'	@param x a \code{cv.best.models} object.
+#'	@param ... currently not used.
 #'	@describeIn cv.models print method for cv.models.
 #'	@export
 #------------------------------------------------------------------------------

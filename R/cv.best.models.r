@@ -16,7 +16,6 @@
 #'	@param metrics
 #'		a matrics of model performance metrics.
 #-------------------------------------------------------------------------------
-#-------------------------------------------------------------------------------
 find.best.metrics.index <- function(metrics) {
 	minimize <- c("mse", "rmse", "fn", "fp")
 	for (i in colnames(metrics)) {
@@ -31,8 +30,8 @@ find.best.metrics.index <- function(metrics) {
 #-------------------------------------------------------------------------------
 #'	Extract a Model from cv.models Object
 #'
-#'	This function extract a model from \code{\link{cv.models}} object and make
-#'	a \code{\link{cv.best.model}} object.
+#'	Extract a model from \code{\link{cv.models}} object and make
+#'	a \code{cv.result} object.
 #'
 #'	@export
 #-------------------------------------------------------------------------------
