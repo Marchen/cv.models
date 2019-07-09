@@ -4,6 +4,5 @@
 ^\.Rproj\.user$
 .*\.sh
 ^.travis\.yml$
-^include\.r$
 ^install\.r$
 ^\.travis\.yml$
