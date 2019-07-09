@@ -6,7 +6,7 @@ Author: Michio Oguro <mog@ffpri.affrc.go.jp>
 Maintainer: Michio Oguro <mog@ffpri.affrc.go.jp>
 URL: https://github.com/Marchen/cv.models
 Description:
-    Model selection and hyper-parameter tuning by cross validation
+    Model selection and hyper-parameter tuning by cross validation.
 License: MIT + file LICENSE
 Depends:
     R (>= 3.0.0)
