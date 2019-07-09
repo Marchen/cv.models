@@ -143,7 +143,6 @@ print.cv.best.models <- function(x, ...) {
 #'	print method for \emph{cv.models} class.
 #'	@param x a \code{cv.best.models} object.
 #'	@param ... currently not used.
-#'	@describeIn cv.models print method for cv.models.
 #'	@export
 #------------------------------------------------------------------------------
 print.cv.models <- function(x, ...) {

@@ -65,7 +65,7 @@
 #'			\subsection{Args}{
 #'				\describe{
 #'					\item{\code{object}}{
-#'						an object of \code{\link{cv.models-class}}.
+#'						an object of \code{cv.models}.
 #'					}
 #'					\item{\code{type = c('cv', 'grid')}}{
 #'						type of calculation.
