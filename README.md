@@ -1,5 +1,7 @@
 # cv.models: Model selection and hyper-parameter tuning by cross validation
 
+[![Build Status](https://travis-ci.com/Marchen/cv.models.svg?branch=master)](https://travis-ci.com/Marchen/cv.models)
+
 This package provides simple interface for cross validation and hyper-parameter selection for several models.
 
 To install the package, please copy&paste following code into your R terminal.
