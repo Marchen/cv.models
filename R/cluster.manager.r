@@ -23,50 +23,85 @@
 #'	@field n.cores
 #'		an integer representing number of cores used for calculation.
 #'		This is automatically determined by settings of cross validation.
+#'
+#'	@section Public methods
+#'
+#'		\strong{\code{lapply(X, FUN, ...)}}
+#'		
+#'			Parallel/One-by-one Version of \code{lapply}.
+#'			
+#'		\strong{\code{finalize(...)}}
+#'		
+#'			Stop cluster.
+#'
+#'	@section Private methods
+#'
+#'		\strong{\code{initialize(object = NULL, type = c("cv", "grid"), ...)}}
+#'
+#'			Generate a new object.
+#'
+#'			\subsection{Args}{
+#'				\describe{
+#'					\item{\code{object = NULL}}{
+#'						an object of \code{\link{cv.models}}.
+#'					}
+#'					\item{\code{type = c('cv', 'grid')}}{
+#'						character representing type of parallel processing.
+#'						\code{'cv'} denotes parallel processing for cross
+#'						validation and \code{'grid'} denotes parallel
+#'						processing for grid search of meta-parameters.
+#'					}
+#'				}
+#'			}
+#'			
+#'		\strong{\code{export.functions()}}
+#'		
+#'			Export required functions to the cluster.
+#'
+#'		\strong{\code{detect.cores(object, type = c("cv", "grid"))}}
+#'
+#'			Determine number of cores used for the \\code{lapply} method.
+#'
+#'			\subsection{Args}{
+#'				\describe{
+#'					\item{\code{object}}{
+#'						an object of \code{\link{cv.models-class}}.
+#'					}
+#'					\item{\code{type = c('cv', 'grid')}}{
+#'						type of calculation.
+#'					}
+#'				}
+#'			}
 #------------------------------------------------------------------------------
-cluster.manager <- methods::setRefClass(
+cluster.manager.class <- R6::R6Class(
 	"cluster.manager",
-	fields = list(
-		cl = "ANY",
-		n.cores = "integer"
+	private = list(
+		cl = NULL,
+		n.cores = NULL
 	)
 )
 
 
 #------------------------------------------------------------------------------
-cluster.manager$methods(
-	initialize = function(object = NULL, type = c("cv", "grid"), ...) {
-		"
-		Initialize Manager
-
-		\\describe{
-			\\item{\\code{object = NULL}}{
-				an object of \\code{\\link{cv.models-class}}.
-			}
-			\\item{\\code{type = c('cv', 'grid')}}{
-				character representing type of parallel processing.
-				\\code{'cv'} denotes parallel processing for cross validation
-				and \\code{'grid'} denotes parallel processing for grid
-				search of meta-parameters.
-			}
-		}
-		"
-		.self$n.cores <- .self$detect.cores(object, type)
-		if (.self$n.cores > 1) {
+cluster.manager.class$set(
+	"public", "initialize",
+	function(object = NULL, type = c("cv", "grid"), ...) {
+		private$n.cores <- private$detect.cores(object, type)
+		if (private$n.cores > 1) {
 			# Initialize cluster
-			.self$cl <- parallel::makeCluster(.self$n.cores)
-			.self$export.functions()
+			private$cl <- parallel::makeCluster(private$n.cores)
+			private$export.functions()
 			parallel::clusterExport(
-				.self$cl, ls(envir = object$envir), envir = object$envir
+				private$cl, ls(envir = object$envir), envir = object$envir
 			)
-			parallel::clusterEvalQ(.self$cl, library(model.adapter))
-			parallel::clusterEvalQ(.self$cl, library(cv.models))
+			parallel::clusterEvalQ(private$cl, library(model.adapter))
+			parallel::clusterEvalQ(private$cl, library(cv.models))
 			parallel::clusterCall(
-				.self$cl, library, object$adapter$package.name,
+				private$cl, library, object$adapter$package.name,
 				character.only = TRUE
 			)
 		} else {
-			.self$cl <- NULL
+			private$cl <- NULL
 			library(object$adapter$package.name, character.only = TRUE)
 		}
 	}
@@ -74,48 +109,33 @@ cluster.manager$methods(
 
 
 #------------------------------------------------------------------------------
-cluster.manager$methods(
-	finalize = function(...) {
-		"
-		Stops Cluster
-		"
-		if (!is.null(.self$cl)) {
-			parallel::stopCluster(.self$cl)
-			.self$cl <- NULL
+cluster.manager.class$set(
+	"public", "finalize",
+	function(...) {
+		if (!is.null(private$cl)) {
+			parallel::stopCluster(private$cl)
+			private$cl <- NULL
 		}
 	}
 )
 
 
 #------------------------------------------------------------------------------
-cluster.manager$methods(
-	export.functions = function() {
-		"
-		Export required functions to the cluster.
-		"
+cluster.manager.class$set(
+	"private", "export.functions",
+	function() {
 		object.names <- c("apply.grid", "make.prediction")
 		parallel::clusterExport(
-			.self$cl, object.names, loadNamespace("cv.models")
+			private$cl, object.names, loadNamespace("cv.models")
 		)
 	}
 )
 
 
 #------------------------------------------------------------------------------
-cluster.manager$methods(
-	detect.cores = function(object, type = c("cv", "grid")) {
-		"
-		Determine Number of Cores Used for the \\code{lapply} Method
-
-		\\describe{
-			\\item{\\code{object}}{
-				an object of \\code{\\link{cv.models-class}}.
-			}
-			\\item{\\code{type = c('cv', 'grid')}}{
-				type of calculation.
-			}
-		}
-		"
+cluster.manager.class$set(
+	"private", "detect.cores",
+	function(object, type = c("cv", "grid")) {
 		type <- match.arg(type)
 		if (is.null(object$n.cores)) {
 			if (Sys.getenv("_R_CHECK_LIMIT_CORES_", "") == "TRUE") {
@@ -143,15 +163,17 @@ cluster.manager$methods(
 
 
 #------------------------------------------------------------------------------
-cluster.manager$methods(
-	lapply = function(X, FUN, ...) {
-		"
-		Parallel/One-by-one Version of \\code{lapply}
-		"
-		if (.self$n.cores > 1) {
-			return(parallel::parLapply(.self$cl, X, FUN, ...))
+cluster.manager.class$set(
+	"public", "lapply",
+	function(X, FUN, ...) {
+		if (private$n.cores > 1) {
+			return(parallel::parLapply(private$cl, X, FUN, ...))
 		} else {
 			return(base::lapply(X, FUN, ...))
 		}
 	}
 )
+
+
+#------------------------------------------------------------------------------
+cluster.manager <- cluster.manager.class$new
