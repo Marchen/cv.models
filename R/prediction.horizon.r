@@ -338,7 +338,9 @@ calculate.distance.between.train.and.test <- function(
 #'	@param ...
 #'		graphical parameters passed to plot function.
 #'
-#'	@returns
+#'	@return
+#'	a data.frame having distance between training data and corresponding
+#'	performance measure.
 #'
 #'	@export
 #------------------------------------------------------------------------------
