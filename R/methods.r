@@ -37,7 +37,7 @@ extract.fit.cv.models <- function(object, index = 1) {
 
 #-----------------------------------------------------------------------------
 #'	@export
-#'	@method extract.fit cv.models
+#'	@method extract.fit cv.result
 #	@describeIn extract.fit S3 method for \code{cv.result}.
 #-----------------------------------------------------------------------------
 extract.fit.cv.result <- function(object, index = 1) {
