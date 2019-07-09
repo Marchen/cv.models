@@ -68,6 +68,9 @@ extract.fit.cv.best.models <- function(object, index = 1) {
 #'	an integer specifying index of the model.
 #'	For the detail, see \code{index} argument of \code{\link{extract.fit}}.
 #'
+#'	@param ...
+#'	other arguments passed to plot.
+#'
 #'	@export
 #-----------------------------------------------------------------------------
 plot.cv.models <- function(x, index = 1, ...) {

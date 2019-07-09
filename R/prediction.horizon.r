@@ -254,6 +254,11 @@ vincenty.distance <- function(
 #'		the method used for calculation of distance.
 #'		Currently, only the method using the Vincenty's formulae is
 #'		implimented.
+#'	@param threshold
+#'		threshold difference to determine convergence.
+#'		The value of 1e-12 produces precision of 0.06mm.
+#'	@param maxit
+#'		maximum number of iteration to try before convergence.
 #'
 #'	@details:
 #'		https://en.wikipedia.org/wiki/Vincenty%27s_formulae

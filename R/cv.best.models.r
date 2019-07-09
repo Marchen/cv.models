@@ -30,9 +30,12 @@ find.best.metrics.index <- function(metrics) {
 #-------------------------------------------------------------------------------
 #'	Extract a Model from cv.models Object
 #'
-#'	Extract a model from \code{\link{cv.models}} object and make
-#'	a \code{cv.result} object.
+#'	Extract a model from \code{\link{cv.models}} object having multiple models
+#'	created by hyper-parameter selection.
 #'
+#'	@param object a \code{cv.models} object.
+#'	@param index model index.
+#'	@param criteria reserved, but currently not used.
 #'	@export
 #-------------------------------------------------------------------------------
 extract.result <- function(object, index, criteria = NULL) {
@@ -53,7 +56,20 @@ extract.result <- function(object, index, criteria = NULL) {
 }
 
 
+#-------------------------------------------------------------------------------
+#'	Find best performing model(s)
+#'
+#'	Find model(s) with best performance.
+#'	The result can have multiple models if there are ties.
+#'
+#'	@param object
+#'	a \code{cv.models} object.
+#'
+#'	@param criteria
+#'	names of performance measures by which best model(s) are determined.
+#'
 #'	@export
+#-------------------------------------------------------------------------------
 find.best.models <- function(object, criteria) {
 	if (missing(criteria)) {
 		criteria <- ifelse(

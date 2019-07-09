@@ -317,12 +317,12 @@ cv.models.object <- function(
 #'			}
 #'		}
 #'		If the rule above can't determine the positive class, the function
-#'		produces error.\cr\cr
+#'		produces error.
+#'
 #'		to be continued...
 #'
 #'	@seealso
-#'		For the detailed introduction of the function, see vignettes (
-#'		\link[=../doc/cv.models.j.html]{Japanese}.
+#'		For the detailed introduction of the function, see vignettes.
 #'
 #'	@examples
 #'		# to be continued...
