@@ -2,7 +2,6 @@
 ^doc$
 ^.*\.Rproj$
 ^\.Rproj\.user$
-.*\.sh
 ^.travis\.yml$
 ^install\.r$
 ^\.travis\.yml$
