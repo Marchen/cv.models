@@ -1,6 +1,6 @@
 Package: cv.models
-Version: 0.1.3.9000
-Date: 2018-11-10
+Version: 0.1.4
+Date: 2019-07-09
 Title: Model Selection and Hyper-Parameter Tuning by Cross Validation
 Author: Michio Oguro <mog@ffpri.affrc.go.jp>
 Maintainer: Michio Oguro <mog@ffpri.affrc.go.jp>

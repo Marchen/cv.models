@@ -1,3 +1,9 @@
+# 2019-07-09: 0.1.4
+
+- Add Spearman's rho and Kendall's tau as performance measures for regression models.
+- Start CI with Travis-CI.
+- Bug fixes.
+
 # 2018-11-10: 0.1.3
 
 - Add `group` argument which controls user defined grouping for cross validation.
