@@ -1,5 +1,6 @@
 library(cv.models)
 library(testthat)
+library(gbm)
 
 #-----------------------------------------------------------------------------
 #	Create test data.
@@ -29,26 +30,76 @@ create.test.data <- function() {
 #	Test the model with offset (more correct model) can have
 #	higher performance than the model without offset.
 #-----------------------------------------------------------------------------
-test_that(
-	paste(
-		"Test the model with offset having higher performance than the model",
-		"without offset."
-	), {
-		# Run cv.models.
-		d <- create.test.data()
-		cv.no.offset <- cv.models(glm(y.pois ~ x, family = poisson, data = d))
-		cv.offset <- cv.models(
-			glm(y.pois ~ x + offset(log(offset)), family = poisson,	data = d),
+test.offset <- function(call.with.offset, call.without.offset, ...) {
+	test_that(
+		paste(
+			"Test the model with offset having higher performance than the",
+			"model without offset."
+		), {
+			# Run cv.models.
+			cv.no.offset <- cv.models(call.without.offset, ...)
+			cv.offset <- cv.models(call.with.offset, ...)
+			# Check results.
+			errors <- c(
+				"mse", "rmse", "sd.mse", "sd.rmse", "sd.r.squared",
+				"sd.spearman", "sd.kendall", "sd.q.squared"
+			)
+			cors <- c("r.squared", "spearman", "kendall", "q.squared")
+			metrics.no.offset <- extract.metrics(cv.no.offset)
+			metrics.offset <- extract.metrics(cv.no.offset)
+			expect_true(
+				all(metrics.no.offset[errors] >= metrics.offset[errors])
+			)
+			expect_true(
+				all(metrics.no.offset[cors] <= metrics.offset[cors])
+			)
+		}
+	)
+}
+
+#-----------------------------------------------------------------------------
+#	Test runner.
+#
+#	Currently, glm and gbm were tested.
+#-----------------------------------------------------------------------------
+run.test <- function() {
+	d <- create.test.data()
+	test.data <- list(
+		glm = list(
+			offset = substitute(
+				glm(
+					y.pois ~ x + offset(log(offset)), family = poisson,
+					data = d
+				)
+			),
+			no.offset = substitute(
+				glm(y.pois ~ x, family = poisson, data = d)
+			)
+		),
+		gbm = list(
+			offset = substitute(
+				gbm(
+					y.pois ~ x + offset(log(offset)), n.cores = 1,
+					distribution = "poisson", n.trees = 100, data = d
+				)
+			),
+			no.offset = substitute(
+				gbm(
+					y.pois ~ x, distribution = "poisson", n.trees = 100,
+					data = d, n.cores = 1
+				)
+			)
 		)
-		# Check results.
-		errors <- c(
-			"mse", "rmse", "sd.mse", "sd.rmse", "sd.r.squared", "sd.spearman",
-			"sd.kendall", "sd.q.squared"
-		)
-		cors <- c("r.squared", "spearman", "kendall", "q.squared")
-		metrics.no.offset <- extract.metrics(cv.no.offset)
-		metrics.offset <- extract.metrics(cv.no.offset)
-		expect_true(all(metrics.no.offset[errors] >= metrics.offset[errors]))
-		expect_true(all(metrics.no.offset[cors] <= metrics.offset[cors]))
+	)
+	for (i in names(test.data)) {
+		if (i == "gbm") {
+			test.offset(
+				test.data[[i]]$offset, test.data[[i]]$no.offset, n.trees = 100
+			)
+		} else {
+			test.offset(test.data[[i]]$offset, test.data[[i]]$no.offset)
+		}
 	}
-)
+}
+
+run.test()
