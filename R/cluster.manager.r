@@ -24,7 +24,7 @@
 #'		an integer representing number of cores used for calculation.
 #'		This is automatically determined by settings of cross validation.
 #'
-#'	@section Public methods
+#'	@section Public methods:
 #'
 #'		\strong{\code{lapply(X, FUN, ...)}}
 #'
@@ -34,7 +34,7 @@
 #'
 #'			Stop cluster.
 #'
-#'	@section Private methods
+#'	@section Private methods:
 #'
 #'		\strong{\code{initialize(object = NULL, type = c("cv", "grid"), ...)}}
 #'
