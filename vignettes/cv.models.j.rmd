@@ -96,6 +96,8 @@ print(cv)
 **Mean squared error (MSE)**      |"mse"      |$MSE = mean((prediction - response) ^ 2)$
 **Root mean squared error (RMSE)**|"rmse"     |$RMSE = sqrt(mean((prediction - response) ^ 2))$
 **R二乗**                         |"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$<br>参考のために計算していますが、相関係数の２乗は切片と傾きが再調整されるので使用をおすすめしません。予測値と実測値をプロットした点が、y = xの線上に乗るのが理想的なモデルですが、例えば予測値と実測値をプロットした点がy = -2x + 1の線に完全に乗っている場合でも（つまり予測がぜんぜんダメでも）相関係数の２乗は１になります。
+**Spearmanのρ**                  |"spearman" |$\rho = cor(prediction, response, method = "spearman")$
+**Kendallのτ**                   |"kendall"  |$\tau = cor(prediction, response, method = "kendall")$
 **Q二乗**                         |"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, <br>Consonni et al. (2009)を参照。<br>現在のバージョンではデータの平均（$mean(response)$）にデフォルトでは各foldの平均値を、`aggregate.method = "join"`（後述）を使ったときにはデータ全体の平均を使っています。一貫性がないので次のバージョンあたりで整理する予定です。
 
 ### 識別モデル
@@ -175,7 +177,8 @@ print(cv)
 ## Class Stratificationを使う
 
 応答変数のクラスごとのサンプル数に偏りがある場合、foldの分割をランダムに行うと、あるクラスのサンプルが全てのfoldに含まれないことがあります。
-このような場合、Class Stratification（応答変数の各クラスが各foldに均等に含まれるようにデータを分割する分割方法）を使うと、問題が解決する場合があります。  
+このような場合、Class Stratification（応答変数の各クラスが各foldに均等に含まれるようにデータを分割する分割方法）を使うと、問題が解決する場合があります。
+
 Class Stratificationを使うには`cv.models`の引数で`stratify = TRUE`を指定します。
 
 ```{R, class_stratification}
@@ -536,6 +539,39 @@ call.glm <- substitute(
 cv <- cv.models(call.glm)
 ```
 
+## オフセット項のあるモデル
+
+一部のモデルの`predict`メソッドははオフセット項があるときに予測値を正しく計算しませんが、`cv.models`は以下の条件に当てはまるときにはオフセット項を補正した予測値を使って計算を行います。
+
+* モデルが回帰モデル。
+* オフセット項は１つ。
+* オフセット項が`formula = y ~ x + offset(param)`もしくは`offset = param`形式で指定されている。`formula = y ~ x + offset(data$param)`や`offset = data$param`は非対応。
+* 予測値をresponseスケールで計算。（そういう状況があるのかわかりませんが）linkスケールでは補正が行われません。
+* モデルがglmmMLとrangerではない（以下参照）。
+
+モデルがリンク関数を用いる場合、`cv.models`は以下の例のようにオフセットに使われるデータがresponseスケール、オフセットの指定がlinkスケールであることを仮定します。
+**事前に変換済みのデータを用いた場合には補正がうまく行かないのでご注意下さい（変換済みであることを検出できないので、警告メッセージを表示できません）。**
+
+```{R}
+cv <- cv.models(
+    glm(Petal.Length ~ Sepal.Width + offset(log(Petal.Width)), data = iris)
+)
+```
+
+### `ranger::ranger`
+
+`ranger::ranger`の`predict`メソッドはオフセット項の補正を行うのか行わないのかよくわかりません。
+このため、現在`cv.models`ではrangerモデルのオフセットを補正していません。
+
+### `glmmML::glmmML`
+
+`glmmML`パッケージの`glmmML`関数は`predict`メソッドを持ちません。
+このため、`cv.models`は自前で`predict`メソッドを実装してありますが、オフセット項の補正方法がわからないため、このメソッドは現在オフセット項の補正に対応していません。
+
+## ランダム効果のあるモデル
+
+`cv.models`はランダム効果のあるモデルはランダム効果を無視した予測値（population-level prediction）を用いて、予測性能を計算しています。
+
 # 既知の問題
 
 * **オブジェクトの構造がよくわからない**
@@ -549,10 +585,11 @@ cv <- cv.models(call.glm)
 
 * **AUCがいつも0.5以上になる**
 
-    <s>対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
+    ~~対象のモデルがランダムより当てはまりが悪い場合、つまり、あり/なしに対して反対の予測をする可能性が高い場合、pROC::coordsはデフォルトであり/なしを入れ替えて計算を行うので、AUCは0.5以下にはならず、MCCも0以下にはなりません。
     多くの文献がAUCは0.5～1の間に収まると仮定しているので、これをどう扱うのが正しいのか、まだ自分の中で結論が出ていません。
     ということで、とりあえず対応は保留してあります。
-    近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。</s>  
+    近い将来pROCパッケージををOptimalCutpointsパッケージに入れ替えようと思っているので、その頃にまた考えます。~~
+
     OptimalCutpointsパッケージで同様の問題が起こるのかはわかりません。
     何かわかった方は教えてください。
 
@@ -577,6 +614,10 @@ cv <- cv.models(call.glm)
 
 # 更新履歴
 
+* 2019-07-09: 0.1.4
+  * 回帰モデルの性能指標にSpearman's ρとKendall's τを追加。
+  * Travis-CIによる継続的インテグレーションの開始。
+  * バグ修正。
 * 2018-11-10: 0.1.3
   * `group`引数によるユーザー定義グループによるクロスバリデーションのサポート。
 * 2018-09-14: 0.1.2

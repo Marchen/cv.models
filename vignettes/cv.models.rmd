@@ -99,6 +99,8 @@ Name of metrics                   |Column     |Definition/Explanation
 **Mean squared error (MSE)**      |"mse"      |$MSE = mean((prediction - response) ^ 2)$
 **Root mean squared error (RMSE)**|"rmse"     |$RMSE = sqrt(mean((prediction - response) ^ 2))$
 **R squared**                     |"r.squared"|$R ^ 2 = cor(prediction, response) ^ 2$<br>**This is calculated only for referencing purpose.** I don't recommend this metrics because adjustment of intercept and slope is done during calculation. For example, idel models produce prediction on a line y = x when plotting actual and predicted values. However, when plotted points of actual and predicted values are completely on a line of y = -2x + 1 (in other words, completely wrong prediction model), value of R squared become 1.
+**Spearman's ρ**                  |"spearman" |$\rho = cor(prediction, response, method = "spearman")$
+**Kendall's τ**                   |"kendall"  |$\tau = cor(prediction, response, method = "kendall")$
 **Q squared**                     |"q.squared"|$Q ^ 2 = 1 - \sum((prediction - response) ^ 2) / \sum((response - mean(response)) ^ 2)$, <br>See Consonni et al. (2009).<br>Currently, mean values of each fold were used for mean of data ($mean(response)$) by default. On the other hand, mean value of all data is used when `aggregate.method = "join"` (see below) is specified. I will consider to find better default for improving consistency.
 
 ### Classification models
@@ -178,7 +180,8 @@ In this situation, SD of each metrics become NA.
 ## Use Class Stratification
 
 When class imbalance exists in the response variable, random dividing of dataset into folds can create fold(s) without observation with specific class and can disrupt cross validation.
-Class stratification (a method to divide dataset into folds with keeping frequency of classes) can help this situation.  
+Class stratification (a method to divide dataset into folds with keeping frequency of classes) can help this situation.
+
 To use class stratification, specify `stratify = TRUE` in `cv.models`.
 
 ```{R, class_stratification}
@@ -538,6 +541,37 @@ call.glm <- substitute(
 cv <- cv.models(call.glm)
 ```
 
+## Modelw with `offset` terms
+
+`predict` methods of some models don't adjust offset terms. Therefore, `cv.models` adjusts effect of offset terms if:
+
+* The model is a regression model.
+* The model has only one offset term.
+* The offset was pecified in the format of `formula = y ~ x + offset(param)` or `offset = param`, rather than `formula = y ~ x + offset(data$param)` or `offset = data$param`.
+* The prediction are calculated in response scale.
+* The model is not `glmmML` and `ranger`
+
+When adjusting offset for models with link function, `cv.models` assumes that offset values in the `data` is response scale and transformed in the model call as follows.
+**When pre-transformed data is specified for offset term, the adjustment doesn't work correctly. Note that because `cv.models` can't know transformation of data, it can't produce warning or error messages.**
+
+```{R}
+cv <- cv.models(
+    glm(Petal.Length ~ Sepal.Width + offset(log(Petal.Width)), data = iris)
+)
+```
+
+### `ranger::ranger`
+
+It's not clear whether `predict` method of `ranger::ranger` adjusts offset terms or not. Therefore, currently `cv.models` doesn't adjust offset terms for `ranger` models.
+
+### `glmmML::glmmML`
+
+`glmmML` function in `glmmML` package doesn't provide `predict` method therefore `cv.models` implemented `predict` method for it. However, because the way of offset adjustment for `glmmML` is not clear, curent version of `cv.models` doesn't adjust offset terms for `glmmML`.
+
+## Models with random effect
+
+Currently, `cv.models` use population-level prediction (i.e., prediction ignoring random effect) for performance evaluation.
+
 # Known issues
 
 * **To many kinds of complicated objects**
@@ -552,7 +586,8 @@ cv <- cv.models(call.glm)
 
 * **Always AUC become more than 0.5**
 
-    <s>When the model is worse than random prediction, i.e., if it produce reversed prediction, pROC::coords switches positive and negative class when calculating AUC.</s>  
+    ~~When the model is worse than random prediction, i.e., if it produce reversed prediction, pROC::coords switches positive and negative class when calculating AUC.~~
+
     I'm not sure for the way of AUC calculation in OptimalCutpoints package.
 
 * **Definition of MSE**
@@ -576,6 +611,10 @@ cv <- cv.models(call.glm)
 
 # Version history
 
+* 2019-07-09: 0.1.4
+  * Add Spearman's rho and Kendall's tau as performance measures for regression models.
+  * Start continuous integration with Travis-CI.
+  * Minor bug fixes.
 * 2018-11-10: 0.1.3
   * Add `group` argument which supply user defined grouping for `cv.models`.
 * 2018-09-14: 0.1.2
