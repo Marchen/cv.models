@@ -27,11 +27,11 @@
 #'	@section Public methods
 #'
 #'		\strong{\code{lapply(X, FUN, ...)}}
-#'		
+#'
 #'			Parallel/One-by-one Version of \code{lapply}.
-#'			
+#'
 #'		\strong{\code{finalize(...)}}
-#'		
+#'
 #'			Stop cluster.
 #'
 #'	@section Private methods
@@ -53,9 +53,9 @@
 #'					}
 #'				}
 #'			}
-#'			
+#'
 #'		\strong{\code{export.functions()}}
-#'		
+#'
 #'			Export required functions to the cluster.
 #'
 #'		\strong{\code{detect.cores(object, type = c("cv", "grid"))}}
