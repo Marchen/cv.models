@@ -4,14 +4,7 @@
 
 This package provides simple interface for cross validation and hyper-parameter selection for several models.
 
-To install the package, please copy & paste following code into your R terminal if you have `devtools` package.
-
-```{R}
-devtools::install_github("marchen/model.adapter@*release")
-devtools::install_github("marchen/cv.models@*release")
-```
-
-If not, use following code.
+To install the package, please copy & paste following code into your R console.
 
 ```{R}
 install.packages(
