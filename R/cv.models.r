@@ -291,9 +291,12 @@ cv.models.object <- function(
 #'		methods are calculated.
 #'	@param ...
 #'		parameters passed to the predict method of the model.
+#'		This is used for models like \code{\link[gbm]{gbm}}.
 #'
 #'	@details
-#'		The positive class is determined in the order of following rule.\cr
+#'		The positive class of a classification model is determined in the
+#'		order of following rule.
+#'
 #'		\enumerate{
 #'			\item{
 #'				If the response variable is numeric, 1 is used for the
@@ -319,13 +322,22 @@ cv.models.object <- function(
 #'		If the rule above can't determine the positive class, the function
 #'		produces error.
 #'
-#'		to be continued...
-#'
 #'	@seealso
-#'		For the detailed introduction of the function, see vignettes.
+#'		For the detailed introduction for the function, see vignettes
+#'		(\code{vignette("cv.models")} for English and
+#'		\code{vignette("cv.models.j")} for Japanese).
 #'
 #'	@examples
-#'		# to be continued...
+#'		# Test model performance for a regression model.
+#'		cv <- cv.models(glm(Petal.Length ~ ., data = iris))
+#'		print(cv)
+#'		
+#'		# Test model performance for a classification model.
+#'		require(randomForest)
+#'		cv <- cv.models(
+#'			randomForest(Species ~ ., data = iris), positive.class = "virginica"
+#'		)
+#'		print(cv)
 #'
 #'	@export
 #'	@import model.adapter

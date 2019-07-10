@@ -98,9 +98,6 @@
 #'				\item{fits}{a list having fits field of cv.models.}
 #'			}
 #'		}
-#'
-#'	@name cv.metrics.calculator-class
-#'
 #------------------------------------------------------------------------------
 cv.metrics.calculator <- R6::R6Class("cv.metrics.calculator")
 

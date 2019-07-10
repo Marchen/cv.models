@@ -57,7 +57,7 @@ extract.fit.cv.best.models <- function(object, index = 1) {
 
 
 #-----------------------------------------------------------------------------
-#'	Plot predicted and actual values.
+#'	Plot predicted and actual values
 #'
 #'	Draw scatter plot for predicted and actual values.
 #'
@@ -88,9 +88,7 @@ plot.cv.models <- function(x, index = 1, ...) {
 #'
 #'	@param object
 #'	a \code{cv.models} object.
-#'
 #'	@return data.frame having all performance measures.
-#'
 #'	@export
 #------------------------------------------------------------------------------
 extract.metrics <- function(object) {
@@ -103,9 +101,30 @@ extract.metrics <- function(object) {
 
 #------------------------------------------------------------------------------
 #'	print method
-#'	@param x a \code{cv.result} object.
+#'	
+#'	@param x
+#'	a \code{cv.result}, \code{cv.best.models} or \code{cv.best.models} object.
 #'	@param ... currently not used.
-#'	@export
+#'	
+#'	@name print
+#------------------------------------------------------------------------------
+NULL
+
+#------------------------------------------------------------------------------
+#'	@method print cv.models.
+#'	@describeIn print S3 method for class 'cv.models'
+#------------------------------------------------------------------------------
+print.cv.models <- function(x, ...) {
+	cat("Result of cross validation\n")
+	cat(sprintf("Function name: %s\n", x$function.name))
+	cat("Cross validation metrics:\n")
+	print(extract.metrics(x))
+	cat("\n")
+}
+
+#------------------------------------------------------------------------------
+#'	@method print cv.result
+#'	@describeIn print S3 method for class 'cv.result'
 #------------------------------------------------------------------------------
 print.cv.result <- function(x, ...) {
 	cat("Result of cross validation\n")
@@ -116,10 +135,8 @@ print.cv.result <- function(x, ...) {
 }
 
 #------------------------------------------------------------------------------
-#'	print method
-#'	@param x a \code{cv.best.models} object.
-#'	@param ... currently not used.
-#'	@export
+#'	@method print cv.best.models
+#'	@describeIn print S3 method for class 'cv.best.models'
 #------------------------------------------------------------------------------
 print.cv.best.models <- function(x, ...) {
 	hr <- "------------------------------------------------"
@@ -138,18 +155,3 @@ print.cv.best.models <- function(x, ...) {
 		print(x[[i]])
 	}
 }
-
-#------------------------------------------------------------------------------
-#'	print method for \emph{cv.models} class.
-#'	@param x a \code{cv.best.models} object.
-#'	@param ... currently not used.
-#'	@export
-#------------------------------------------------------------------------------
-print.cv.models <- function(x, ...) {
-	cat("Result of cross validation\n")
-	cat(sprintf("Function name: %s\n", x$function.name))
-	cat("Cross validation metrics:\n")
-	print(extract.metrics(x))
-	cat("\n")
-}
-
