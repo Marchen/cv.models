@@ -111,7 +111,7 @@ extract.metrics <- function(object) {
 NULL
 
 #------------------------------------------------------------------------------
-#'	@method print cv.models.
+#'	@method print cv.models
 #'	@describeIn print S3 method for class 'cv.models'
 #------------------------------------------------------------------------------
 print.cv.models <- function(x, ...) {
