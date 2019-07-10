@@ -20,6 +20,7 @@ Imports:
 Suggests:
     randomForest,
     party,
+    ranger,
     gbm,
     e1071,
     lme4,
