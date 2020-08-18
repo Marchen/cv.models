@@ -113,6 +113,7 @@ NULL
 #------------------------------------------------------------------------------
 #'	@method print cv.models
 #'	@describeIn print S3 method for class 'cv.models'
+#'	@export
 #------------------------------------------------------------------------------
 print.cv.models <- function(x, ...) {
 	cat("Result of cross validation\n")
@@ -125,6 +126,7 @@ print.cv.models <- function(x, ...) {
 #------------------------------------------------------------------------------
 #'	@method print cv.result
 #'	@describeIn print S3 method for class 'cv.result'
+#'	@export
 #------------------------------------------------------------------------------
 print.cv.result <- function(x, ...) {
 	cat("Result of cross validation\n")
@@ -137,6 +139,7 @@ print.cv.result <- function(x, ...) {
 #------------------------------------------------------------------------------
 #'	@method print cv.best.models
 #'	@describeIn print S3 method for class 'cv.best.models'
+#'	@export
 #------------------------------------------------------------------------------
 print.cv.best.models <- function(x, ...) {
 	hr <- "------------------------------------------------"
